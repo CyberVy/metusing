@@ -1,0 +1,33 @@
+{
+  "plugins": [
+    "react",
+    "typescript"
+  ],
+  "jsPlugins": [
+    "./oxlint.rules.mjs"
+  ],
+  "ignorePatterns": [
+    "node_modules",
+    ".next",
+    "out",
+    "build",
+    "public/sw.js",
+    "src-tauri/src/inject.js",
+    "draft",
+    "cli/dist"
+  ],
+  "rules": {
+    "no-eval": "off",
+    "no-alert": "warn",
+    "no-unused-vars": "off",
+    "react-hooks/exhaustive-deps": "off",
+    "react/set-state-in-effect": "off",
+    "local/jsx-text-indent": "warn",
+    "local/no-emojis": "warn",
+    "local/no-inline-svgs": "warn",
+    "local/layering-restrictions": "warn",
+    "local/naming-conventions": "warn",
+    "local/no-sync-set-state-in-effect": "warn",
+    "react-hooks/rules-of-hooks": "error"
+  }
+}
