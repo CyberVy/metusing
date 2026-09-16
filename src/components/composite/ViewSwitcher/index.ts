@@ -14,3 +14,4 @@ export type {
     SetToolbarVisibleOptions,
     ViewSwitcherRegistryState
 } from "./ViewSwitcherController"
+export { useViewSwitcher, useViewSwitcherRegistry } from "./useViewSwitcher"

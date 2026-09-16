@@ -255,31 +255,16 @@ export function useViewSwipeGesture<T extends string>({
     })
 
     const reset_transition = useCallback(() => {
-        set_transition_state((prev) => {
-            if (prev.status === "idle") return prev
-            for (const el of Object.values(view_elements_ref.current)) {
-                if (el) {
-                    el.style.transform = ""
-                    el.style.transition = ""
-                }
-            }
-            return { status: "idle" }
-        })
-    }, [])
+        if (transition_state.status !== "idle") {
+            set_transition_state({ status: "idle" })
+        }
+    }, [transition_state.status])
 
     const handle_transition_end = useCallback((e?: TransitionEvent) => {
         if (e && e.target !== e.currentTarget) return
-        set_transition_state((prev) => {
-            if (prev.status === "idle") return prev
-            for (const el of Object.values(view_elements_ref.current)) {
-                if (el) {
-                    el.style.transform = ""
-                    el.style.transition = ""
-                }
-            }
-            return { status: "idle" }
-        })
-    }, [])
+        if (transition_state.status === "idle") return
+        set_transition_state({ status: "idle" })
+    }, [transition_state])
 
     // Safety fallback: ensure transition recovers to idle even if browser drops transitionend event
     useEffect(() => {
@@ -410,10 +395,7 @@ export function useViewSwipeGesture<T extends string>({
                 if (Math.abs(current_translation_x - release.translation_x) < 1) {
                     for (const view_id of [current_transition.active_view_id, prev_view_id || undefined, next_view_id || undefined]) {
                         const element = view_id === undefined ? null : view_elements_ref.current[view_id]
-                        if (element) {
-                            element.style.transform = ""
-                            element.style.transition = ""
-                        }
+                        if (element) element.style.transform = ""
                     }
 
                     set_transition_state({ status: "idle" })
