@@ -32,7 +32,7 @@ export function LyricsList() {
 
     if (status === "loading") {
         return (
-            <div className="flex-1 min-h-75 flex items-center justify-center p-8 text-center text-sm text-white/40">
+            <div className="flex-1 min-h-75 flex items-center justify-center p-8 text-center text-sm text-black/40 dark:text-white/40">
                 Loading audio and lyrics...
             </div>
         )
@@ -40,7 +40,7 @@ export function LyricsList() {
 
     if (lyrics.length === 0) {
         return (
-            <div className="flex-1 min-h-75 flex items-center justify-center p-8 text-center text-sm text-white/40">
+            <div className="flex-1 min-h-75 flex items-center justify-center p-8 text-center text-sm text-black/40 dark:text-white/40">
                 {status === "ready"
                     ? "No synchronized lyrics provided for this track"
                     : "Load the demo track or upload local files to begin"}
@@ -61,8 +61,8 @@ export function LyricsList() {
                         ref={is_active ? active_line_ref : null}
                         className={`text-center transition-all duration-300 max-w-lg ${
                             is_active
-                                ? "text-xl font-bold text-white scale-105"
-                                : "text-base text-white/30 hover:text-white/60"
+                                ? "text-xl font-bold text-black dark:text-white scale-105"
+                                : "text-base text-black/30 dark:text-white/30 hover:text-black/60 dark:hover:text-white/60"
                         }`}
                     >
                         {line.text}
@@ -82,8 +82,8 @@ export function LyricsView() {
             </section>
 
             {/* Synchronized Lyrics Container */}
-            <section className="bg-zinc-900/40 border border-white/10 rounded-xl overflow-hidden flex flex-col">
-                <div className="px-4 py-2.5 border-b border-white/5 text-xs font-medium text-white/40 uppercase tracking-wider">
+            <section className="bg-zinc-100/80 dark:bg-zinc-900/40 border border-black/10 dark:border-white/10 rounded-xl overflow-hidden flex flex-col">
+                <div className="px-4 py-2.5 border-b border-black/5 dark:border-white/5 text-xs font-medium text-black/40 dark:text-white/40 uppercase tracking-wider">
                     Synchronized Lyrics
                 </div>
                 <LyricsList />

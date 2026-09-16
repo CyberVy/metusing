@@ -23,7 +23,7 @@ function LaunchAnimation({ className, on_finish }: LaunchAnimationProps){
     }, [])
     return (
         <div
-            className={join_classes("fixed inset-0 z-50 bg-background overflow-hidden select-none", className)}
+            className={join_classes("fixed inset-0 z-50 bg-white dark:bg-black overflow-hidden select-none", className)}
         >
             <div className={`w-full h-full flex flex-col justify-center items-center`}>
                 <AnimationContainer
