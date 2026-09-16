@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, ReactNode, RefObject, useCallback } from 'react'
 import type { FC, ComponentPropsWithRef } from "react"
-import { is_element_hidden } from "@/components/utils"
+import { is_element_hidden, schedule_animation_frame } from "@/components/utils"
 
 export type KeepLoadedMargin = {
     top?: number
@@ -46,8 +46,10 @@ const LazyContainer: FC<LazyContainerProps> = ({
     // Store the exact dimensions before the element unmounts
     const [dimensions, set_dimensions] = useState<{ width: number; height: number } | null>(null)
   
-    // Use a ref to access the latest loaded state inside the observer callback
-    const hasLoaded_ref = useRef<boolean>(false)
+    // Use refs to access the latest state inside observer and resize callbacks
+    const has_loaded_ref = useRef<boolean>(false)
+    const intersection_observer_ref = useRef<IntersectionObserver | null>(null)
+    const should_remeasure_ref = useRef(false)
 
     const element_ref = useRef<HTMLDivElement>(null)
     const set_element_ref = useCallback((element: HTMLDivElement | null) => {
@@ -77,11 +79,11 @@ const LazyContainer: FC<LazyContainerProps> = ({
                     // The element enters the viewport
                     set_is_visible(true)
                     set_has_loaded_once(true)
-                    hasLoaded_ref.current = true
+                    has_loaded_ref.current = true
                 }
                 else {
                     // The element leaves the viewport
-                    if (hasLoaded_ref.current && element_ref.current){
+                    if (has_loaded_ref.current && element_ref.current){
                         // If the element (or its parent) has display: none, skip unmounting to prevent layout collapse.
                         // We use the optimized, reflow-free is_element_hidden implementation here.
                         if (is_element_hidden(element_ref.current)){
@@ -165,14 +167,17 @@ const LazyContainer: FC<LazyContainerProps> = ({
             }
         )
 
-        const currentRef = element_ref.current
-        if (currentRef){
-            observer.observe(currentRef)
+        intersection_observer_ref.current = observer
+
+        const current_ref = element_ref.current
+        if (current_ref){
+            observer.observe(current_ref)
         }
 
         return () => {
-            if (currentRef){
-                observer.unobserve(currentRef)
+            observer.disconnect()
+            if (intersection_observer_ref.current === observer){
+                intersection_observer_ref.current = null
             }
         }
     }, [
@@ -184,6 +189,47 @@ const LazyContainer: FC<LazyContainerProps> = ({
         keep_loaded_left,
         keep_loaded_right
     ])
+
+    useEffect(() => {
+        let cancel_resize_animation_frame = () => {}
+
+        const handle_resize = () => {
+            if (!has_loaded_ref.current){
+                return
+            }
+
+            cancel_resize_animation_frame()
+            cancel_resize_animation_frame = schedule_animation_frame(() => {
+                should_remeasure_ref.current = true
+                set_dimensions(null)
+                set_is_visible(true)
+            })
+        }
+
+        window.addEventListener("resize", handle_resize)
+
+        return () => {
+            window.removeEventListener("resize", handle_resize)
+            cancel_resize_animation_frame()
+        }
+    }, [])
+
+    // Re-observe after remounting the children so an off-screen element is measured again.
+    useEffect(() => {
+        if (!should_remeasure_ref.current || !is_visible){
+            return
+        }
+
+        const current_ref = element_ref.current
+        const observer = intersection_observer_ref.current
+        if (!current_ref || !observer){
+            return
+        }
+
+        should_remeasure_ref.current = false
+        observer.unobserve(current_ref)
+        observer.observe(current_ref)
+    }, [is_visible, dimensions])
 
     // If the element is out of the viewport but was loaded before, 
     // lock its container size to prevent scrollbar layout shifts.
