@@ -2,9 +2,9 @@
 
 import { useState, useEffect, useLayoutEffect, useCallback, useId, useRef } from "react"
 import type { ComponentPropsWithRef, ReactNode } from "react"
-import { useController } from "@/components/hooks"
 import { join_classes } from "@/components/utils"
 import { view_switcher_controller } from "./ViewSwitcherController"
+import { useViewSwitcher } from "./useViewSwitcher"
 import { ViewSwitcherToolbar } from "./ViewSwitcherToolbar"
 import { useViewSwipeGesture, compute_view_render_config, is_in_overscroll, evaluate_toolbar_visibility } from "./useViewSwipeGesture"
 
@@ -169,30 +169,12 @@ export function ViewSwitcher<T extends string = string>({
         const is_visible = evaluate_toolbar_visibility(should_hide_toolbar, target_scroll_y)
         view_switcher_controller.set_toolbar_visible(switcher_instance_id, is_visible)
 
-        const raf_id = requestAnimationFrame(() => {
-            is_switching_view_ref.current = false
-        })
-        return () => cancelAnimationFrame(raf_id)
+        is_switching_view_ref.current = false
     }, [current_active_view_id, active_view_remember_scroll, is_transitioning, should_hide_toolbar, switcher_instance_id])
 
-    // Controller integration: selectively subscribe to avoid unnecessary rerenders during internal transition syncing
-    const is_toolbar_visible = useController(view_switcher_controller, {
-        events: "change",
-        selector: useCallback(
-            (state) => state.instances[switcher_instance_id]?.is_toolbar_visible ?? (state.global_hide_count === 0),
-            [switcher_instance_id]
-        ),
-        server_snapshot: true,
-    })
+    // Controller integration
+    const { is_toolbar_visible, has_other_transitioning } = useViewSwitcher(switcher_instance_id)
 
-    const has_other_transitioning = useController(view_switcher_controller, {
-        events: "change",
-        selector: useCallback(
-            (state) => state.instances[switcher_instance_id]?.has_other_transitioning ?? false,
-            [switcher_instance_id]
-        ),
-        server_snapshot: false,
-    })
 
     const switch_view = useCallback((target_view_id: string) => {
         const target = views.find((v) => v.id === target_view_id)
@@ -222,7 +204,7 @@ export function ViewSwitcher<T extends string = string>({
             active_view_id: current_active_view_id,
             target_view_id,
         })
-    }, [switcher_instance_id, is_transitioning, current_active_view_id, target_view_id])
+    }, [switcher_instance_id, transition_state, current_active_view_id, is_transitioning, target_view_id])
 
 
     // React to event-driven "switch_view" CustomEvent from controller
