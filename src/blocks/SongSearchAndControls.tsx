@@ -12,6 +12,8 @@ import {
     RefreshCwIcon
 } from "./icons"
 
+const AUDIO_FILE_ACCEPT = ".mp3,.wav,.m4a,.aac,.aiff"
+
 function format_seconds(secs: number): string {
     if (isNaN(secs) || secs < 0) return "00:00"
     const m = Math.floor(secs / 60)
@@ -107,7 +109,7 @@ export function SongSearchAndControls() {
                             <input
                                 ref={inst_input_ref}
                                 type="file"
-                                accept="audio/*"
+                                accept={AUDIO_FILE_ACCEPT}
                                 className="hidden"
                                 onChange={(e) => set_inst_file(e.target.files?.[0] || null)}
                             />
@@ -137,7 +139,7 @@ export function SongSearchAndControls() {
                             <input
                                 ref={vocal_input_ref}
                                 type="file"
-                                accept="audio/*"
+                                accept={AUDIO_FILE_ACCEPT}
                                 className="hidden"
                                 onChange={(e) => set_vocal_file(e.target.files?.[0] || null)}
                             />
