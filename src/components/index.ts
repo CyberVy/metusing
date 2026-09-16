@@ -71,7 +71,7 @@ export type { UseControllerOptions } from "./hooks"
 export { SearchIcon } from "./icons"
 
 // ViewSwitcher.tsx
-export { ViewSwitcher, view_switcher_controller, ViewSwitcherController, useViewSwitcher, useViewSwitcherRegistry } from "./composite/ViewSwitcher"
+export { ViewSwitcher, view_switcher_controller, ViewSwitcherController } from "./composite/ViewSwitcher"
 export type {
     View,
     ViewSwitcherProps,

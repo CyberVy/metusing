@@ -50,8 +50,6 @@ export class ViewSwitcherController extends BaseController<ViewSwitcherRegistryS
 
     private raw_instances: Record<string, ViewSwitcherInitState> = {}
     private instance_counts: Record<string, number> = {}
-    private pending_visibilities: Record<string, boolean> = {}
-    private fallback_states: Record<string, ViewSwitcherState> = {}
 
     public register(
         id: string,
@@ -60,23 +58,13 @@ export class ViewSwitcherController extends BaseController<ViewSwitcherRegistryS
         this.instance_counts[id] = (this.instance_counts[id] ?? 0) + 1
 
         const existing_raw = this.raw_instances[id]
-        const raw_state: ViewSwitcherInitState = existing_raw
-            ? {
-                id: initial_state.id,
-                is_transitioning: initial_state.is_transitioning,
-                active_view_id: initial_state.active_view_id,
-                target_view_id: initial_state.target_view_id,
-                is_toolbar_visible: existing_raw.is_toolbar_visible,
-            }
-            : {
-                id: initial_state.id,
-                is_toolbar_visible: initial_state.is_toolbar_visible,
-                is_transitioning: initial_state.is_transitioning,
-                active_view_id: initial_state.active_view_id,
-                target_view_id: initial_state.target_view_id,
-            }
-
-        this.raw_instances[id] = raw_state
+        this.raw_instances[id] = {
+            id: initial_state.id,
+            is_toolbar_visible: existing_raw ? existing_raw.is_toolbar_visible : initial_state.is_toolbar_visible,
+            is_transitioning: initial_state.is_transitioning,
+            active_view_id: initial_state.active_view_id,
+            target_view_id: initial_state.target_view_id,
+        }
         this.recompute_state()
 
         return () => {
@@ -84,8 +72,6 @@ export class ViewSwitcherController extends BaseController<ViewSwitcherRegistryS
             if (count <= 0) {
                 delete this.instance_counts[id]
                 delete this.raw_instances[id]
-                delete this.pending_visibilities[id]
-                delete this.fallback_states[id]
             } else {
                 this.instance_counts[id] = count
             }
@@ -120,29 +106,12 @@ export class ViewSwitcherController extends BaseController<ViewSwitcherRegistryS
 
         if (!changed) return
 
-        if (updates.is_transitioning === false && id in this.pending_visibilities) {
-            const pending = this.pending_visibilities[id]
-            delete this.pending_visibilities[id]
-            if (pending !== undefined && next_raw.is_toolbar_visible !== pending) {
-                next_raw.is_toolbar_visible = pending
-            }
-        }
-
         this.raw_instances[id] = next_raw
         this.recompute_state()
     }
 
-
-    public set_toolbar_visible(id: string, visible: boolean, options?: SetToolbarVisibleOptions): void {
+    public set_toolbar_visible(id: string, visible: boolean, _options?: SetToolbarVisibleOptions): void {
         const current_raw = this.raw_instances[id]
-        const wait_until_stable = options?.wait_until_stable ?? false
-
-        if (wait_until_stable && current_raw?.is_transitioning) {
-            this.pending_visibilities[id] = visible
-            return
-        }
-
-        delete this.pending_visibilities[id]
 
         if (current_raw) {
             if (current_raw.is_toolbar_visible !== visible) {
@@ -173,13 +142,11 @@ export class ViewSwitcherController extends BaseController<ViewSwitcherRegistryS
     }
 
     public hide_all_toolbars(): void {
-        const next_hide_count = this.state.global_hide_count + 1
-        this.recompute_state(next_hide_count)
+        this.recompute_state(this.state.global_hide_count + 1)
     }
 
     public show_all_toolbars(): void {
-        const next_hide_count = Math.max(0, this.state.global_hide_count - 1)
-        this.recompute_state(next_hide_count)
+        this.recompute_state(Math.max(0, this.state.global_hide_count - 1))
     }
 
     public switch_view(view_id: string, switcher_id?: string): boolean {
@@ -206,30 +173,7 @@ export class ViewSwitcherController extends BaseController<ViewSwitcherRegistryS
     }
 
     public get_state(id: string): ViewSwitcherState {
-        const found = this.state.instances[id]
-        if (found) return found
-
-        const is_toolbar_visible = this.state.global_hide_count === 0
-        const has_other_transitioning = this.state.has_any_transitioning
-        const cached_fallback = this.fallback_states[id]
-        if (
-            cached_fallback &&
-            cached_fallback.is_toolbar_visible === is_toolbar_visible &&
-            cached_fallback.has_other_transitioning === has_other_transitioning
-        ) {
-            return cached_fallback
-        }
-
-        const new_fallback: ViewSwitcherState = {
-            id,
-            is_toolbar_visible,
-            is_transitioning: false,
-            has_other_transitioning,
-            active_view_id: "",
-            target_view_id: null
-        }
-        this.fallback_states[id] = new_fallback
-        return new_fallback
+        return this.state.instances[id] ?? STATIC_EMPTY_VIEW_SWITCHER_STATE
     }
 
     public has_any_transitioning(exclude_id?: string): boolean {
@@ -254,12 +198,6 @@ export class ViewSwitcherController extends BaseController<ViewSwitcherRegistryS
         let any_instance_changed = false
         const next_instances: Record<string, ViewSwitcherState> = {}
 
-        const raw_keys = Object.keys(this.raw_instances)
-        const current_keys = Object.keys(current_instances)
-        if (raw_keys.length !== current_keys.length) {
-            any_instance_changed = true
-        }
-
         let transitioning_count = 0
         for (const raw of Object.values(this.raw_instances)) {
             if (raw.is_transitioning) {
@@ -268,7 +206,12 @@ export class ViewSwitcherController extends BaseController<ViewSwitcherRegistryS
         }
         const has_any_trans = transitioning_count > 0
 
-        for (const [id, raw] of Object.entries(this.raw_instances)) {
+        const raw_entries = Object.entries(this.raw_instances)
+        if (raw_entries.length !== Object.keys(current_instances).length) {
+            any_instance_changed = true
+        }
+
+        for (const [id, raw] of raw_entries) {
             const effective_toolbar = is_globally_hidden ? false : raw.is_toolbar_visible
             const has_other_trans = raw.is_transitioning
                 ? transitioning_count > 1
