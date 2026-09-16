@@ -1,10 +1,10 @@
 import {
     GpuSeparator,
-    load_htdemucs_chain,
+    load_manifest,
+    fetch_piece_with_cache,
     decode_audio_to_stereo,
     audio_channels_to_wav_blob,
     FP16_CPU_NODES,
-    type ModelChain,
     type SeparatedStems,
     type StemChannels
 } from "../demucs"
@@ -28,6 +28,8 @@ export interface SeparationSnapshot {
     total_segments: number
     rtf: number | null
     elapsed_seconds: number
+    gentle_mode: boolean
+    separation_mode: "karaoke" | "all_stems"
     audio_file_name: string | null
     error_message: string | null
     stems: {
@@ -43,6 +45,8 @@ export class SeparationController extends EventTarget {
     private status: SeparationSnapshot["status"] = "idle"
     private webgpu_supported: boolean | null = null
     private webgpu_error: string | null = null
+    private gentle_mode = true
+    private separation_mode: "karaoke" | "all_stems" = "karaoke"
     private model_loaded = false
     private model_progress = 0
     private model_status_text = ""
@@ -54,8 +58,6 @@ export class SeparationController extends EventTarget {
     private audio_file_name: string | null = null
     private error_message: string | null = null
     private stems: SeparationSnapshot["stems"] = null
-
-    private model_chain: ModelChain | null = null
     private separator: GpuSeparator | null = null
     private active_object_urls: string[] = []
     private is_cancelled = false
@@ -75,6 +77,8 @@ export class SeparationController extends EventTarget {
                 total_segments: this.total_segments,
                 rtf: this.rtf,
                 elapsed_seconds: this.elapsed_seconds,
+                gentle_mode: this.gentle_mode,
+                separation_mode: this.separation_mode,
                 audio_file_name: this.audio_file_name,
                 error_message: this.error_message,
                 stems: this.stems
@@ -150,29 +154,13 @@ export class SeparationController extends EventTarget {
         this.notify_change()
 
         try {
-            if (!this.model_chain) {
-                this.model_chain = await load_htdemucs_chain((progress) => {
-                    this.model_progress = progress.percent
-                    if (progress.phase === "manifest") {
-                        this.model_status_text = "Loading manifest..."
-                    } else if (progress.phase === "downloading") {
-                        this.model_status_text = `Downloading weights ${progress.loaded_pieces + 1}/${progress.total_pieces}...`
-                    } else if (progress.phase === "ready") {
-                        this.model_status_text = "Weights downloaded"
-                    }
-                    this.notify_change()
-                })
-            }
-
-            this.status = "initializing"
-            this.model_status_text = "Compiling WebGPU shaders & initializing pipeline..."
-            this.notify_change()
+            const manifest = await load_manifest()
 
             const separator = new GpuSeparator({
                 session_options: {
                     executionProviders: [{ name: "webgpu", forceCpuNodeNames: FP16_CPU_NODES }]
                 },
-                gentle: false,
+                gentle: this.gentle_mode,
                 on_progress: (info) => {
                     this.separation_progress = Math.round(info.progress * 100)
                     this.current_segment = info.current_segment
@@ -182,7 +170,17 @@ export class SeparationController extends EventTarget {
                 should_cancel: () => this.is_cancelled
             })
 
-            await separator.init_chain(this.model_chain)
+            await separator.init_chain_streaming(
+                manifest,
+                fetch_piece_with_cache,
+                (current, total, file) => {
+                    this.status = "initializing"
+                    this.model_progress = Math.round((current / total) * 100)
+                    this.model_status_text = `Compiling WebGPU pipeline ${current}/${total} (${file})...`
+                    this.notify_change()
+                }
+            )
+
             this.separator = separator
             this.model_loaded = true
             this.status = "idle"
@@ -230,7 +228,13 @@ export class SeparationController extends EventTarget {
 
             // Decode audio
             const audio = await decode_audio_to_stereo(data)
-            const raw_stems: SeparatedStems = await this.separator.separate(audio.left, audio.right)
+            const raw_stems: SeparatedStems = await this.separator.separate(audio.left, audio.right, {
+                mode: this.separation_mode === "karaoke" ? "karaoke" : "all"
+            })
+
+            // Free input waveform early to minimize memory footprint
+            audio.left = new Float32Array(0)
+            audio.right = new Float32Array(0)
 
             const elapsed_ms = performance.now() - t0
             const elapsed_sec = elapsed_ms / 1000
@@ -248,9 +252,9 @@ export class SeparationController extends EventTarget {
             this.stems = {
                 vocals: stem_to_data(raw_stems.vocals),
                 instrumental: raw_stems.instrumental ? stem_to_data(raw_stems.instrumental) : undefined,
-                drums: stem_to_data(raw_stems.drums),
-                bass: stem_to_data(raw_stems.bass),
-                other: stem_to_data(raw_stems.other)
+                drums: raw_stems.drums ? stem_to_data(raw_stems.drums) : undefined,
+                bass: raw_stems.bass ? stem_to_data(raw_stems.bass) : undefined,
+                other: raw_stems.other ? stem_to_data(raw_stems.other) : undefined
             }
 
             this.status = "ready"
@@ -271,6 +275,26 @@ export class SeparationController extends EventTarget {
     public cancel(): void {
         this.is_cancelled = true
         this.status = "idle"
+        this.notify_change()
+    }
+
+    public toggle_gentle_mode(): void {
+        this.gentle_mode = !this.gentle_mode
+        this.notify_change()
+    }
+
+    public set_gentle_mode(enabled: boolean): void {
+        this.gentle_mode = enabled
+        this.notify_change()
+    }
+
+    public toggle_separation_mode(): void {
+        this.separation_mode = this.separation_mode === "karaoke" ? "all_stems" : "karaoke"
+        this.notify_change()
+    }
+
+    public set_separation_mode(mode: "karaoke" | "all_stems"): void {
+        this.separation_mode = mode
         this.notify_change()
     }
 

@@ -1,5 +1,3 @@
-import type { ModelChain } from "./gpu_separator"
-
 const HF_BASE_URL = "https://huggingface.co/monteslu/htdemucs-web-onnx/resolve/main"
 const CACHE_NAME = "demucs-web-models-v1"
 
@@ -37,14 +35,15 @@ export interface SplitManifest {
 }
 
 export interface ModelLoadProgress {
-    phase: "manifest" | "downloading" | "cached" | "ready"
+    phase: "manifest" | "downloading" | "initializing" | "ready"
     loaded_pieces: number
     total_pieces: number
     percent: number
     current_file?: string
 }
 
-async function fetch_with_cache(url: string): Promise<ArrayBuffer> {
+export async function fetch_piece_with_cache(file_name: string): Promise<ArrayBuffer> {
+    const url = `${HF_BASE_URL}/${file_name}`
     if (typeof caches !== "undefined") {
         try {
             const cache = await caches.open(CACHE_NAME)
@@ -54,7 +53,6 @@ async function fetch_with_cache(url: string): Promise<ArrayBuffer> {
             }
             const res = await fetch(url)
             if (!res.ok) throw new Error(`HTTP ${res.status} fetching ${url}`)
-            // Clone before consuming arrayBuffer
             await cache.put(url, res.clone())
             return await res.arrayBuffer()
         } catch {
@@ -66,53 +64,8 @@ async function fetch_with_cache(url: string): Promise<ArrayBuffer> {
     return await res.arrayBuffer()
 }
 
-export async function load_htdemucs_chain(
-    on_progress?: (progress: ModelLoadProgress) => void
-): Promise<ModelChain> {
-    on_progress?.({
-        phase: "manifest",
-        loaded_pieces: 0,
-        total_pieces: 21,
-        percent: 0,
-        current_file: "htdemucs_split_manifest.json"
-    })
-
-    const manifest_url = `${HF_BASE_URL}/htdemucs_split_manifest.json`
-    const manifest_buf = await fetch_with_cache(manifest_url)
+export async function load_manifest(): Promise<SplitManifest> {
+    const manifest_buf = await fetch_piece_with_cache("htdemucs_split_manifest.json")
     const manifest_text = new TextDecoder().decode(manifest_buf)
-    const manifest: SplitManifest = JSON.parse(manifest_text)
-
-    const total_pieces = manifest.pieces.length
-    const buffers: ArrayBuffer[] = new Array(total_pieces)
-
-    for (let i = 0; i < total_pieces; i++) {
-        const piece = manifest.pieces[i]
-        const piece_url = `${HF_BASE_URL}/${piece.file}`
-
-        on_progress?.({
-            phase: "downloading",
-            loaded_pieces: i,
-            total_pieces,
-            percent: Math.round((i / total_pieces) * 100),
-            current_file: piece.file
-        })
-
-        buffers[i] = await fetch_with_cache(piece_url)
-    }
-
-    on_progress?.({
-        phase: "ready",
-        loaded_pieces: total_pieces,
-        total_pieces,
-        percent: 100
-    })
-
-    return {
-        pieces: manifest.pieces.map((p, i) => ({
-            buf: buffers[i],
-            inputs: p.inputs,
-            outputs: p.outputs
-        })),
-        outputs: manifest.outputs
-    }
+    return JSON.parse(manifest_text) as SplitManifest
 }
