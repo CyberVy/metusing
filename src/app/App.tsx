@@ -1,6 +1,6 @@
 import { ViewSwitcher } from "@/components"
 import type { View } from "@/components"
-import { PitchView, LyricsView, MusicIcon, MicIcon } from "@/blocks"
+import { PitchView, LyricsView, SeparationView, MusicIcon, MicIcon, LayersIcon } from "@/blocks"
 
 export default function App() {
     const views: View[] = [
@@ -24,6 +24,17 @@ export default function App() {
                 </span>
             ),
             content: <LyricsView />,
+            keep_alive: true
+        },
+        {
+            id: "stems",
+            label: (
+                <span className="flex items-center gap-1.5">
+                    <LayersIcon className="w-3.5 h-3.5" />
+                    <span>Stems</span>
+                </span>
+            ),
+            content: <SeparationView />,
             keep_alive: true
         }
     ]
