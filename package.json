@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "localforage": "^1.10.0",
+    "onnxruntime-web": "^1.30.0",
     "react": "19.2.1",
     "react-dom": "19.2.1"
   },
@@ -27,6 +28,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@vitejs/plugin-react": "^6.1.1",
+    "@webgpu/types": "^0.1.72",
     "babel-plugin-react-compiler": "^1.0.0",
     "concurrently": "^10.0.3",
     "esbuild": "^0.27.0",
