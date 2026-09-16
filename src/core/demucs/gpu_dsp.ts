@@ -196,19 +196,15 @@ fn main(@builtin(global_invocation_id) gid: vec3u) {
 
 const COMBINE_WGSL = `
 struct CombineParams {
-  start: u32,
   copyLen: u32,
   segmentLength: u32,
   timeBase: u32,
-  addWeights: u32,
-  totalSamples: u32,
-  _a: u32, _b: u32,
+  outBase: u32,
 }
 @group(0) @binding(0) var<storage, read> timeData: array<f32>;
 @group(0) @binding(1) var<storage, read> istftTime: array<f32>;
-@group(0) @binding(2) var<storage, read_write> acc: array<f32>;
-@group(0) @binding(3) var<storage, read_write> weights: array<f32>;
-@group(0) @binding(4) var<uniform> p: CombineParams;
+@group(0) @binding(2) var<storage, read_write> chunkOut: array<f32>;
+@group(0) @binding(3) var<uniform> p: CombineParams;
 
 @compute @workgroup_size(${WG})
 fn main(@builtin(global_invocation_id) gid: vec3u) {
@@ -219,25 +215,7 @@ fn main(@builtin(global_invocation_id) gid: vec3u) {
   let fadeOut = min(f32(p.segmentLength - i) / halfStride, 1.0);
   let w = min(fadeIn, fadeOut);
   let v = timeData[p.timeBase + i] + istftTime[${ISTFT_OFFSET}u + i];
-  acc[p.start + i] += v * w;
-  if (p.addWeights == 1u) {
-    weights[p.start + i] += w;
-  }
-}
-`
-
-const NORM_WGSL = `
-struct NormParams { totalSamples: u32, _a: u32, _b: u32, _c: u32 }
-@group(0) @binding(0) var<storage, read> weights: array<f32>;
-@group(0) @binding(1) var<storage, read_write> acc: array<f32>;
-@group(0) @binding(2) var<uniform> p: NormParams;
-
-@compute @workgroup_size(${WG})
-fn main(@builtin(global_invocation_id) gid: vec3u) {
-  let i = gid.x;
-  if (i >= p.totalSamples) { return; }
-  let w = weights[i];
-  if (w > 0.0) { acc[i] = acc[i] / w; }
+  chunkOut[p.outBase + i] = v * w;
 }
 `
 
@@ -258,11 +236,6 @@ function make_pipe(device: GPUDevice, code: string, label: string): ComputePipe 
 
 const wg_count = (n: number) => Math.ceil(n / WG)
 
-export interface TrackBinds {
-    ifft_binds: GPUBindGroup[]
-    combine_binds: GPUBindGroup[]
-}
-
 export class GpuStemsDsp {
     public readonly device: GPUDevice
     public readonly pad: ComputePipe
@@ -270,7 +243,6 @@ export class GpuStemsDsp {
     public readonly ifft: ComputePipe
     public readonly ola: ComputePipe
     public readonly combine: ComputePipe
-    public readonly norm: ComputePipe
 
     public readonly hann_buf: GPUBuffer
     public readonly twiddle_buf: GPUBuffer
@@ -282,12 +254,16 @@ export class GpuStemsDsp {
     public readonly mag_spec_buf: GPUBuffer
     public readonly frames_buf: GPUBuffer
     public readonly istft_time_buf: GPUBuffer
+    public readonly chunk_out_buf: GPUBuffer
+    public readonly staging_buf: GPUBuffer
 
     private pad1_binds!: GPUBindGroup[]
     private pad2_bind!: GPUBindGroup
     private stft_binds!: GPUBindGroup[]
     private ola_bind!: GPUBindGroup
     private combine_uniforms!: GPUBuffer[]
+    private ifft_binds: GPUBindGroup[] = []
+    private combine_binds: GPUBindGroup[] = []
 
     constructor(device: GPUDevice) {
         this.device = device
@@ -296,7 +272,6 @@ export class GpuStemsDsp {
         this.ifft = make_pipe(device, IFFT_WGSL, "stems-ifft")
         this.ola = make_pipe(device, OLA_WGSL, "stems-ola")
         this.combine = make_pipe(device, COMBINE_WGSL, "stems-combine")
-        this.norm = make_pipe(device, NORM_WGSL, "stems-normalize")
 
         const storage = GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST | GPUBufferUsage.COPY_SRC
 
@@ -350,6 +325,12 @@ export class GpuStemsDsp {
         this.mag_spec_buf = mk(4 * PLANE, "magspec")
         this.frames_buf = mk(PADDED_FRAMES * FFT_SIZE, "ifft-frames")
         this.istft_time_buf = mk(ISTFT_LEN, "istft-time")
+        this.chunk_out_buf = mk(8 * TRAINING_SAMPLES, "chunk-out")
+        this.staging_buf = device.createBuffer({
+            size: 8 * TRAINING_SAMPLES * 4,
+            usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
+            label: "chunk-staging"
+        })
 
         this.build_static_binds()
     }
@@ -431,18 +412,14 @@ export class GpuStemsDsp {
         pass.end()
     }
 
-    public make_track_binds(
-        freq_buf: GPUBuffer,
-        time_buf: GPUBuffer,
-        accs: GPUBuffer[][],
-        weights_buf: GPUBuffer
-    ): TrackBinds {
-        const ifft_binds: GPUBindGroup[] = []
-        const combine_binds: GPUBindGroup[] = []
+    public init_track_binds(freq_buf: GPUBuffer, time_buf: GPUBuffer): void {
+        this.ifft_binds = []
+        this.combine_binds = []
 
         for (let t = 0; t < 4; t++) {
             for (let c = 0; c < 2; c++) {
-                ifft_binds.push(
+                const plane = t * 2 + c
+                this.ifft_binds.push(
                     this.bind(this.ifft, [
                         freq_buf,
                         this.hann_buf,
@@ -451,24 +428,21 @@ export class GpuStemsDsp {
                         this.static_uniform(new Uint32Array([t * 4 + c * 2, 0, 0, 0]))
                     ])
                 )
-                combine_binds.push(
+                this.combine_binds.push(
                     this.bind(this.combine, [
                         time_buf,
                         this.istft_time_buf,
-                        accs[t][c],
-                        weights_buf,
-                        this.combine_uniforms[t * 2 + c]
+                        this.chunk_out_buf,
+                        this.combine_uniforms[plane]
                     ])
                 )
             }
         }
-        return { ifft_binds, combine_binds }
     }
 
     public encode_post(
         encoder: GPUCommandEncoder,
-        binds: TrackBinds,
-        seg: { start: number; copy_len: number; segment_length: number; total_samples: number }
+        seg: { copy_len: number; segment_length: number }
     ): void {
         for (let plane = 0; plane < 8; plane++) {
             const t = plane >> 1
@@ -477,19 +451,15 @@ export class GpuStemsDsp {
                 this.combine_uniforms[plane],
                 0,
                 new Uint32Array([
-                    seg.start,
                     seg.copy_len,
                     seg.segment_length,
                     (t * 2 + c) * TRAINING_SAMPLES,
-                    plane === 0 ? 1 : 0,
-                    seg.total_samples,
-                    0,
-                    0
+                    plane * TRAINING_SAMPLES
                 ])
             )
             const pass = encoder.beginComputePass()
             pass.setPipeline(this.ifft.pipeline)
-            pass.setBindGroup(0, binds.ifft_binds[plane])
+            pass.setBindGroup(0, this.ifft_binds[plane])
             pass.dispatchWorkgroups(PADDED_FRAMES)
 
             pass.setPipeline(this.ola.pipeline)
@@ -497,27 +467,46 @@ export class GpuStemsDsp {
             pass.dispatchWorkgroups(wg_count(ISTFT_LEN))
 
             pass.setPipeline(this.combine.pipeline)
-            pass.setBindGroup(0, binds.combine_binds[plane])
+            pass.setBindGroup(0, this.combine_binds[plane])
             pass.dispatchWorkgroups(wg_count(seg.copy_len))
             pass.end()
         }
+
+        encoder.copyBufferToBuffer(
+            this.chunk_out_buf,
+            0,
+            this.staging_buf,
+            0,
+            8 * TRAINING_SAMPLES * 4
+        )
     }
 
-    public encode_normalize(
-        encoder: GPUCommandEncoder,
-        acc: GPUBuffer,
-        weights_buf: GPUBuffer,
-        total_samples: number
-    ): void {
-        const bind = this.bind(this.norm, [
-            weights_buf,
-            acc,
-            this.static_uniform(new Uint32Array([total_samples, 0, 0, 0]))
-        ])
-        const pass = encoder.beginComputePass()
-        pass.setPipeline(this.norm.pipeline)
-        pass.setBindGroup(0, bind)
-        pass.dispatchWorkgroups(wg_count(total_samples))
-        pass.end()
+    public async readback_chunk(
+        on_data: (chunk_floats: Float32Array) => void
+    ): Promise<void> {
+        await this.staging_buf.mapAsync(GPUMapMode.READ)
+        try {
+            const mapped = new Float32Array(this.staging_buf.getMappedRange())
+            on_data(mapped)
+        } finally {
+            this.staging_buf.unmap()
+        }
+    }
+
+    public destroy(): void {
+        this.hann_buf?.destroy()
+        this.twiddle_buf?.destroy()
+        this.recip_buf?.destroy()
+        this.seg_buf?.destroy()
+        this.stft_input_buf?.destroy()
+        this.centered_buf?.destroy()
+        this.mag_spec_buf?.destroy()
+        this.frames_buf?.destroy()
+        this.istft_time_buf?.destroy()
+        this.chunk_out_buf?.destroy()
+        this.staging_buf?.destroy()
+        for (const u of this.combine_uniforms ?? []) {
+            u?.destroy()
+        }
     }
 }

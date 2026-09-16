@@ -15,6 +15,8 @@ export function SeparationView() {
         total_segments,
         rtf,
         elapsed_seconds,
+        gentle_mode,
+        separation_mode,
         audio_file_name,
         error_message,
         stems
@@ -72,6 +74,48 @@ export function SeparationView() {
                                   : "WebGPU Unavailable"}
                         </span>
                     </div>
+                </div>
+
+                <div className="flex items-center justify-between pt-2.5 border-t border-black/10 dark:border-white/10 text-xs">
+                    <span className="text-black/60 dark:text-white/60 text-xs">
+                        Smooth Mode (Interleaves GPU to prevent desktop & mobile freezes)
+                    </span>
+                    <button
+                        type="button"
+                        onClick={() => separation_controller.toggle_gentle_mode()}
+                        className={`px-2.5 py-1 rounded-md font-mono text-xs border transition cursor-pointer ${
+                            gentle_mode
+                                ? "bg-black text-white dark:bg-white dark:text-black border-transparent"
+                                : "bg-black/5 dark:bg-white/5 text-black/60 dark:text-white/60 border-black/10 dark:border-white/10"
+                        }`}
+                    >
+                        {gentle_mode ? "Enabled (Safe)" : "Turbo (Aggressive)"}
+                    </button>
+                </div>
+
+                <div className="flex items-center justify-between pt-2.5 border-t border-black/10 dark:border-white/10 text-xs">
+                    <div className="flex flex-col">
+                        <span className="text-black/80 dark:text-white/80 font-medium">
+                            Separation Mode
+                        </span>
+                        <span className="text-black/50 dark:text-white/50 text-[11px]">
+                            {separation_mode === "karaoke"
+                                ? "Vocals + Backing (Ultra-lean, memory safe for mobile)"
+                                : "All 4 Stems (Vocals, Drums, Bass, Other)"}
+                        </span>
+                    </div>
+                    <button
+                        type="button"
+                        disabled={is_busy}
+                        onClick={() => separation_controller.toggle_separation_mode()}
+                        className={`px-2.5 py-1 rounded-md font-mono text-xs border transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
+                            separation_mode === "karaoke"
+                                ? "bg-black text-white dark:bg-white dark:text-black border-transparent"
+                                : "bg-black/5 dark:bg-white/5 text-black/60 dark:text-white/60 border-black/10 dark:border-white/10"
+                        }`}
+                    >
+                        {separation_mode === "karaoke" ? "Karaoke" : "4 Stems"}
+                    </button>
                 </div>
 
                 {webgpu_error && (
