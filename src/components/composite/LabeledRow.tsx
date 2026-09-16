@@ -77,7 +77,7 @@ const LabeledRow = React.memo(function LabeledRow({
 
                     {/* Meta info (Title & Channel) */}
                     <div className="min-w-0 flex-1 ml-1">
-                        <div className="text-sm font-semibold truncate transition-colors duration-150 text-foreground">
+                        <div className="text-sm font-semibold truncate transition-colors duration-150 text-black dark:text-white">
                             {title}
                         </div>
                         {subtitle != null && (
