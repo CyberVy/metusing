@@ -20,8 +20,8 @@ export { Image } from "./composite/Image"
 export type { ImageProps } from "./composite/Image"
 
 // LabeledRow.tsx
-export { LabeledRow } from "./composite/LabeledRow"
-export type { LabeledRowProps } from "./composite/LabeledRow"
+export { LabeledRow, LabeledRowSkeleton } from "./composite/LabeledRow"
+export type { LabeledRowProps, LabeledRowSkeletonProps } from "./composite/LabeledRow"
 
 // LazyLoader.tsx
 export { LazyContainer } from "./base/LazyLoader"

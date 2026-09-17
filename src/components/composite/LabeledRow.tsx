@@ -77,7 +77,7 @@ const LabeledRow = React.memo(function LabeledRow({
 
                     {/* Meta info (Title & Channel) */}
                     <div className="min-w-0 flex-1 ml-1">
-                        <div className="text-sm font-semibold truncate transition-colors duration-150 text-black dark:text-white">
+                        <div className="text-sm font-semibold truncate transition-colors duration-150 text-foreground">
                             {title}
                         </div>
                         {subtitle != null && (
@@ -99,4 +99,16 @@ const LabeledRow = React.memo(function LabeledRow({
     )
 })
 
-export { LabeledRow }
+export type LabeledRowSkeletonProps = {
+    className?: string
+}
+
+const LabeledRowSkeleton = React.memo(function LabeledRowSkeleton({
+    className = ""
+}: LabeledRowSkeletonProps){
+    return (
+        <div className={`h-15.25 sm:h-17.5 w-full rounded-xl bg-black/5 dark:bg-white/5 select-none pointer-events-none ${className}`} />
+    )
+})
+
+export { LabeledRow, LabeledRowSkeleton }
