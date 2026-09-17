@@ -56,7 +56,7 @@ export function ViewSwitcherToolbar<T extends string>({
             >
                 <div
                     className={join_classes(
-                        "inline-flex flex-row items-center bg-transparent! backdrop-blur-none!",
+                        "inline-flex flex-row items-center bg-background/0! backdrop-blur-none!",
                         items_spacing_class
                     )}
                 >

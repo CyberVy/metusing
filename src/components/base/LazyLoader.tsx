@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, ReactNode, RefObject, useCallback } from 'react'
 import type { FC, ComponentPropsWithRef } from "react"
-import { is_element_hidden, schedule_animation_frame } from "@/components/utils"
+import { is_element_hidden } from "@/components/utils"
 
 export type KeepLoadedMargin = {
     top?: number
@@ -12,8 +12,7 @@ export type KeepLoadedMargin = {
 export type LazyContainerProps = Omit<ComponentPropsWithRef<"div">, "children"> & {
     children: ReactNode
     // The placeholder element should have the same dimensions as the children to avoid layout shifts (CLS).
-    // These dimensions must be set in advance before the initial layout occurs.
-    initial_placeholder?: ReactNode
+    placeholder?: ReactNode
     threshold?: number | number[]
     rootMargin?: string
     // Accepts a DOM Element, a React Ref object, or null (defaults to browser viewport)
@@ -23,7 +22,7 @@ export type LazyContainerProps = Omit<ComponentPropsWithRef<"div">, "children"> 
 
 const LazyContainer: FC<LazyContainerProps> = ({
     children,
-    initial_placeholder = <div style={{ minHeight: '200px' }}>Loading...</div>,
+    placeholder = <div style={{ minHeight: '200px' }}>Loading...</div>,
     threshold = 0,
     rootMargin = '200px', // A larger margin is recommended for smoother scrolling
     root = null,
@@ -41,15 +40,9 @@ const LazyContainer: FC<LazyContainerProps> = ({
 
     // Track visibility of the element in the viewport
     const [is_visible, set_is_visible] = useState<boolean>(false)
-    // Track if the element has been rendered at least once
-    const [has_loaded_once, set_has_loaded_once] = useState<boolean>(false)
-    // Store the exact dimensions before the element unmounts
-    const [dimensions, set_dimensions] = useState<{ width: number; height: number } | null>(null)
-  
-    // Use refs to access the latest state inside observer and resize callbacks
+
+    // Use a ref to access the latest loaded state inside the observer callback
     const has_loaded_ref = useRef<boolean>(false)
-    const intersection_observer_ref = useRef<IntersectionObserver | null>(null)
-    const should_remeasure_ref = useRef(false)
 
     const element_ref = useRef<HTMLDivElement>(null)
     const set_element_ref = useCallback((element: HTMLDivElement | null) => {
@@ -66,8 +59,8 @@ const LazyContainer: FC<LazyContainerProps> = ({
     }, [ref])
 
     useEffect(() => {
-    // Resolve the root element whether passed as a DOM node or a React ref object
-        const rootElement = root && typeof root === 'object' && 'current' in root
+        // Resolve the root element whether passed as a DOM node or a React ref object
+        const root_element = root && typeof root === 'object' && 'current' in root
             ? root.current
             : (root as Element | null)
 
@@ -78,7 +71,6 @@ const LazyContainer: FC<LazyContainerProps> = ({
                 if (entry.isIntersecting){
                     // The element enters the viewport
                     set_is_visible(true)
-                    set_has_loaded_once(true)
                     has_loaded_ref.current = true
                 }
                 else {
@@ -106,14 +98,14 @@ const LazyContainer: FC<LazyContainerProps> = ({
                             let scroll_content_height = 0
                             let scroll_content_width = 0
 
-                            if (rootElement){
-                                const rootRect = rootElement.getBoundingClientRect()
-                                element_absolute_top = rect.top - rootRect.top + rootElement.scrollTop
-                                element_absolute_bottom = rect.bottom - rootRect.top + rootElement.scrollTop
-                                element_absolute_left = rect.left - rootRect.left + rootElement.scrollLeft
-                                element_absolute_right = rect.right - rootRect.left + rootElement.scrollLeft
-                                scroll_content_height = rootElement.scrollHeight
-                                scroll_content_width = rootElement.scrollWidth
+                            if (root_element){
+                                const root_rect = root_element.getBoundingClientRect()
+                                element_absolute_top = rect.top - root_rect.top + root_element.scrollTop
+                                element_absolute_bottom = rect.bottom - root_rect.top + root_element.scrollTop
+                                element_absolute_left = rect.left - root_rect.left + root_element.scrollLeft
+                                element_absolute_right = rect.right - root_rect.left + root_element.scrollLeft
+                                scroll_content_height = root_element.scrollHeight
+                                scroll_content_width = root_element.scrollWidth
                             }
                             else {
                                 element_absolute_top = rect.top + window.scrollY
@@ -147,27 +139,17 @@ const LazyContainer: FC<LazyContainerProps> = ({
                             return
                         }
 
-                        const width = rect.width
-                        const height = rect.height
-
-                        // Capture the actual rendered dimensions just before hiding the content
-                        set_dimensions({
-                            width,
-                            height,
-                        })
                         // Unmount the real children to save memory
                         set_is_visible(false)
                     }
                 }
             },
             {
-                root: rootElement,
+                root: root_element,
                 rootMargin,
                 threshold,
             }
         )
-
-        intersection_observer_ref.current = observer
 
         const current_ref = element_ref.current
         if (current_ref){
@@ -175,9 +157,8 @@ const LazyContainer: FC<LazyContainerProps> = ({
         }
 
         return () => {
-            observer.disconnect()
-            if (intersection_observer_ref.current === observer){
-                intersection_observer_ref.current = null
+            if (current_ref){
+                observer.unobserve(current_ref)
             }
         }
     }, [
@@ -190,74 +171,13 @@ const LazyContainer: FC<LazyContainerProps> = ({
         keep_loaded_right
     ])
 
-    useEffect(() => {
-        let cancel_resize_animation_frame = () => {}
-
-        const handle_resize = () => {
-            if (!has_loaded_ref.current){
-                return
-            }
-
-            cancel_resize_animation_frame()
-            cancel_resize_animation_frame = schedule_animation_frame(() => {
-                should_remeasure_ref.current = true
-                set_dimensions(null)
-                set_is_visible(true)
-            })
-        }
-
-        window.addEventListener("resize", handle_resize)
-
-        return () => {
-            window.removeEventListener("resize", handle_resize)
-            cancel_resize_animation_frame()
-        }
-    }, [])
-
-    // Re-observe after remounting the children so an off-screen element is measured again.
-    useEffect(() => {
-        if (!should_remeasure_ref.current || !is_visible){
-            return
-        }
-
-        const current_ref = element_ref.current
-        const observer = intersection_observer_ref.current
-        if (!current_ref || !observer){
-            return
-        }
-
-        should_remeasure_ref.current = false
-        observer.unobserve(current_ref)
-        observer.observe(current_ref)
-    }, [is_visible, dimensions])
-
-    // If the element is out of the viewport but was loaded before, 
-    // lock its container size to prevent scrollbar layout shifts.
-    const container_style: React.CSSProperties = (!is_visible && has_loaded_once && dimensions)
-        ? { 
-            width: `${dimensions.width}px`, 
-            height: `${dimensions.height}px`,
-            overflow: 'hidden' 
-        }
-        : {}
-
     return (
         <div
             {...props}
             ref={set_element_ref} 
-            style={container_style}
             className={className}
         >
-            {is_visible ? (
-            // 1. In viewport: render the actual content
-                children 
-            ) : has_loaded_once ? (
-            // 2. Left viewport: render nothing, layout is preserved by containerStyle
-                null 
-            ) : (
-            // 3. Initial state: render the user-provided placeholder
-                initial_placeholder 
-            )}
+            {is_visible ? children : placeholder}
         </div>
     )
 }
