@@ -1,6 +1,7 @@
-// Array.tsx
-export { StringArray, ListToButtons } from "./composite/Array"
-export type { StringArrayProps } from "./composite/Array"
+// FilterChips.tsx
+export { FilterChips } from "./composite/FilterChips"
+export type { FilterChipsProps } from "./composite/FilterChips"
+
 
 // Buttons.tsx
 export { NaiveButton, ButtonGroup } from "./base/Buttons"
@@ -68,7 +69,7 @@ export type { UseControllerOptions } from "./hooks"
 
 
 // icons.tsx
-export { SearchIcon } from "./icons"
+export { SearchIcon, BackIcon, ForwardIcon, SettingIcon, CloseIcon, ChevronDownIcon, FilterIcon } from "./icons"
 
 // ViewSwitcher.tsx
 export { ViewSwitcher, view_switcher_controller, ViewSwitcherController, useViewSwitcher, useViewSwitcherRegistry } from "./composite/ViewSwitcher"
