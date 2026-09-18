@@ -21,11 +21,11 @@
   - `web_ipc.client.ts`: frontend-side Tauri IPC adapter.
 - `src/inject/`: client-side scripts injected directly into external WebViews.
   - Organized into `infra/` (environment/IPC polyfills) and `core/` (business/product logic injections), each using `index.ts` as the entry point.
-- `src/sw/`: service worker source (built/packaged to `public/sw.js`).
+- `src/sw/`: service worker source (packaged to `public/sw.js` in dev and `dist/sw.js` in build).
   - `core/`: core service worker logic (e.g., image/video cache, playlist handlers).
   - `infra/`: service worker infrastructure/adapters (e.g., static resource cache).
   - `main.worker.ts`: entry worker script.
-- `public/`: static assets, icons, `manifest.json`, and built SW entry.
+- `public/`: static assets, icons, `manifest.json`, and dev SW entry (`public/sw.js`).
 - `scripts/`: local scripts.
 - `cli/`: local CLI helper utilities.
   - [debug/](cli/debug): frontend debug bridge utility (SSE & HTTP server) for host-to-browser agent communication.
