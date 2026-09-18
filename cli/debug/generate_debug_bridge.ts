@@ -1,7 +1,7 @@
 import fs from "node:fs"
 import path from "node:path"
-import net from "node:net"
 import { fileURLToPath } from "node:url"
+import { find_free_port, get_debug_port } from "./launch.ts"
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const DEBUG_DIR = path.resolve(__dirname, "../../.debug")
@@ -10,36 +10,6 @@ const CONFIG_FILE = path.join(DEBUG_DIR, "config.json")
 // Ensure .debug exists
 if (!fs.existsSync(DEBUG_DIR)){
     fs.mkdirSync(DEBUG_DIR, { recursive: true })
-}
-
-function get_debug_port(): number{
-    const arg = process.argv.find((a) => a.startsWith("--debug-port="))
-    if (arg){
-        const val = parseInt(arg.split("=")[1], 10)
-        if (!isNaN(val)) return val
-    }
-    if (process.env.npm_config_debug_port){
-        const val = parseInt(process.env.npm_config_debug_port, 10)
-        if (!isNaN(val)) return val
-    }
-    return 9999
-}
-
-function find_free_port(start_port: number, host: string): Promise<number>{
-    return new Promise((resolve) => {
-        const server = net.createServer()
-        server.unref()
-        server.on("error", () => {
-            resolve(find_free_port(start_port + 1, host))
-        })
-        server.listen(start_port, host, () => {
-            const address = server.address()
-            const port = typeof address === "string" ? start_port : address?.port || start_port
-            server.close(() => {
-                resolve(port)
-            })
-        })
-    })
 }
 
 async function main(){

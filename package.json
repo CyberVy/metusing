@@ -7,7 +7,7 @@
   "scripts": {
     "tauri": "cargo tauri",
     "dev:debug_bridge": "tsx cli/debug/generate_debug_bridge.ts",
-    "dev": "tsx cli/dev/dev.ts --port=4001",
+    "dev": "vite",
     "build": "vite build",
     "lint": "oxlint src cli --deny-warnings",
     "check": "concurrently \"oxlint src cli --deny-warnings\" \"tsc --noEmit\"",
