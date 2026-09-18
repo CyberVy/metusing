@@ -63,7 +63,6 @@ async function main(){
 
         // 2. Run concurrently
         const { result } = concurrently([
-            { command: "npm run dev:sw", name: "sw", prefixColor: "cyan" },
             { command: vite_dev_cmd, name: "vite", prefixColor: "green" },
             { command: `npx tsx ${path.join(__dirname, "../debug/launch.ts")} ${debug_args}`, name: "debug", prefixColor: "yellow" }
         ], {
