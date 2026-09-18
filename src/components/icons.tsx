@@ -42,4 +42,28 @@ function SettingIcon({ width = DEFAULT_ICON_SIZE, height = DEFAULT_ICON_SIZE, ..
     )
 }
 
-export { SearchIcon, BackIcon, ForwardIcon, SettingIcon }
+function CloseIcon({ width = DEFAULT_ICON_SIZE, height = DEFAULT_ICON_SIZE, ...props }: IconProps){
+    return (
+        <svg width={width} height={height} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
+            <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+    )
+}
+
+function ChevronDownIcon({ width = DEFAULT_ICON_SIZE, height = DEFAULT_ICON_SIZE, ...props }: IconProps){
+    return (
+        <svg width={width} height={height} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
+            <path d="M6 9L12 15L18 9" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+    )
+}
+
+function FilterIcon({ width = DEFAULT_ICON_SIZE, height = DEFAULT_ICON_SIZE, ...props }: IconProps){
+    return (
+        <svg width={width} height={height} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
+            <path d="M4 6H20M7 12H17M10 18H14" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+    )
+}
+
+export { SearchIcon, BackIcon, ForwardIcon, SettingIcon, CloseIcon, ChevronDownIcon, FilterIcon }
