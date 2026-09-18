@@ -6,7 +6,6 @@
   "private": true,
   "scripts": {
     "tauri": "cargo tauri",
-    "dev:debug_bridge": "tsx cli/debug/generate_debug_bridge.ts",
     "dev": "vite",
     "build": "vite build",
     "lint": "oxlint src cli --deny-warnings",

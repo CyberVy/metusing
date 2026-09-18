@@ -41,7 +41,7 @@ const post_data = JSON.stringify({ code })
 const req = http.request({
     hostname: host,
     port: port,
-    path: "/eval",
+    path: "/__debug/eval",
     method: "POST",
     headers: {
         "Content-Type": "application/json",

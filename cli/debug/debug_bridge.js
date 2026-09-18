@@ -1,11 +1,9 @@
 (function (){
     if (typeof window === "undefined") return
 
-    const PORT = "{{PORT}}"
-    const SERVER_URL = "http://" + window.location.hostname + ":" + PORT
-
     // 1. Hook console logs
     const original_console = {
+        debug: console.debug,
         log: console.log,
         warn: console.warn,
         error: console.error,
@@ -18,11 +16,16 @@
                 if (arg instanceof Error || (arg && typeof arg === "object" && ("message" in arg || "name" in arg))){
                     return `${arg.name || "Error"}: ${arg.message || ""}${arg.stack ? `\n${arg.stack}` : ""}`
                 }
-                if (typeof arg === "object"){
+                if (typeof arg === "object" && arg !== null){
                     try {
-                        return JSON.stringify(arg)
+                        return JSON.stringify(arg, (_key, value) => {
+                            if (value instanceof Error){
+                                return { name: value.name, message: value.message, stack: value.stack }
+                            }
+                            return value
+                        })
                     }
-                    catch (e){
+                    catch {
                         return String(arg)
                     }
                 }
@@ -30,7 +33,7 @@
             })
             .join(" ")
 
-        fetch(`${SERVER_URL}/log`, {
+        fetch("/__debug/log", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -41,6 +44,10 @@
         }).catch(() => {})
     }
 
+    console.debug = (...args) => {
+        original_console.debug(...args)
+        send_log("debug", args)
+    }
     console.log = (...args) => {
         original_console.log(...args)
         send_log("info", args)
@@ -70,7 +77,7 @@
 
     // 2. Set up SSE for Eval commands
     function init_event_source(){
-        const event_source = new EventSource(`${SERVER_URL}/events`)
+        const event_source = new EventSource("/__debug/events")
 
         event_source.onmessage = async (event) => {
             try {
@@ -88,8 +95,8 @@
                     success = false
                 }
 
-                // Send response back to Node server
-                fetch(`${SERVER_URL}/respond`, {
+                // Send response back
+                fetch("/__debug/respond", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({

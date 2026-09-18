@@ -6,20 +6,20 @@ To facilitate bidirectional communication between the **Frontend Browser Context
 
 ## 1. How the Mechanism Works
 
-The communication runs purely on standard web protocols (Server-Sent Events & HTTP POST) and is handled by a Node.js development sidecar. During development, Vite serves `/debug_bridge.js` dynamically from the client template after injecting the selected debug port. It keeps the core React frontend codebase (`src/core`, `src/infra`, `src/app/App.tsx`, etc.) 100% clean and untouched.
+The communication runs purely on standard web protocols (Server-Sent Events & HTTP POST) and is integrated directly into the Vite development server via Connect middleware. During development, Vite serves `/debug_bridge.js` directly and exposes the `/__debug/*` endpoints on the **same origin** as Vite itself. It keeps the core React frontend codebase (`src/core`, `src/infra`, `src/app/App.tsx`, etc.) 100% clean and untouched.
 
 ```
                   ┌─────────────────────────────────────┐
                   │          AI Agent Sandbox           │
                   └──────────────────┬──────────────────┘
                                      │
-                        POST /eval   │   node cli/debug/eval.js "..."
-                                     ▼
+                    POST /__debug/   │   node cli/debug/eval.js "..."
+                    eval             ▼
                   ┌─────────────────────────────────────┐
-                  │      launch.ts (Debug Server)       │
+                  │   Vite Dev Server (/__debug/*)      │
                   └──────────┬──────────────────▲───────┘
                              │                  │
-                1. Push SSE  │                  │  2. HTTP POST /respond
+                1. Push SSE  │                  │  2. HTTP POST /__debug/respond
                 (id, code)   │                  │  (id, result)
                              ▼                  │
                   ┌─────────────────────────────┴───────┐
@@ -28,11 +28,10 @@ The communication runs purely on standard web protocols (Server-Sent Events & HT
 ```
 
 ### Components List
-* **`cli/debug/generate_debug_bridge.ts`** (Configuration task): Finds an available TCP port (starting from `9999`) and saves the port parameter to `.debug/config.json`. It does not generate a JavaScript file.
-* **`cli/debug/debug_bridge_template.js`** (Browser Script Template): The JavaScript client template that runs inside the browser, intercepting logs and evaluating incoming commands.
-* **`debug_bridge_plugin` in `vite.config.ts`** (Development Script Server & Injector): Injects `<script src="/debug_bridge.js">` non-intrusively via `transformIndexHtml` (head-prepend) during development (`apply: "serve"`), serves `/debug_bridge.js` dynamically from the client template with the selected port, and leaves production HTML completely untouched.
-* **`cli/debug/launch.ts`** (Active Server): A long-running HTTP server that reads the port configuration from `.debug/config.json`, manages the SSE stream, bridges evaluation requests synchronously, and appends logs to local history files.
-* **`cli/debug/eval.js`** (CLI Helper): A lightweight evaluation utility that allows developers or agents to synchronously execute code in the browser.
+* **`cli/debug/plugin.ts`** (Vite Plugin & Middleware): Handles `/__debug/events`, `/__debug/respond`, `/__debug/log`, `/__debug/eval`, and serves `/debug_bridge.js`. Automatically writes the active Vite port to `.debug/config.json`.
+* **`cli/debug/debug_bridge.js`** (Browser Script): The client script that runs inside the browser, intercepting logs and evaluating incoming commands via same-origin `/__debug/*` calls.
+* **`debug_bridge_plugin` in `vite.config.ts`** (Injector): Injects `<script src="/debug_bridge.js">` non-intrusively via `transformIndexHtml` (head-prepend) during development (`apply: "serve"`), leaving production HTML completely untouched.
+* **`cli/debug/eval.js`** (CLI Helper): A lightweight evaluation utility that allows developers or agents to synchronously execute code in the browser by reading `.debug/config.json`.
 * **`src/app/index.html`** (Production HTML Entry): 100% clean of debug tooling. Zero intrusion into source code or production artifacts.
 * **`.debug/`** (Ignored Data Directory): Contains the runtime configuration and persistent session log files:
   - `config.json`: The port configuration parameter for the debug bridge.
@@ -43,21 +42,12 @@ The communication runs purely on standard web protocols (Server-Sent Events & HT
 
 ## 2. Developer/Agent Usage Guide
 
-### Step 1: Start the Debug Bridge Server
-You can start the debug bridge components standalone using the following commands:
-
-1. **Generate the client configuration**:
-   ```bash
-   npx tsx cli/debug/generate_debug_bridge.ts
-   ```
-   *Optional parameters:*
-   - `--debug-port=<port>`: The starting port to probe for the debug server (default is `9999`).
-
-2. **Start the debug server**:
-   ```bash
-   npx tsx cli/debug/launch.ts
-   ```
-   The server automatically binds to `0.0.0.0` (all network interfaces) to support both local and remote/LAN debugging out of the box.
+### Step 1: Start the Development Server
+Simply start the Vite development server as normal:
+```bash
+npm run dev
+```
+Vite will automatically mount the Debug Bridge middleware and save its active listening port to `.debug/config.json`.
 
 ### Step 2: Sending Commands / Querying Frontend State
 The AI agent or developer can run expressions synchronously in the browser using the helper script:
@@ -70,7 +60,7 @@ The script will block, wait for the browser to execute the code, and print the r
 ```json
 {
   "success": true,
-  "result": "MeTuber - Home"
+  "result": "XCMS - Home"
 }
 ```
 
