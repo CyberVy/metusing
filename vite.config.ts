@@ -3,6 +3,7 @@ import react from "@vitejs/plugin-react"
 import path from "node:path"
 import fs from "node:fs"
 import esbuild, { type BuildContext } from "esbuild"
+import { start_debug_server, type DebugServerInstance } from "./cli/debug/launch.ts"
 
 function service_worker_plugin(): Plugin{
     let dev_ctx: BuildContext | null = null
@@ -78,10 +79,12 @@ function service_worker_plugin(): Plugin{
 }
 
 function debug_bridge_plugin(): Plugin{
+    let debug_server: DebugServerInstance | null = null
+
     return {
         name: "debug-bridge",
         apply: "serve",
-        transformIndexHtml(_html, ctx){
+        transformIndexHtml(_html, _ctx){
             return [
                 {
                     tag: "script",
@@ -90,13 +93,19 @@ function debug_bridge_plugin(): Plugin{
                 }
             ]
         },
-        configureServer(server){
-            const config_path = path.resolve(import.meta.dirname, ".debug/config.json")
+        async configureServer(server){
+            try {
+                debug_server = await start_debug_server()
+            }
+            catch (err){
+                console.error("[Debug Bridge Plugin] Failed to start debug server:", err)
+            }
+
             const template_path = path.resolve(import.meta.dirname, "cli/debug/debug_bridge_template.js")
             server.middlewares.use((req, res, next) => {
                 if (req.url !== "/debug_bridge.js") return next()
                 try {
-                    const { port } = JSON.parse(fs.readFileSync(config_path, "utf8"))
+                    const port = debug_server?.port ?? 9999
                     const content = fs.readFileSync(template_path, "utf8").replace("{{PORT}}", String(port))
                     res.writeHead(200, { "Content-Type": "application/javascript; charset=utf-8" })
                     res.end(content)
@@ -104,6 +113,13 @@ function debug_bridge_plugin(): Plugin{
                 catch {
                     res.writeHead(404)
                     res.end()
+                }
+            })
+
+            server.httpServer?.on("close", async () => {
+                if (debug_server){
+                    await debug_server.close()
+                    debug_server = null
                 }
             })
         }
@@ -145,7 +161,7 @@ export default defineConfig({
         }
     },
     server: {
-        port: 4000,
+        port: 4001,
         host: "0.0.0.0",
         fs: {
             allow: [path.resolve(import.meta.dirname)]
