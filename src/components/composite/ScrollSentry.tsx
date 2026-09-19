@@ -1,5 +1,6 @@
 "use client"
 
+import type { RefObject } from "react"
 import React, { useEffect, useMemo } from "react"
 import { useInViewport } from "@/components/hooks"
 
@@ -7,6 +8,7 @@ export type ScrollSentryProps = {
     on_trigger: () => void
     throttle_ms?: number
     root_margin?: string | number
+    root?: HTMLElement | RefObject<HTMLElement | null> | null
     enabled?: boolean
 }
 
@@ -25,9 +27,10 @@ const ScrollSentry = React.memo(function ScrollSentry({
     on_trigger,
     throttle_ms = 500,
     root_margin = 0,
+    root,
     enabled = true,
 }: ScrollSentryProps){
-    const { ref, in_view } = useInViewport<HTMLDivElement>({ enabled, root_margin })
+    const { ref, in_view } = useInViewport<HTMLDivElement>({ enabled, root_margin, root })
 
     const throttled_callback = useMemo(() => {
         return throttle(on_trigger, throttle_ms)
