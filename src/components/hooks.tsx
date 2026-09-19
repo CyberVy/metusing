@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore
 import type { BaseController, BaseKeyedController } from "@/infra"
 import { is_ios_device } from "@/infra/device.client"
 import { create_logger } from "@/infra/logger"
+import { is_element_hidden } from "./utils"
 
 const logger = create_logger("Hooks")
 
@@ -105,7 +106,7 @@ export function useMediaQuery(query: string, initial_value = false): boolean{
 **/
 type UseInViewportOptions = {
     enabled?: boolean
-    root?: HTMLElement | null
+    root?: HTMLElement | RefObject<HTMLElement | null> | null
     root_margin?: number | string
     protected_padding?: number
     threshold?: number | number[]
@@ -135,10 +136,17 @@ export function useInViewport<T extends HTMLElement>({
     useEffect(() => {
         if (!element) return
 
+        const resolved_root = (root && typeof root === "object" && "current" in root ? root.current : root) || null
+
         const observer = new IntersectionObserver((entries) => {
             entries.forEach((entry) => {
                 const target_element = entry.target as T
-                const root_element = root || document.documentElement
+                if (is_element_hidden(target_element)){
+                    set_is_intersecting(false)
+                    return
+                }
+
+                const root_element = resolved_root || document.documentElement
                 if (protected_padding){
                     if (target_element.offsetTop - root_element.offsetTop <= protected_padding || target_element.offsetTop - root_element.offsetTop >= root_element.scrollHeight - protected_padding){
                         set_is_intersecting(true)
@@ -148,7 +156,7 @@ export function useInViewport<T extends HTMLElement>({
 
                 set_is_intersecting(entry.isIntersecting)
             })
-        }, { threshold: threshold, rootMargin: get_root_margin(root_margin), root: root || null })
+        }, { threshold: threshold, rootMargin: get_root_margin(root_margin), root: resolved_root })
         observer.observe(element)
 
         return () => observer.disconnect()
