@@ -176,6 +176,7 @@ const LazyContainer: FC<LazyContainerProps> = ({
             {...props}
             ref={set_element_ref} 
             className={className}
+            data-lazy-state={is_visible ? "content" : "placeholder"}
         >
             {is_visible ? children : placeholder}
         </div>
