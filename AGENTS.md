@@ -163,6 +163,8 @@ The client-side persistence layer (`LocalForage` / IndexedDB) adheres to a stric
 
 - **Emoji Prohibition (Enforced by Oxlint)**: Do not use emojis in any UI text or icons.
 - **Color Restrictions (AI Only)**: AI-authored UI changes may use only black, white, gray, and their alpha variants. Do not introduce chromatic colors or alter existing human-authored colors unless explicitly requested.
+- **Animation Performance (CPU)**: Disable CSS animations that lack hardware acceleration. Restrict animations to composited, hardware-accelerated properties (`transform`, `opacity`) and avoid animating properties that trigger layout reflow or CPU repaints.
+- **Filter & Effect Restraint (GPU)**: Do not abuse CSS filters (e.g., `blur`, `backdrop-filter`) and animations that cause excessive GPU overhead and rendering bottlenecks.
 - **Icons & SVGs**: Write SVG components in the corresponding `icons.tsx` based on the UI ownership layer (e.g., `src/components/icons.tsx` for generic component-level icons and `src/blocks/icons.tsx` for block-level business icons). Inline SVGs outside these files are prohibited by Oxlint. Do not import external icon libraries.
 - **Modals & Dialogs**:
   - Do not use native window dialogs (`window.alert`, `window.confirm`, `window.prompt`). This is enforced by Oxlint.
@@ -182,6 +184,7 @@ The client-side persistence layer (`LocalForage` / IndexedDB) adheres to a stric
 
 ## Base Rules
 
+- **Source Code & Runtime as SSOT**: Source code and live runtime data are the Single Source of Truth (SSOT), never historical knowledge or outdated assumptions. Always verify facts against current code and runtime state.
 - **Minimalist & Clean Code**: Keep edits minimal, direct, and targeted. Avoid sweeping reformatting, unnecessary fallback mechanisms, and defensive over-engineering. Prioritize human readability and simplicity.
 - **Refactor Before Feature**: Review whether existing mechanisms can support a new design before extending them. Stop and seek developer approval before changing a foundational abstraction, public cross-module interface, persistence model, or architectural ownership boundary. Ordinary local refactoring does not require separate approval.
 - **Style Consistency**: Match existing naming, formatting, and import styles in every file.
