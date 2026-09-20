@@ -197,7 +197,7 @@ When running the development server via `npm run dev`, a debug bridge is automat
 - **Frontend Logs**: Read [logs.jsonl](.debug/logs.jsonl) (in JSON Lines format) to inspect console output and errors in real-time.
 - **Execute Commands**: Synchronously execute JavaScript code in the browser/Tauri webview context using [eval.js](cli/debug/eval.js):
   ```bash
-  node cli/debug/eval.js "document.title"
+  npm run debug:eval -- "document.title"
   ```
   This will print the response directly to stdout, for example:
   ```json
