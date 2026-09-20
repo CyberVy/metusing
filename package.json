@@ -6,6 +6,7 @@
   "private": true,
   "scripts": {
     "tauri": "cargo tauri",
+    "debug:eval": "node cli/debug/eval.js",
     "debug:lazy-container": "tsx cli/debug/tests/lazy_container_dimensions.ts",
     "dev": "vite",
     "build": "vite build",
