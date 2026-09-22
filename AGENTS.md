@@ -163,7 +163,9 @@ The client-side persistence layer (`LocalForage` / IndexedDB) adheres to a stric
 
 - **Emoji Prohibition (Enforced by Oxlint)**: Do not use emojis in any UI text or icons.
 - **Color Restrictions (AI Only)**: AI-authored UI changes may use only black, white, gray, and their alpha variants. Do not introduce chromatic colors or alter existing human-authored colors unless explicitly requested.
-- **Animation Performance (CPU)**: Disable CSS animations that lack hardware acceleration. Restrict animations to composited, hardware-accelerated properties (`transform`, `opacity`) and avoid animating properties that trigger layout reflow or CPU repaints.
+- **Animation Performance (CPU)**:
+  - **High-Frequency & Looping Animations**: Continuous, high-frequency, or infinite animations (e.g., playback indicators, spectrum bounces, pulsing effects, spinners) MUST strictly use composited, hardware-accelerated properties (`transform`, `opacity`) to prevent CPU layout reflow and repaint thrashing.
+  - **Low-Frequency & Discrete Transitions**: Infrequent, one-off state transitions triggered by user interaction (e.g., play/pause toggles, accordion expansion) may animate layout properties (e.g., `height`, `width`) when geometric fidelity (such as preserving true circular/capsule `border-radius` without affine scale distortion) is required, provided the transition is brief and layout impact is localized.
 - **Filter & Effect Restraint (GPU)**: Do not abuse CSS filters (e.g., `blur`, `backdrop-filter`) and animations that cause excessive GPU overhead and rendering bottlenecks.
 - **Icons & SVGs**: Write SVG components in the corresponding `icons.tsx` based on the UI ownership layer (e.g., `src/components/icons.tsx` for generic component-level icons and `src/blocks/icons.tsx` for block-level business icons). Inline SVGs outside these files are prohibited by Oxlint. Do not import external icon libraries.
 - **Modals & Dialogs**:
