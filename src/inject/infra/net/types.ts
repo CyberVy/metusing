@@ -12,3 +12,9 @@ export type XhrInterceptResponse = {
     status?: number
     headers?: Record<string, string>
 }
+
+export type FetchInterceptRequest = {
+    method: string
+    url: string
+    body?: BodyInit | null
+}

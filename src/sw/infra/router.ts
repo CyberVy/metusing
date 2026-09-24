@@ -10,14 +10,15 @@ export type RouteHandler = (
 type Route = {
     matcher: RouteMatcher
     handler: RouteHandler
+    methods: readonly string[]
 }
 
 export class ServiceWorkerRouter{
     private routes: Route[] = []
     private is_listening = false
 
-    public intercept(matcher: RouteMatcher, handler: RouteHandler): void{
-        this.routes.push({ matcher, handler })
+    public intercept(matcher: RouteMatcher, handler: RouteHandler, methods: readonly string[] = ["GET"]): void{
+        this.routes.push({ matcher, handler, methods })
     }
 
     private matches(matcher: RouteMatcher, request: Request, url: URL): boolean{
@@ -32,8 +33,6 @@ export class ServiceWorkerRouter{
     }
 
     public handle = (event: FetchEvent): void => {
-        if (event.request.method !== "GET") return
-
         const url = new URL(event.request.url)
         let responded = false
         const original_respond_with = event.respondWith.bind(event)
@@ -44,6 +43,7 @@ export class ServiceWorkerRouter{
         }
 
         for (const route of this.routes){
+            if (!route.methods.includes(event.request.method)) continue
             if (this.matches(route.matcher, event.request, url)){
                 const result = route.handler(event, url)
 
