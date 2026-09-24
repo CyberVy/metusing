@@ -28,13 +28,19 @@ export { keep_alive_for_once, auto_keep_alive_by_video_states } from "./keep_ali
 
 // storage
 export { LocalStorageMap } from "./storage/kv.client"
-export { CacheStorageMap } from "./storage/cache.client"
 export { LocalForageMap } from "./storage/db.client"
 
 // version.ts
-export { static_resource_cache_name, is_later_version, update } from "./version"
+export { is_later_version } from "./version"
 export { default as version } from "./version"
 
+// service_worker.client.ts
+export { service_worker_api_call, SERVICE_WORKER_API_PATH } from "./service_worker.client"
+export type {
+    ServiceWorkerApiRequestEnvelope,
+    ServiceWorkerApiResponseEnvelope,
+    ServiceWorkerApiRequestParams
+} from "./service_worker.client"
 
 // migration.client.ts
 export { MigrationService } from "./migration.client"

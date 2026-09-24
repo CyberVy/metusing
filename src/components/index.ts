@@ -38,11 +38,12 @@ export { FullscreenModalContainer, FloatingModalContainer } from "./composite/Mo
 // String.tsx
 export { AnimatedGlowText } from "./base/String"
 
-// StringInput.tsx
-export { StringInput } from "./composite/StringInput"
-
 // Version.tsx
 export { Version } from "./base/Version"
+export type { VersionProps } from "./base/Version"
+
+// StringInput.tsx
+export { StringInput } from "./composite/StringInput"
 
 // MenuBar.tsx
 export { VerticalMenuBar } from "./base/MenuBar"
