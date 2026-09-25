@@ -1,5 +1,4 @@
 export { ViewSwitcher } from "./ViewSwitcher"
-export type { View, ViewSwitcherProps } from "./ViewSwitcher"
 export {
     view_switcher_controller,
     ViewSwitcherController,
@@ -7,11 +6,21 @@ export {
     INITIAL_VIEW_SWITCHER_REGISTRY_STATE,
     STATIC_EMPTY_VIEW_SWITCHER_STATE
 } from "./ViewSwitcherController"
+export { useViewSwitcher, useViewSwitcherRegistry } from "./useViewSwitcher"
 export type {
+    View,
+    ViewSwitcherProps,
+    ViewSwitcherToolbarProps,
     ViewSwitcherState,
     ViewSwitcherInitState,
     ViewSwitcherListener,
     SetToolbarVisibleOptions,
-    ViewSwitcherRegistryState
-} from "./ViewSwitcherController"
-export { useViewSwitcher, useViewSwitcherRegistry } from "./useViewSwitcher"
+    SwitchViewEventDetail,
+    ViewSwitcherRegistryState,
+    TransitionGeometry,
+    SwipeRelease,
+    TransitionState,
+    UseViewSwipeGestureOptions,
+    UseViewSwipeGestureResult
+} from "./types"
+

@@ -1,32 +1,21 @@
 import { BaseController } from "@/infra"
+import type {
+    ViewSwitcherState,
+    ViewSwitcherInitState,
+    ViewSwitcherListener,
+    SetToolbarVisibleOptions,
+    SwitchViewEventDetail,
+    ViewSwitcherRegistryState
+} from "./types"
 
-export interface ViewSwitcherState {
-    id: string
-    is_toolbar_visible: boolean
-    is_transitioning: boolean
-    has_other_transitioning: boolean
-    active_view_id: string
-    target_view_id: string | null
-}
-
-export type ViewSwitcherInitState = Omit<ViewSwitcherState, "has_other_transitioning">
-
-export type ViewSwitcherListener = (state: ViewSwitcherState) => void
-
-export interface SetToolbarVisibleOptions {
-    wait_until_stable?: boolean
-}
-
-export interface SwitchViewEventDetail {
-    switcher_id: string
-    view_id: string
-}
-
-export interface ViewSwitcherRegistryState {
-    instances: Record<string, ViewSwitcherState>
-    has_any_transitioning: boolean
-    global_hide_count: number
-}
+export type {
+    ViewSwitcherState,
+    ViewSwitcherInitState,
+    ViewSwitcherListener,
+    SetToolbarVisibleOptions,
+    SwitchViewEventDetail,
+    ViewSwitcherRegistryState
+} from "./types"
 
 export const STATIC_EMPTY_VIEW_SWITCHER_STATE: ViewSwitcherState = {
     id: "",

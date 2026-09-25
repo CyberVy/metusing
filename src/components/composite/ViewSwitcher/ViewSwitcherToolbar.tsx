@@ -2,17 +2,10 @@
 
 import { HapticContainer } from "@/components/base/HapticContainer"
 import { join_classes } from "@/components/utils"
-import type { ViewSwitcherProps } from "./ViewSwitcher"
+import type { ViewSwitcherToolbarProps } from "./types"
 import styles from "./ViewSwitcher.module.css"
 
-type ViewSwitcherToolbarProps<T extends string> = Pick<ViewSwitcherProps<T>,
-    "views" | "toolbar_layout" | "toolbar_extra_actions" | "toolbar_className" | "toolbar_item_className"
-> & {
-    active_view_id: T
-    is_toolbar_visible: boolean
-    is_navigation_disabled: boolean
-    on_view_select: (view_id: T) => void
-}
+export type { ViewSwitcherToolbarProps } from "./types"
 
 /** Presentation only; the parent owns navigation rules and transition state. */
 export function ViewSwitcherToolbar<T extends string>({

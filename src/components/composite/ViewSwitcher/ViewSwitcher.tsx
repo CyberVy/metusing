@@ -1,56 +1,12 @@
 "use client"
 
 import { useState, useEffect, useLayoutEffect, useCallback, useId, useRef } from "react"
-import type { ComponentPropsWithRef, ReactNode } from "react"
 import { join_classes } from "@/components/utils"
 import { view_switcher_controller } from "./ViewSwitcherController"
 import { useViewSwitcher } from "./useViewSwitcher"
 import { ViewSwitcherToolbar } from "./ViewSwitcherToolbar"
 import { useViewSwipeGesture, compute_view_render_config, is_in_overscroll, evaluate_toolbar_visibility } from "./useViewSwipeGesture"
-
-export interface View<T extends string = string> {
-    /** Unique identifier for the view */
-    id: T
-    /** React node for the icon displayed in the navigation bar (optional) */
-    icon?: ReactNode
-    /** Label text or node displayed below the icon (optional) */
-    label?: ReactNode
-    /** Component or content to render when this view is selected */
-    content: ReactNode
-    /** Override global keep-alive setting for this specific view */
-    keep_alive?: boolean
-    /** Override global scroll memory setting for this specific view. Only effective when keep_alive resolves to true. */
-    remember_scroll?: boolean
-    /** Whether horizontal swipe transition is enabled for this view. Defaults to true. */
-    swipe_enabled?: boolean | "left" | "right" | "both" | "none"
-    /** Control whether to hide the floating toolbar based on scroll position */
-    should_hide_toolbar?: boolean | ((scroll_y: number) => boolean)
-}
-
-export type ViewSwitcherProps<T extends string = string> = Omit<ComponentPropsWithRef<"div">, "children" | "onChange"> & {
-    /** Unique identifier for registering with the view switcher controller */
-    id?: string
-    /** List of view configurations */
-    views: View<T>[]
-    /** The active view ID for controlled mode */
-    active_view_id?: T
-    /** Initial active view ID for uncontrolled mode */
-    default_active_view_id?: T
-    /** Callback triggered when active view changes */
-    on_view_change?: (view_id: T) => void
-    /** Default keep-alive value if a view doesn't specify keep_alive */
-    keep_alive_default?: boolean
-    /** Whether to automatically remember and restore scroll positions of keep-alive views */
-    remember_scroll?: boolean
-    /** Extra actions/buttons to display on the right side of the floating toolbar */
-    toolbar_extra_actions?: ReactNode
-    /** Custom class for the floating bottom bar */
-    toolbar_className?: string
-    /** Custom class for individual view buttons */
-    toolbar_item_className?: string
-    /** Layout positioning: bottom floating (default) or top floating */
-    toolbar_layout?: "bottom-floating" | "top-floating"
-}
+import type { ViewSwitcherProps } from "./types"
 
 /**
  * ARCHITECTURAL DESIGN NOTE: Window Scroll vs. Container Scroll on iOS Safari
