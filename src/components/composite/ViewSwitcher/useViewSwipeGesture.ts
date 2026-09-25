@@ -1,42 +1,26 @@
 "use client"
 
 import { useState, useEffect, useLayoutEffect, useRef, useCallback } from "react"
-import type { CSSProperties, RefObject, TransitionEvent } from "react"
+import type { CSSProperties, TransitionEvent } from "react"
 import { create_swipe_gesture } from "@/infra"
 import type { SwipeEndResult } from "@/infra/gestures.client"
-import type { View } from "./ViewSwitcher"
+import type {
+    View,
+    TransitionGeometry,
+    SwipeRelease,
+    TransitionState,
+    UseViewSwipeGestureOptions,
+    UseViewSwipeGestureResult
+} from "./types"
 import { view_switcher_controller } from "./ViewSwitcherController"
 
-/** Geometry captured at gesture start and retained through the release animation. */
-export interface TransitionGeometry<T extends string> {
-    active_view_id: T
-    active_view_height: number
-    active_view_scroll_y: number
-    /** Active view's document offset before it becomes fixed. */
-    active_view_top: number
-    viewport_height: number
-    viewport_width: number
-    prev_view_id?: T
-    prev_view_scroll_y?: number
-    next_view_id?: T
-    next_view_scroll_y?: number
-}
-
-/** The visual destination, even if a controlled parent has not accepted the switch yet. */
-export interface SwipeRelease<T extends string> {
-    outcome: "return" | "switch"
-    view_id: T
-    scroll_y: number
-    translation_x: number
-}
-
-export type TransitionState<T extends string> =
-    | { status: "idle" }
-    | (TransitionGeometry<T> & { status: "dragging" })
-    | (TransitionGeometry<T> & {
-          status: "released"
-          release: SwipeRelease<T>
-      })
+export type {
+    TransitionGeometry,
+    SwipeRelease,
+    TransitionState,
+    UseViewSwipeGestureOptions,
+    UseViewSwipeGestureResult
+} from "./types"
 
 export const RELEASE_TRANSITION_CSS = "transform 300ms cubic-bezier(0.4, 0, 0.2, 1)"
 
@@ -196,25 +180,6 @@ export function compute_view_render_config<T extends string>(
     return { view_class, style, is_view_active_in_transition }
 }
 
-export interface UseViewSwipeGestureOptions<T extends string> {
-    switcher_instance_id: string
-    views: View<T>[]
-    current_active_view_id: T
-    active_view_index: number
-    active_swipe_enabled?: View<T>["swipe_enabled"]
-    container_element_ref: RefObject<HTMLDivElement | null>
-    scroll_positions_ref: RefObject<Record<string, number>>
-    commit_view_change: (view_id: T) => void
-}
-
-export interface UseViewSwipeGestureResult<T extends string> {
-    transition_state: TransitionState<T>
-    is_transitioning: boolean
-    target_view_id: T | null
-    view_elements_ref: RefObject<Record<string, HTMLDivElement | null>>
-    handle_transition_end: (e?: TransitionEvent) => void
-    reset_transition: () => void
-}
 
 export function useViewSwipeGesture<T extends string>({
     switcher_instance_id,

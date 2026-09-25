@@ -2,7 +2,7 @@
 
 import { useCallback } from "react"
 import { useController } from "@/components/hooks"
-import type { ViewSwitcherState, ViewSwitcherRegistryState } from "./ViewSwitcherController"
+import type { ViewSwitcherState, ViewSwitcherRegistryState } from "./types"
 import {
     view_switcher_controller,
     STATIC_EMPTY_VIEW_SWITCHER_STATE,
