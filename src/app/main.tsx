@@ -9,7 +9,7 @@ function mount(){
     }
 }
 
-if (navigator.serviceWorker){
+if (navigator.serviceWorker && ["https:", "http"].includes(location.protocol)){
     
     navigator.serviceWorker.register('/sw.js').then(() => {
         console.log('Service worker is registered successfully.')
