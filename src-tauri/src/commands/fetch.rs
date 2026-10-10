@@ -1,9 +1,10 @@
 use std::collections::HashMap;
 
 use base64::{engine::general_purpose::STANDARD, Engine as _};
-use reqwest::header::{HeaderMap, HeaderName, HeaderValue, CONTENT_TYPE};
+use reqwest::header::{HeaderMap, HeaderName, HeaderValue};
 use reqwest::{Client, Method};
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
+use tauri::ipc::Response;
 use tauri::AppHandle;
 
 #[derive(Debug, Deserialize)]
@@ -22,20 +23,12 @@ pub struct FetchRequest {
     pub timeout_ms: Option<u64>,
 }
 
-#[derive(Debug, Serialize)]
-#[serde(rename_all = "camelCase")]
-pub struct FetchResponse {
-    pub status: u16,
-    pub headers: HashMap<String, String>,
-    pub body: String,
-}
-
 fn default_method() -> String {
     "GET".into()
 }
 
 #[tauri::command]
-pub async fn fetch(_app: AppHandle, req: FetchRequest) -> Result<FetchResponse, String> {
+pub async fn fetch(_app: AppHandle, req: FetchRequest) -> Result<Response, String> {
     let client = Client::builder().build().map_err(|e| e.to_string())?;
 
     let method = req
@@ -75,23 +68,16 @@ pub async fn fetch(_app: AppHandle, req: FetchRequest) -> Result<FetchResponse, 
         resp_headers.insert(name.to_string(), value.to_str().unwrap_or("").to_string());
     }
 
-    let is_text = resp
-        .headers()
-        .get(CONTENT_TYPE)
-        .and_then(|v| v.to_str().ok())
-        .map(|ct| ct.starts_with("text/") || ct.contains("json"))
-        .unwrap_or(false);
-
     let body_bytes = resp.bytes().await.map_err(|e| e.to_string())?;
-    let body = if is_text {
-        String::from_utf8_lossy(&body_bytes).to_string()
-    } else {
-        STANDARD.encode(body_bytes)
-    };
+    let headers_json = serde_json::to_string(&resp_headers).unwrap_or_else(|_| "{}".to_string());
+    let headers_bytes = headers_json.as_bytes();
+    let headers_len = headers_bytes.len() as u32;
 
-    Ok(FetchResponse {
-        status,
-        headers: resp_headers,
-        body,
-    })
+    let mut payload = Vec::with_capacity(6 + headers_bytes.len() + body_bytes.len());
+    payload.extend_from_slice(&status.to_be_bytes());
+    payload.extend_from_slice(&headers_len.to_be_bytes());
+    payload.extend_from_slice(headers_bytes);
+    payload.extend_from_slice(&body_bytes);
+
+    Ok(Response::new(payload))
 }
