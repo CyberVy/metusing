@@ -57,7 +57,6 @@ export { BodyPortal } from "./base/Portal"
 
 // hooks.tsx
 export {
-    useInViewport,
     useAutoSyncRefAndState,
     useOptimizedRotation,
     usePersistedState,

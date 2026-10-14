@@ -3,7 +3,6 @@ import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore
 import type { BaseController, BaseKeyedController } from "@/infra"
 import { is_ios_device } from "@/infra/device.client"
 import { create_logger } from "@/infra/logger"
-import { is_element_hidden } from "./utils"
 
 const logger = create_logger("Hooks")
 
@@ -100,72 +99,6 @@ export function useMediaQuery(query: string, initial_value = false): boolean{
     return useSyncExternalStore(subscribe, get_snapshot, get_server_snapshot)
 }
 
-/** root_margin: expands or shrinks the viewport area used by IntersectionObserver.
- *
- *  protected_padding: keep the contents which are within the top or bottom 'protected_padding' in view to prevent repeating renders
-**/
-type UseInViewportOptions = {
-    enabled?: boolean
-    root?: HTMLElement | RefObject<HTMLElement | null> | null
-    root_margin?: number | string
-    protected_padding?: number
-    threshold?: number | number[]
-    initial_in_view?: boolean
-}
-
-function get_root_margin(root_margin: number | string){
-    if (typeof root_margin === "number") return `${root_margin}px`
-
-    return root_margin
-}
-
-export function useInViewport<T extends HTMLElement>({
-    enabled = true,
-    root,
-    root_margin = 0,
-    protected_padding = 0,
-    threshold = 0,
-    initial_in_view = false,
-}: UseInViewportOptions = {}){
-    const [element, set_element] = useState<T | null>(null)
-    const [is_intersecting, set_is_intersecting] = useState(initial_in_view)
-    const ref = useCallback((next_element: T | null) => {
-        set_element(next_element)
-    }, [])
-
-    useEffect(() => {
-        if (!element) return
-
-        const resolved_root = (root && typeof root === "object" && "current" in root ? root.current : root) || null
-
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach((entry) => {
-                const target_element = entry.target as T
-                if (is_element_hidden(target_element)){
-                    set_is_intersecting(false)
-                    return
-                }
-
-                const root_element = resolved_root || document.documentElement
-                if (protected_padding){
-                    if (target_element.offsetTop - root_element.offsetTop <= protected_padding || target_element.offsetTop - root_element.offsetTop >= root_element.scrollHeight - protected_padding){
-                        set_is_intersecting(true)
-                        return
-                    }
-                }
-
-                set_is_intersecting(entry.isIntersecting)
-            })
-        }, { threshold: threshold, rootMargin: get_root_margin(root_margin), root: resolved_root })
-        observer.observe(element)
-
-        return () => observer.disconnect()
-    }, [element, protected_padding, root, root_margin, threshold])
-
-    const in_view = enabled && is_intersecting
-
-    return { ref: ref, in_view: in_view }
-}
 
 // create an auto sync state and ref object
 export function useAutoSyncRefAndState<T>(value: T): [RefObject<T>, (value: T | ((prev: T) => T)) => void, T]{
