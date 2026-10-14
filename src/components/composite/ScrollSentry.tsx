@@ -1,8 +1,8 @@
 "use client"
 
 import type { RefObject } from "react"
-import React, { useEffect, useMemo } from "react"
-import { useInViewport } from "@/components/hooks"
+import React, { useEffect, useRef, useState } from "react"
+import { is_element_hidden } from "@/components/utils"
 
 export type ScrollSentryProps = {
     on_trigger: () => void
@@ -12,15 +12,9 @@ export type ScrollSentryProps = {
     enabled?: boolean
 }
 
-function throttle<T extends (...args: any[]) => any>(fn: T, limit: number): T{
-    let in_throttle = false
-    return function(this: any, ...args: any[]){
-        if (!in_throttle){
-            fn.apply(this, args)
-            in_throttle = true
-            setTimeout(() => in_throttle = false, limit)
-        }
-    } as any
+function get_root_margin(root_margin: number | string){
+    if (typeof root_margin === "number") return `${root_margin}px`
+    return root_margin
 }
 
 const ScrollSentry = React.memo(function ScrollSentry({
@@ -30,19 +24,42 @@ const ScrollSentry = React.memo(function ScrollSentry({
     root,
     enabled = true,
 }: ScrollSentryProps){
-    const { ref, in_view } = useInViewport<HTMLDivElement>({ enabled, root_margin, root })
-
-    const throttled_callback = useMemo(() => {
-        return throttle(on_trigger, throttle_ms)
-    }, [on_trigger, throttle_ms])
+    const [element, set_element] = useState<HTMLDivElement | null>(null)
+    const last_trigger_time_ref = useRef(0)
 
     useEffect(() => {
-        if (in_view && enabled){
-            throttled_callback()
-        }
-    }, [in_view, enabled, throttled_callback])
+        if (!element || !enabled) return
 
-    return <div ref={ref} className="h-[0.5px] w-full pointer-events-none" />
+        const resolved_root = (root && typeof root === "object" && "current" in root ? root.current : root) || null
+
+        const observer = new IntersectionObserver((entries) => {
+            for (const entry of entries){
+                const target_element = entry.target as HTMLElement
+                if (is_element_hidden(target_element)){
+                    continue
+                }
+                if (entry.isIntersecting){
+                    const now = Date.now()
+                    if (now - last_trigger_time_ref.current >= throttle_ms){
+                        last_trigger_time_ref.current = now
+                        on_trigger()
+                    }
+                }
+            }
+        }, {
+            root: resolved_root,
+            rootMargin: get_root_margin(root_margin),
+            threshold: 0
+        })
+
+        observer.observe(element)
+
+        return () => {
+            observer.disconnect()
+        }
+    }, [element, enabled, root, root_margin, throttle_ms, on_trigger])
+
+    return <div ref={set_element} className="h-[0.5px] w-full pointer-events-none" />
 })
 
 ScrollSentry.displayName = "ScrollSentry"
