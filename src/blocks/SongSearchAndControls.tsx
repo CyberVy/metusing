@@ -1,5 +1,11 @@
 import { useState, useRef } from "react"
-import { useKaraokeState, karaoke_controller, usePitchState, pitch_controller } from "@/core/controllers"
+import {
+    useKaraokeState,
+    karaoke_controller,
+    usePitchState,
+    pitch_controller,
+    DEMO_SONGS
+} from "@/core/controllers"
 import {
     PlayIcon,
     PauseIcon,
@@ -51,8 +57,8 @@ export function SongSearchAndControls() {
         })
     }
 
-    const handle_load_demo = async () => {
-        await karaoke_controller.load_demo_song()
+    const handle_load_demo = async (video_id?: string) => {
+        await karaoke_controller.load_demo_song(video_id)
     }
 
     const is_loading = status === "loading"
@@ -62,29 +68,47 @@ export function SongSearchAndControls() {
             {/* When not ready: Show upload / demo loader */}
             {status !== "ready" && (
                 <div className="flex flex-col gap-4">
-                    {/* Quick 1-click Demo Button */}
-                    <div className="flex items-center justify-between p-3.5 bg-black/5 dark:bg-black/40 border border-black/10 dark:border-white/10 rounded-lg">
-                        <div className="flex flex-col gap-0.5">
-                            <span className="text-sm font-medium text-black dark:text-white">
-                                Instant Demo Track
-                            </span>
-                            <span className="text-xs text-black/40 dark:text-white/40">
-                                Synthesized accompaniment, guide vocal, and lyrics (zero file required)
-                            </span>
+                    {/* Demo Songs Selector */}
+                    <div className="flex flex-col gap-2.5 p-3.5 bg-black/5 dark:bg-black/40 border border-black/10 dark:border-white/10 rounded-lg">
+                        <div className="flex items-center justify-between">
+                            <div className="flex flex-col gap-0.5">
+                                <span className="text-sm font-medium text-black dark:text-white flex items-center gap-1.5">
+                                    <SparklesIcon className="w-4 h-4" />
+                                    Demo Songs
+                                </span>
+                                <span className="text-xs text-black/40 dark:text-white/40">
+                                    Pre-separated accompaniment, vocal tracks, and synchronized lyrics
+                                </span>
+                            </div>
                         </div>
-                        <button
-                            type="button"
-                            onClick={() => void handle_load_demo()}
-                            disabled={is_loading}
-                            className="px-3.5 py-1.5 bg-black text-white dark:bg-white dark:text-black text-xs font-semibold rounded-lg hover:bg-black/80 dark:hover:bg-white/90 disabled:opacity-40 transition-colors flex items-center gap-1.5 shrink-0"
-                        >
-                            {is_loading ? (
-                                <LoaderIcon className="w-3.5 h-3.5 animate-spin" />
-                            ) : (
-                                <SparklesIcon className="w-3.5 h-3.5" />
-                            )}
-                            <span>{is_loading ? "Generating..." : "Load Demo Song"}</span>
-                        </button>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-0.5">
+                            {DEMO_SONGS.map((song) => (
+                                <button
+                                    key={song.video_id}
+                                    type="button"
+                                    onClick={() => void handle_load_demo(song.video_id)}
+                                    disabled={is_loading}
+                                    className="p-2.5 bg-white dark:bg-zinc-800/80 border border-black/10 dark:border-white/10 rounded-lg hover:border-black/30 dark:hover:border-white/30 text-left transition-all flex items-center justify-between group disabled:opacity-40 cursor-pointer"
+                                >
+                                    <div className="flex flex-col overflow-hidden mr-2">
+                                        <span className="text-xs font-semibold text-black dark:text-white truncate">
+                                            {song.title}
+                                        </span>
+                                        <span className="text-[11px] text-black/50 dark:text-white/50 truncate">
+                                            {song.artist}
+                                        </span>
+                                    </div>
+                                    <div className="px-2.5 py-1 bg-black text-white dark:bg-white dark:text-black rounded text-[11px] font-medium shrink-0 group-hover:opacity-80 transition-opacity flex items-center gap-1">
+                                        {is_loading ? (
+                                            <LoaderIcon className="w-3 h-3 animate-spin" />
+                                        ) : (
+                                            <span>Load</span>
+                                        )}
+                                    </div>
+                                </button>
+                            ))}
+                        </div>
                     </div>
 
                     <div className="flex items-center gap-3">
