@@ -1,8 +1,9 @@
 import { pitch_controller } from "./pitch.controller"
 import { parse_lyrics, type LyricLine } from "../lyrics_parser"
-import { generate_demo_song } from "../demo_song"
+import { generate_demo_song, DEMO_SONGS, type DemoSongInfo } from "../demo_song"
 
-export type { LyricLine }
+export type { LyricLine, DemoSongInfo }
+export { DEMO_SONGS }
 
 export interface SongMetadata {
     video_id: string
@@ -202,22 +203,22 @@ export class KaraokeController extends EventTarget {
         }
     }
 
-    public load_demo_song = async (): Promise<void> => {
+    public load_demo_song = async (video_id?: string): Promise<void> => {
         this.status = "loading"
         this.error = null
         this.notify_change()
 
         try {
-            const demo = await generate_demo_song()
+            const demo = await generate_demo_song(video_id)
             await this.load_local_data({
-                instrumental: demo.instrumental_blob,
-                vocals: demo.vocals_blob,
+                instrumental: demo.instrumental,
+                vocals: demo.vocals,
                 lyrics: demo.lyrics,
                 meta: demo.meta
             })
         } catch (err) {
             this.status = "error"
-            this.error = err instanceof Error ? err.message : "Failed to generate demo track"
+            this.error = err instanceof Error ? err.message : "Failed to load demo track"
             this.notify_change()
         }
     }
