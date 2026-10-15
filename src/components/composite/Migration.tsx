@@ -26,14 +26,36 @@ function MigrationAlertModal({
 
     return (
         <BodyPortal>
+            {/* Backdrop */}
+            <AnimationContainer
+                show={show}
+                enter_from={{ opacity: 0 }}
+                enter_to={{ opacity: 1 }}
+                exit_from={{ opacity: 1 }}
+                exit_to={{ opacity: 0 }}
+                duration={250}
+                unmount_on_exit={true}
+                className="fixed inset-0 z-100 bg-black/40 dark:bg-black/60 backdrop-blur-xs cursor-pointer"
+                onClick={on_close}
+            >
+                <div className="w-full h-full" />
+            </AnimationContainer>
+
             {/* Modal dialog */}
             <AnimationContainer
-                enter_from={{ transform: "scale(0)" }}
-                enter_to={{ transform: "scale(1)" }}
                 show={show}
-                className="fixed inset-0 z-100"
+                enter_from={{ transform: "scale(0)", opacity: 1 }}
+                enter_to={{ transform: "scale(1)", opacity: 1 }}
+                exit_from={{ transform: "scale(1)", opacity: 1 }}
+                exit_to={{ transform: "scale(0)", opacity: 1 }}
+                duration={250}
+                unmount_on_exit={true}
+                className="fixed inset-0 z-101 flex items-center justify-center pointer-events-none p-4"
             >
-                <FloatingModalContainer className="w-80! h-auto! min-h-40! p-1! top-1/2 left-1/2 -translate-1/2 select-none">
+                <FloatingModalContainer
+                    on_escape={on_close}
+                    className="w-80 min-h-40 p-3 select-none"
+                >
                     <div className="flex flex-col justify-between h-full w-full p-2">
                         {/* Header */}
                         <div className="flex items-center justify-between border-b border-black/10 dark:border-white/10 pb-2 mb-3">

@@ -6,11 +6,21 @@ import { ScrollToBottomButton, ScrollToTopButton } from "@/components/composite/
 
 import type { ComponentPropsWithRef } from "react"
 
-type FullscreenModalContainerProps = ComponentPropsWithRef<"div"> & {
+export type FullscreenModalContainerProps = ComponentPropsWithRef<"div"> & {
     enable_scroll_button?: boolean
+    on_escape?: () => void
+    enable_escape?: boolean
 }
 
-function FullscreenModalContainer({ className = "", children, enable_scroll_button = false, ref, ...props }: FullscreenModalContainerProps){
+function FullscreenModalContainer({
+    className = "",
+    children,
+    enable_scroll_button = false,
+    on_escape,
+    enable_escape = true,
+    ref,
+    ...props
+}: FullscreenModalContainerProps){
 
     const [in_browser, set_in_browser] = useState(true)
     const container_ref = useRef<HTMLDivElement | null>(null)
@@ -29,6 +39,20 @@ function FullscreenModalContainer({ className = "", children, enable_scroll_butt
     useEffect(() => {
         set_in_browser(is_in_browser())
     }, [])
+
+    useEffect(() => {
+        if (!enable_escape || !on_escape) return
+
+        const handle_keydown = (e: KeyboardEvent) => {
+            if (e.key === "Escape"){
+                e.preventDefault()
+                on_escape()
+            }
+        }
+
+        window.addEventListener("keydown", handle_keydown)
+        return () => window.removeEventListener("keydown", handle_keydown)
+    }, [enable_escape, on_escape])
 
     return (
         <div
@@ -64,28 +88,53 @@ function FullscreenModalContainer({ className = "", children, enable_scroll_butt
 export { FullscreenModalContainer }
 
 
-type FloatingModalContainerProps = ComponentPropsWithRef<"div">
+export type FloatingModalContainerProps = ComponentPropsWithRef<"div"> & {
+    on_escape?: () => void
+    enable_escape?: boolean
+    center?: boolean
+}
 
-function FloatingModalContainer({ className = "", children, ref, ...props }: FloatingModalContainerProps){
+function FloatingModalContainer({
+    className = "",
+    children,
+    on_escape,
+    enable_escape = true,
+    center = true,
+    ref,
+    onClick,
+    ...props
+}: FloatingModalContainerProps){
+    useEffect(() => {
+        if (!enable_escape || !on_escape) return
+
+        const handle_keydown = (e: KeyboardEvent) => {
+            if (e.key === "Escape"){
+                e.preventDefault()
+                on_escape()
+            }
+        }
+
+        window.addEventListener("keydown", handle_keydown)
+        return () => window.removeEventListener("keydown", handle_keydown)
+    }, [enable_escape, on_escape])
+
     return (
         <div
             ref={ref}
             className={[
-                "fixed",
-                "h-[20vh] w-[80vw]",
-                "rounded-[30px] border border-black/8 bg-white/78 p-1 text-black/88 shadow-[0_18px_48px_rgba(15,23,42,0.14),inset_0_1px_0_rgba(255,255,255,0.42)] backdrop-blur-2xl",
-                "dark:border-white/10 dark:bg-[#111111]/78 dark:text-white/88 dark:shadow-[0_20px_52px_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.03)]",
+                "fixed z-51 pointer-events-auto",
+                center ? "top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" : "",
+                "flex flex-col rounded-3xl border border-black/10 dark:border-white/10",
+                "bg-white/85 dark:bg-[#141414]/85 backdrop-blur-xl shadow-2xl text-foreground",
                 className
             ].filter(Boolean).join(" ")}
+            onClick={(e) => {
+                e.stopPropagation()
+                onClick?.(e)
+            }}
             {...props}
         >
-            <div className={[
-                "overflow-auto overscroll-none no-scrollbar h-full w-full rounded-[30px] border border-black/8 bg-black/2.5 p-2.5 shadow-[0_10px_28px_rgba(15,23,42,0.08),inset_0_1px_0_rgba(255,255,255,0.46)]",
-                "dark:border-white/10 dark:bg-white/[0.035] dark:text-white/88 dark:shadow-[0_14px_32px_rgba(0,0,0,0.26),inset_0_1px_0_rgba(255,255,255,0.04)]"
-            ].filter(Boolean).join(" ")}
-            >
-                {children}
-            </div>
+            {children}
         </div>
     )
 }
