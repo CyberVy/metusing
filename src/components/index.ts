@@ -34,6 +34,7 @@ export type { ContextMenuProps } from "./composite/ContextMenuContainer"
 
 // ModalContainer.tsx
 export { FullscreenModalContainer, FloatingModalContainer } from "./composite/ModalContainer"
+export type { FullscreenModalContainerProps, FloatingModalContainerProps } from "./composite/ModalContainer"
 
 // String.tsx
 export { AnimatedGlowText } from "./base/String"
