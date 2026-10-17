@@ -1,12 +1,12 @@
-export abstract class BaseController<State, EventType extends string = string> extends EventTarget{
+export abstract class BaseController<State, EventType extends string = string> extends EventTarget {
     protected _state?: State
 
-    public get state(): Readonly<State>{
+    public get state(): Readonly<State> {
         return this._state as State
     }
 
-    protected update_state(partial: Partial<State>): void{
-        if (this._state !== undefined){
+    protected update_state(partial: Partial<State>): void {
+        if (this._state !== undefined) {
             this._state = {
                 ...this._state,
                 ...partial
@@ -15,7 +15,11 @@ export abstract class BaseController<State, EventType extends string = string> e
     }
 }
 
-export abstract class BaseKeyedController<Key extends string | number = string, Value = any, EventType extends string = string> extends EventTarget{
+export abstract class BaseKeyedController<
+    Key extends string | number = string,
+    Value = any,
+    EventType extends string = string
+> extends EventTarget {
     /**
      * Define the event names that trigger changes for a specific key.
      * Handled and determined entirely by the subclass.

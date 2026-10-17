@@ -20,7 +20,4 @@ type AnimationContainerProps = Omit<ComponentPropsWithRef<"div">, "children"> & 
     animate_on_mount?: boolean
 }
 
-export type {
-    AnimationStyle,
-    AnimationContainerProps,
-}
+export type { AnimationStyle, AnimationContainerProps }

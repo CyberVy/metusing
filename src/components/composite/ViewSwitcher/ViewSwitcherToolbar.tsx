@@ -17,8 +17,8 @@ export function ViewSwitcherToolbar<T extends string>({
     toolbar_layout,
     toolbar_extra_actions,
     toolbar_className,
-    toolbar_item_className,
-}: ViewSwitcherToolbarProps<T>){
+    toolbar_item_className
+}: ViewSwitcherToolbarProps<T>) {
     const is_top = toolbar_layout === "top-floating"
     const padding_class = is_top ? "p-0.5" : "p-1"
     const items_spacing_class = is_top ? "p-0.5 gap-0.5" : "p-1"
@@ -28,9 +28,7 @@ export function ViewSwitcherToolbar<T extends string>({
     return (
         <div
             className={join_classes(
-                is_top
-                    ? styles["viewswitcher-toolbar-top"]
-                    : styles["viewswitcher-toolbar-bottom"],
+                is_top ? styles["viewswitcher-toolbar-top"] : styles["viewswitcher-toolbar-bottom"],
                 "fixed left-1/2 -translate-x-1/2 z-50 flex items-center gap-2.5",
                 "bg-white/40 dark:bg-black/40 backdrop-blur-md",
                 "rounded-full",
@@ -41,12 +39,7 @@ export function ViewSwitcherToolbar<T extends string>({
                 toolbar_className
             )}
         >
-            <div
-                className={join_classes(
-                    "rounded-full border border-black/10 dark:border-white/10",
-                    padding_class
-                )}
-            >
+            <div className={join_classes("rounded-full border border-black/10 dark:border-white/10", padding_class)}>
                 <div
                     className={join_classes(
                         "inline-flex flex-row items-center bg-background/0! backdrop-blur-none!",
@@ -55,7 +48,9 @@ export function ViewSwitcherToolbar<T extends string>({
                 >
                     {views.map((view) => {
                         const is_active = view.id === active_view_id
-                        const active_text_class = view.icon ? "text-red-700 dark:text-red-500" : "text-black dark:text-white"
+                        const active_text_class = view.icon
+                            ? "text-red-700 dark:text-red-500"
+                            : "text-black dark:text-white"
                         const text_class = is_active ? active_text_class : "text-black/50 dark:text-white/50"
                         return (
                             <button

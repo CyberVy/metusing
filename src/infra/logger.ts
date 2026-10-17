@@ -3,7 +3,7 @@ export enum LogLevel {
     INFO = 1,
     WARN = 2,
     ERROR = 3,
-    SILENT = 4,
+    SILENT = 4
 }
 
 function resolve_default_level(): LogLevel {
@@ -11,17 +11,15 @@ function resolve_default_level(): LogLevel {
         const stored = globalThis.localStorage?.getItem("LOG_LEVEL")?.toUpperCase()
         const level = stored ? LogLevel[stored as keyof typeof LogLevel] : undefined
         if (typeof level === "number") return level
-    }
-    catch {
+    } catch {
         // Ignore security or storage quota errors
     }
 
     let is_dev = false
     try {
         is_dev = process.env?.NODE_ENV === "development"
-    }
-    catch{}
-    
+    } catch {}
+
     return is_dev ? LogLevel.DEBUG : LogLevel.INFO
 }
 

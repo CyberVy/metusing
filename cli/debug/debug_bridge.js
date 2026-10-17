@@ -1,4 +1,4 @@
-(function (){
+;(function () {
     if (typeof window === "undefined") return
 
     // 1. Hook console logs
@@ -7,25 +7,24 @@
         log: console.log,
         warn: console.warn,
         error: console.error,
-        info: console.info,
+        info: console.info
     }
 
-    function send_log(level, args){
+    function send_log(level, args) {
         const message = args
             .map((arg) => {
-                if (arg instanceof Error || (arg && typeof arg === "object" && ("message" in arg || "name" in arg))){
+                if (arg instanceof Error || (arg && typeof arg === "object" && ("message" in arg || "name" in arg))) {
                     return `${arg.name || "Error"}: ${arg.message || ""}${arg.stack ? `\n${arg.stack}` : ""}`
                 }
-                if (typeof arg === "object" && arg !== null){
+                if (typeof arg === "object" && arg !== null) {
                     try {
                         return JSON.stringify(arg, (_key, value) => {
-                            if (value instanceof Error){
+                            if (value instanceof Error) {
                                 return { name: value.name, message: value.message, stack: value.stack }
                             }
                             return value
                         })
-                    }
-                    catch {
+                    } catch {
                         return String(arg)
                     }
                 }
@@ -39,8 +38,8 @@
             body: JSON.stringify({
                 timestamp: Date.now(),
                 level,
-                message,
-            }),
+                message
+            })
         }).catch(() => {})
     }
 
@@ -66,9 +65,7 @@
     }
 
     window.addEventListener("error", (event) => {
-        send_log("error", [
-            `Uncaught Exception: ${event.message} at ${event.filename}:${event.lineno}`,
-        ])
+        send_log("error", [`Uncaught Exception: ${event.message} at ${event.filename}:${event.lineno}`])
     })
 
     window.addEventListener("unhandledrejection", (event) => {
@@ -76,7 +73,7 @@
     })
 
     // 2. Set up SSE for Eval commands
-    function init_event_source(){
+    function init_event_source() {
         const event_source = new EventSource("/__debug/events")
 
         event_source.onmessage = async (event) => {
@@ -89,8 +86,7 @@
                     result = await (async () => {
                         return eval(req.code)
                     })()
-                }
-                catch (err){
+                } catch (err) {
                     result = err.toString()
                     success = false
                 }
@@ -102,11 +98,10 @@
                     body: JSON.stringify({
                         id: req.id,
                         success: success,
-                        result: result,
-                    }),
+                        result: result
+                    })
                 }).catch(() => {})
-            }
-            catch (err){
+            } catch (err) {
                 original_console.error("Debug bridge failed to process event:", err)
             }
         }

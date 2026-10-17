@@ -23,4 +23,3 @@ export type {
     UseViewSwipeGestureOptions,
     UseViewSwipeGestureResult
 } from "./types"
-

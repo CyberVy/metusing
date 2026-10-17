@@ -142,7 +142,8 @@ export class PitchController extends EventTarget {
                     seen.add(d.deviceId)
                     let label = d.label
                     if (!label) {
-                        label = d.deviceId === "default" ? "Default Microphone" : `Microphone ${audio_inputs.length + 1}`
+                        label =
+                            d.deviceId === "default" ? "Default Microphone" : `Microphone ${audio_inputs.length + 1}`
                     }
                     audio_inputs.push({
                         device_id: d.deviceId,
@@ -232,7 +233,9 @@ export class PitchController extends EventTarget {
                 }
             }
 
-            const audio_ctx_class = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
+            const audio_ctx_class =
+                window.AudioContext ||
+                (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
             const ctx = new audio_ctx_class({ latencyHint: "interactive" })
             if (ctx.state === "suspended") {
                 await ctx.resume()
@@ -295,11 +298,7 @@ export class PitchController extends EventTarget {
 
         if (this.monitor_gain_node && this.audio_context) {
             const target_val = enabled ? this.monitor_volume : 0
-            this.monitor_gain_node.gain.setTargetAtTime(
-                target_val,
-                this.audio_context.currentTime,
-                0.015
-            )
+            this.monitor_gain_node.gain.setTargetAtTime(target_val, this.audio_context.currentTime, 0.015)
         }
         this.notify_change()
     }
@@ -317,11 +316,7 @@ export class PitchController extends EventTarget {
             // ignore
         }
         if (this.monitor_gain_node && this.audio_context && this.is_monitor_enabled) {
-            this.monitor_gain_node.gain.setTargetAtTime(
-                clamped,
-                this.audio_context.currentTime,
-                0.015
-            )
+            this.monitor_gain_node.gain.setTargetAtTime(clamped, this.audio_context.currentTime, 0.015)
         }
         this.notify_change()
     }

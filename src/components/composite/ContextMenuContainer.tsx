@@ -18,7 +18,10 @@ export type ContextMenuProps = VerticalMenuBarProps & {
     on_click_trigger?: (event: PointerEvent<HTMLDivElement>) => void
 }
 
-function get_context_menu_render_point(context_menu_element: HTMLElement, context_menu_point: [number, number]): [number, number]{
+function get_context_menu_render_point(
+    context_menu_element: HTMLElement,
+    context_menu_point: [number, number]
+): [number, number] {
     const safe_padding = 12
     const max_x = Math.max(safe_padding, window.innerWidth - context_menu_element.offsetWidth - safe_padding)
     const max_y = Math.max(safe_padding, window.innerHeight - context_menu_element.offsetHeight - safe_padding)
@@ -38,7 +41,7 @@ function ContextMenu({
     style,
     ref,
     ...menuProps
-}: ContextMenuProps){
+}: ContextMenuProps) {
     const { sections, on_select, enable_vibration = true, ...remainingMenuProps } = menuProps
     const backdrop_press_active_ref = useRef(false)
     const context_menu_active_ref = useRef(false)
@@ -63,29 +66,32 @@ function ContextMenu({
         set_show_context_menu(false)
     }, [])
 
-    const open_context_menu = useCallback((client_x: number, client_y: number, target_el?: HTMLElement | null) => {
-        if (disabled || !has_context_menu) return
+    const open_context_menu = useCallback(
+        (client_x: number, client_y: number, target_el?: HTMLElement | null) => {
+            if (disabled || !has_context_menu) return
 
-        let final_x = client_x
-        let final_y = client_y
+            let final_x = client_x
+            let final_y = client_y
 
-        if (final_x === 0 && final_y === 0 && target_el){
-            const rect = target_el.getBoundingClientRect()
-            final_x = Math.round(rect.left + rect.width / 2)
-            final_y = Math.round(rect.top + rect.height / 2)
-        }
+            if (final_x === 0 && final_y === 0 && target_el) {
+                const rect = target_el.getBoundingClientRect()
+                final_x = Math.round(rect.left + rect.width / 2)
+                final_y = Math.round(rect.top + rect.height / 2)
+            }
 
-        set_context_menu_point([final_x, final_y])
-        set_context_menu_render_point([final_x, final_y])
-        set_show_context_menu(true)
-    }, [disabled, has_context_menu])
+            set_context_menu_point([final_x, final_y])
+            set_context_menu_render_point([final_x, final_y])
+            set_show_context_menu(true)
+        },
+        [disabled, has_context_menu]
+    )
 
     useLayoutEffect(() => {
         if (!show_context_menu || !menu_element_ref.current) return
 
         const next_render_point = get_context_menu_render_point(menu_element_ref.current, context_menu_point)
-        set_context_menu_render_point(prev => {
-            if (prev[0] === next_render_point[0] && prev[1] === next_render_point[1]){
+        set_context_menu_render_point((prev) => {
+            if (prev[0] === next_render_point[0] && prev[1] === next_render_point[1]) {
                 return prev
             }
             return next_render_point
@@ -93,28 +99,31 @@ function ContextMenu({
     }, [show_context_menu, context_menu_point])
 
     const press_gesture = create_press_gesture<PointerEvent<HTMLDivElement>>({
-        enabled: event => {
+        enabled: (event) => {
             if (event.button !== 0) return false
             if (on_click_trigger) return true
-            return (!disabled && has_context_menu)
+            return !disabled && has_context_menu
         },
         on_success: () => {
-            if (enable_vibration){
+            if (enable_vibration) {
                 vibrate()
             }
         },
         click: {
             on_trigger: (event) => {
                 on_click_trigger?.(event)
-            },
+            }
         },
-        long_press: has_context_menu && !disabled ? {
-            enabled: event => event.pointerType === "touch",
-            on_trigger: event => {
-                open_context_menu(event.clientX, event.clientY, event.currentTarget)
-            },
-            ms: long_press_ms,
-        } : undefined,
+        long_press:
+            has_context_menu && !disabled
+                ? {
+                      enabled: (event) => event.pointerType === "touch",
+                      on_trigger: (event) => {
+                          open_context_menu(event.clientX, event.clientY, event.currentTarget)
+                      },
+                      ms: long_press_ms
+                  }
+                : undefined
     })
 
     useEffect(() => {
@@ -151,9 +160,7 @@ function ContextMenu({
         <>
             <div
                 ref={ref}
-                className={[
-                    className,
-                ].filter(Boolean).join(" ")}
+                className={[className].filter(Boolean).join(" ")}
                 style={style}
                 onContextMenu={handle_context_menu}
                 onPointerDown={press_gesture.on_pointer_down}
@@ -178,20 +185,20 @@ function ContextMenu({
                         }}
                     >
                         <FullscreenModalContainer
-                            onContextMenu={event => {
+                            onContextMenu={(event) => {
                                 event.preventDefault()
                                 event.stopPropagation()
                             }}
-                            onPointerDown={event => {
+                            onPointerDown={(event) => {
                                 event.stopPropagation()
                                 backdrop_press_active_ref.current = true
                                 close_context_menu()
                             }}
-                            onTouchStart={event => {
+                            onTouchStart={(event) => {
                                 event.stopPropagation()
                                 backdrop_press_active_ref.current = true
                             }}
-                            onClick={event => {
+                            onClick={(event) => {
                                 event.stopPropagation()
                                 if (!backdrop_press_active_ref.current) return
                                 close_context_menu()
@@ -201,26 +208,26 @@ function ContextMenu({
                                 className={"overscroll-none overflow-auto fixed w-[min(208px,calc(100vw-24px))]"}
                                 style={{
                                     left: context_menu_render_point[0],
-                                    top: context_menu_render_point[1],
+                                    top: context_menu_render_point[1]
                                 }}
-                                onContextMenu={event => {
+                                onContextMenu={(event) => {
                                     event.preventDefault()
                                     event.stopPropagation()
                                 }}
-                                onPointerDown={event => {
+                                onPointerDown={(event) => {
                                     event.stopPropagation()
                                     context_menu_active_ref.current = true
                                 }}
-                                // In iOS PWA, an onClick event can be triggered automatically 
+                                // In iOS PWA, an onClick event can be triggered automatically
                                 // when a new element appears on the screen where the finger touched
                                 // This makes sure the onClick event is triggered after an onPointerDown event
-                                onClickCapture={event => {
-                                    if (!context_menu_active_ref.current){
+                                onClickCapture={(event) => {
+                                    if (!context_menu_active_ref.current) {
                                         event.stopPropagation()
                                     }
                                     context_menu_active_ref.current = false
                                 }}
-                                onClick={event => {
+                                onClick={(event) => {
                                     event.stopPropagation()
                                 }}
                                 ref={menu_element_ref}

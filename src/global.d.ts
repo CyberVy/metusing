@@ -5,7 +5,7 @@ declare global {
         webkit?: {
             messageHandlers?: Record<string, any>
         }
-                __TAURI__?: {
+        __TAURI__?: {
             core?: {
                 invoke?: <T = any>(cmd: string, payload?: any) => Promise<T>
             }
@@ -15,21 +15,21 @@ declare global {
 }
 
 declare global {
-    interface FileSystemWritableFileStream{
+    interface FileSystemWritableFileStream {
         write(data: string | BufferSource | Blob): Promise<void>
         seek(position: number): Promise<void>
         truncate(size: number): Promise<void>
         close(): Promise<void>
     }
 
-    interface FileSystemFileHandle{
+    interface FileSystemFileHandle {
         readonly kind: "file"
         readonly name: string
         createWritable(options?: { keepExistingData?: boolean }): Promise<FileSystemWritableFileStream>
         getFile(): Promise<File>
     }
 
-    interface SaveFilePickerOptions{
+    interface SaveFilePickerOptions {
         suggestedName?: string
         excludeAcceptAllOption?: boolean
         types?: Array<{
@@ -44,4 +44,3 @@ declare global {
         showSaveFilePicker?: (options?: SaveFilePickerOptions) => Promise<FileSystemFileHandle>
     }
 }
-

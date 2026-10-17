@@ -17,13 +17,7 @@ type MigrationAlertModalProps = {
     on_close: () => void
 }
 
-function MigrationAlertModal({
-    show,
-    message,
-    title = "Notice",
-    on_close
-}: MigrationAlertModalProps){
-
+function MigrationAlertModal({ show, message, title = "Notice", on_close }: MigrationAlertModalProps) {
     return (
         <BodyPortal>
             {/* Backdrop */}
@@ -52,17 +46,12 @@ function MigrationAlertModal({
                 unmount_on_exit={true}
                 className="fixed inset-0 z-101 flex items-center justify-center pointer-events-none p-4"
             >
-                <FloatingModalContainer
-                    on_escape={on_close}
-                    className="w-80 min-h-40 p-3 select-none"
-                >
+                <FloatingModalContainer on_escape={on_close} className="w-80 min-h-40 p-3 select-none">
                     <div className="flex flex-col justify-between h-full w-full p-2">
                         {/* Header */}
                         <div className="flex items-center justify-between border-b border-black/10 dark:border-white/10 pb-2 mb-3">
                             <div className="flex items-center gap-2">
-                                <span className="text-sm font-semibold text-black/85 dark:text-white/85">
-                                    {title}
-                                </span>
+                                <span className="text-sm font-semibold text-black/85 dark:text-white/85">{title}</span>
                             </div>
                             <NaiveButton
                                 className="w-7 h-7 rounded-full border border-black/10 dark:border-white/10 bg-transparent hover:bg-black/5 dark:hover:bg-white/5 text-xs"
@@ -91,7 +80,7 @@ function MigrationAlertModal({
     )
 }
 
-function useMigrationAlert(){
+function useMigrationAlert() {
     const [open, set_open] = useState(false)
     const [title, set_title] = useState("")
     const [message, set_message] = useState("")
@@ -106,19 +95,12 @@ function useMigrationAlert(){
 
     const handle_close = () => {
         set_open(false)
-        if (on_close){
+        if (on_close) {
             on_close()
         }
     }
 
-    const alert_element = (
-        <MigrationAlertModal
-            show={open}
-            title={title}
-            message={message}
-            on_close={handle_close}
-        />
-    )
+    const alert_element = <MigrationAlertModal show={open} title={title} message={message} on_close={handle_close} />
 
     return { trigger_alert, alert_element }
 }
@@ -137,17 +119,13 @@ export function MigrationExport({
     target_databases,
     className = "w-28 h-7.5 border border-black/10 dark:border-white/10 rounded-xl bg-transparent hover:bg-black/5 dark:hover:bg-white/5",
     children = <span className="text-xs font-medium">Export Backup</span>
-}: MigrationExportProps){
-
+}: MigrationExportProps) {
     const handle_export = async () => {
         await MigrationService.export_file(app_id, app_version, target_databases)
     }
 
     return (
-        <NaiveButton
-            className={className}
-            on_click={handle_export}
-        >
+        <NaiveButton className={className} on_click={handle_export}>
             {children}
         </NaiveButton>
     )
@@ -165,7 +143,7 @@ export function MigrationMerge({
     merge_rules,
     className = "w-16 h-7.5 border border-black/10 dark:border-white/10 rounded-xl bg-transparent hover:bg-black/5 dark:hover:bg-white/5",
     children = <span className="text-xs font-medium">Merge</span>
-}: MigrationMergeProps){
+}: MigrationMergeProps) {
     const { trigger_alert, alert_element } = useMigrationAlert()
 
     const handle_import = async () => {
@@ -178,7 +156,7 @@ export function MigrationMerge({
         }
 
         const result = await MigrationService.restore_from_backup_data(content, app_id, options)
-        if (result.success){
+        if (result.success) {
             trigger_alert(
                 "Restore Success",
                 `Backup restored successfully. And ${app_id} will reload to apply changes.`,
@@ -186,21 +164,14 @@ export function MigrationMerge({
                     window.location.reload()
                 }
             )
-        } 
-        else {
-            trigger_alert(
-                "Restore Failed",
-                "Restore failed: " + (result.error || "Unknown error"),
-            )
+        } else {
+            trigger_alert("Restore Failed", "Restore failed: " + (result.error || "Unknown error"))
         }
     }
 
     return (
         <>
-            <NaiveButton
-                className={className}
-                on_click={handle_import}
-            >
+            <NaiveButton className={className} on_click={handle_import}>
                 {children}
             </NaiveButton>
             {alert_element}
@@ -218,7 +189,7 @@ export function MigrationOverwrite({
     app_id,
     className = "w-20 h-7.5 border border-red-500/20 rounded-xl bg-transparent hover:bg-red-500/10",
     children = <span className="text-xs font-medium text-red-600 dark:text-red-400">Overwrite</span>
-}: MigrationOverwriteProps){
+}: MigrationOverwriteProps) {
     const { trigger_alert, alert_element } = useMigrationAlert()
 
     const handle_import = async () => {
@@ -230,7 +201,7 @@ export function MigrationOverwrite({
         }
 
         const result = await MigrationService.restore_from_backup_data(content, app_id, options)
-        if (result.success){
+        if (result.success) {
             trigger_alert(
                 "Restore Success",
                 `Backup restored successfully! And ${app_id} will reload to apply changes.`,
@@ -238,21 +209,14 @@ export function MigrationOverwrite({
                     window.location.reload()
                 }
             )
-        } 
-        else {
-            trigger_alert(
-                "Restore Failed",
-                "Restore failed: " + (result.error || "Unknown error"),
-            )
+        } else {
+            trigger_alert("Restore Failed", "Restore failed: " + (result.error || "Unknown error"))
         }
     }
 
     return (
         <>
-            <NaiveButton
-                className={className}
-                on_click={handle_import}
-            >
+            <NaiveButton className={className} on_click={handle_import}>
                 {children}
             </NaiveButton>
             {alert_element}

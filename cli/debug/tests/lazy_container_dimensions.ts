@@ -47,7 +47,7 @@ interface LazyContainerCheckResult {
     groups: LazyContainerGroupResult[]
 }
 
-function create_browser_check_code(tolerance: number, settle_ms: number): string{
+function create_browser_check_code(tolerance: number, settle_ms: number): string {
     return `(async () => {
         const tolerance = ${tolerance}
         const settle_ms = ${settle_ms}
@@ -202,16 +202,16 @@ function create_browser_check_code(tolerance: number, settle_ms: number): string
     })()`
 }
 
-function format_sizes(sizes: Dimension[]): string{
+function format_sizes(sizes: Dimension[]): string {
     if (!sizes.length) return "none"
     return sizes.map((size) => `${size.width}x${size.height}`).join(", ")
 }
 
-function format_delta(delta: number | null): string{
+function format_delta(delta: number | null): string {
     return delta === null ? "n/a" : `${delta}px`
 }
 
-function print_result(result: LazyContainerCheckResult, tolerance: number, require_pair: boolean): boolean{
+function print_result(result: LazyContainerCheckResult, tolerance: number, require_pair: boolean): boolean {
     console.log(`URL: ${result.url}`)
     console.log(`Viewport: ${result.viewport.width}x${result.viewport.height}`)
     console.log(`LazyContainers: ${result.rendered_lazy_container_count}/${result.total_lazy_container_count} rendered`)
@@ -219,9 +219,9 @@ function print_result(result: LazyContainerCheckResult, tolerance: number, requi
     let has_failure = false
     let comparable_group_count = 0
 
-    for (const group of result.groups){
+    for (const group of result.groups) {
         const label = `${group.parent_tag}.${group.parent_class_name || "(no-class)"}`
-        if (!group.actual_count || !group.placeholder_count){
+        if (!group.actual_count || !group.placeholder_count) {
             console.log(`[SKIP] group ${group.group_id}: ${label}`)
             console.log(`  content: ${group.actual_count}, placeholder: ${group.placeholder_count}`)
             continue
@@ -231,21 +231,26 @@ function print_result(result: LazyContainerCheckResult, tolerance: number, requi
         const group_failed = group.branch_check.failure_count > 0 || group.wrapper_check.failure_count > 0
         has_failure = has_failure || group_failed
         console.log(`[${group_failed ? "FAIL" : "PASS"}] group ${group.group_id}: ${label}`)
-        console.log(`  content sizes: actual ${format_sizes(group.actual_branch_sizes)}; placeholder ${format_sizes(group.placeholder_branch_sizes)}`)
+        console.log(
+            `  content sizes: actual ${format_sizes(group.actual_branch_sizes)}; placeholder ${format_sizes(group.placeholder_branch_sizes)}`
+        )
         console.log(`  content max delta: ${format_delta(group.branch_check.max_delta)}`)
-        console.log(`  wrapper sizes: actual ${format_sizes(group.actual_wrapper_sizes)}; placeholder ${format_sizes(group.placeholder_wrapper_sizes)}`)
+        console.log(
+            `  wrapper sizes: actual ${format_sizes(group.actual_wrapper_sizes)}; placeholder ${format_sizes(group.placeholder_wrapper_sizes)}`
+        )
         console.log(`  wrapper max delta: ${format_delta(group.wrapper_check.max_delta)}`)
 
-        for (const example of [...group.branch_check.examples, ...group.wrapper_check.examples].slice(0, 8)){
-            console.log(`  - ${example.source.width}x${example.source.height} vs ${example.target.width}x${example.target.height}: ${example.delta}px`)
+        for (const example of [...group.branch_check.examples, ...group.wrapper_check.examples].slice(0, 8)) {
+            console.log(
+                `  - ${example.source.width}x${example.source.height} vs ${example.target.width}x${example.target.height}: ${example.delta}px`
+            )
         }
     }
 
-    if (!result.groups.length){
+    if (!result.groups.length) {
         console.log("No rendered LazyContainer instances were found on the current page.")
         has_failure = true
-    }
-    else if (!comparable_group_count){
+    } else if (!comparable_group_count) {
         console.log("No layout group currently contains both content and placeholder instances.")
         if (require_pair) has_failure = true
     }
@@ -254,19 +259,22 @@ function print_result(result: LazyContainerCheckResult, tolerance: number, requi
     return has_failure
 }
 
-async function main(): Promise<void>{
+async function main(): Promise<void> {
     const args = process.argv.slice(2)
     const tolerance = parse_numeric_option(args, "--tolerance", DEFAULT_TOLERANCE)
     const settle_ms = parse_numeric_option(args, "--settle-ms", DEFAULT_SETTLE_MS)
     const require_pair = args.includes("--require-pair")
     const port = read_debug_port()
-    const result = await evaluate_in_browser<LazyContainerCheckResult>(port, create_browser_check_code(tolerance, settle_ms))
+    const result = await evaluate_in_browser<LazyContainerCheckResult>(
+        port,
+        create_browser_check_code(tolerance, settle_ms)
+    )
 
-    if (!result || !Array.isArray(result.groups)){
+    if (!result || !Array.isArray(result.groups)) {
         throw new Error("Debug bridge returned an invalid LazyContainer dimension result")
     }
 
-    if (print_result(result, tolerance, require_pair)){
+    if (print_result(result, tolerance, require_pair)) {
         process.exitCode = 1
     }
 }

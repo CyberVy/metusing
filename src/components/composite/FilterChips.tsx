@@ -23,13 +23,15 @@ function FilterChips({
     className = "",
     ref,
     ...props
-}: FilterChipsProps){
-    const [internal_value, set_internal_value] = useState<string | null>(controlled_value !== undefined ? controlled_value : default_value)
+}: FilterChipsProps) {
+    const [internal_value, set_internal_value] = useState<string | null>(
+        controlled_value !== undefined ? controlled_value : default_value
+    )
     const [prev_controlled, set_prev_controlled] = useState(controlled_value)
 
-    if (controlled_value !== prev_controlled){
+    if (controlled_value !== prev_controlled) {
         set_prev_controlled(controlled_value)
-        if (controlled_value !== undefined){
+        if (controlled_value !== undefined) {
             set_internal_value(controlled_value)
         }
     }
@@ -39,7 +41,7 @@ function FilterChips({
     const handle_click = (item: string) => {
         vibrate()
         const next = current_value === item ? null : item
-        if (controlled_value === undefined){
+        if (controlled_value === undefined) {
             set_internal_value(next)
         }
         on_change?.(next)
@@ -48,11 +50,7 @@ function FilterChips({
     const size_class = size === "sm" ? "px-2.5 py-1 text-xs" : "px-3.5 py-1.5 text-sm"
 
     return (
-        <div
-            ref={ref}
-            className={`flex flex-wrap gap-1.5 select-none ${className}`}
-            {...props}
-        >
+        <div ref={ref} className={`flex flex-wrap gap-1.5 select-none ${className}`} {...props}>
             {items.map((item, index) => {
                 const is_selected = item === current_value
                 return (
@@ -68,7 +66,9 @@ function FilterChips({
                                 ? "border-black bg-black text-white shadow-xs dark:border-white dark:bg-white dark:text-black"
                                 : "border-black/10 bg-black/5 text-black/70 hover:bg-black/10 hover:text-black dark:border-white/10 dark:bg-white/5 dark:text-white/70 dark:hover:bg-white/10 dark:hover:text-white",
                             item_class_name
-                        ].filter(Boolean).join(" ")}
+                        ]
+                            .filter(Boolean)
+                            .join(" ")}
                     >
                         {item}
                     </button>

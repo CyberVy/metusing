@@ -1,4 +1,3 @@
-
 "use client"
 
 import { useEffect, useState } from "react"
@@ -9,10 +8,10 @@ type BodyPortalProps = {
     children: ReactNode
 }
 /**
-* Render children into document.body。
-* Useful for overlays that must escape parent layout, scroll, and stacking contexts.
-*/
-function BodyPortal({ children }: BodyPortalProps){
+ * Render children into document.body。
+ * Useful for overlays that must escape parent layout, scroll, and stacking contexts.
+ */
+function BodyPortal({ children }: BodyPortalProps) {
     const [mounted, set_mounted] = useState(false)
 
     useEffect(() => {
@@ -26,4 +25,3 @@ function BodyPortal({ children }: BodyPortalProps){
 
 export { BodyPortal }
 export type { BodyPortalProps }
-

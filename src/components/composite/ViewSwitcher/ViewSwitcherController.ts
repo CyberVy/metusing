@@ -42,28 +42,25 @@ export class ViewSwitcherController extends BaseController<ViewSwitcherRegistryS
     private pending_visibilities: Record<string, boolean> = {}
     private fallback_states: Record<string, ViewSwitcherState> = {}
 
-    public register(
-        id: string,
-        initial_state: ViewSwitcherInitState | ViewSwitcherState
-    ): () => void {
+    public register(id: string, initial_state: ViewSwitcherInitState | ViewSwitcherState): () => void {
         this.instance_counts[id] = (this.instance_counts[id] ?? 0) + 1
 
         const existing_raw = this.raw_instances[id]
         const raw_state: ViewSwitcherInitState = existing_raw
             ? {
-                id: initial_state.id,
-                is_transitioning: initial_state.is_transitioning,
-                active_view_id: initial_state.active_view_id,
-                target_view_id: initial_state.target_view_id,
-                is_toolbar_visible: existing_raw.is_toolbar_visible,
-            }
+                  id: initial_state.id,
+                  is_transitioning: initial_state.is_transitioning,
+                  active_view_id: initial_state.active_view_id,
+                  target_view_id: initial_state.target_view_id,
+                  is_toolbar_visible: existing_raw.is_toolbar_visible
+              }
             : {
-                id: initial_state.id,
-                is_toolbar_visible: initial_state.is_toolbar_visible,
-                is_transitioning: initial_state.is_transitioning,
-                active_view_id: initial_state.active_view_id,
-                target_view_id: initial_state.target_view_id,
-            }
+                  id: initial_state.id,
+                  is_toolbar_visible: initial_state.is_toolbar_visible,
+                  is_transitioning: initial_state.is_transitioning,
+                  active_view_id: initial_state.active_view_id,
+                  target_view_id: initial_state.target_view_id
+              }
 
         this.raw_instances[id] = raw_state
         this.recompute_state()
@@ -121,7 +118,6 @@ export class ViewSwitcherController extends BaseController<ViewSwitcherRegistryS
         this.recompute_state()
     }
 
-
     public set_toolbar_visible(id: string, visible: boolean, options?: SetToolbarVisibleOptions): void {
         const current_raw = this.raw_instances[id]
         const wait_until_stable = options?.wait_until_stable ?? false
@@ -175,9 +171,11 @@ export class ViewSwitcherController extends BaseController<ViewSwitcherRegistryS
         const id = switcher_id ?? this.get_default_switcher_id()
         if (!id || !(id in this.state.instances)) return false
 
-        this.dispatchEvent(new CustomEvent<SwitchViewEventDetail>("switch_view", {
-            detail: { switcher_id: id, view_id }
-        }))
+        this.dispatchEvent(
+            new CustomEvent<SwitchViewEventDetail>("switch_view", {
+                detail: { switcher_id: id, view_id }
+            })
+        )
         return true
     }
 
@@ -259,9 +257,7 @@ export class ViewSwitcherController extends BaseController<ViewSwitcherRegistryS
 
         for (const [id, raw] of Object.entries(this.raw_instances)) {
             const effective_toolbar = is_globally_hidden ? false : raw.is_toolbar_visible
-            const has_other_trans = raw.is_transitioning
-                ? transitioning_count > 1
-                : transitioning_count > 0
+            const has_other_trans = raw.is_transitioning ? transitioning_count > 1 : transitioning_count > 0
 
             const prev = current_instances[id]
             if (

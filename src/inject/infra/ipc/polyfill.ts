@@ -24,15 +24,14 @@ declare global {
     }
 }
 
-export function setup_tauri_popup_polyfill(){
-
+export function setup_tauri_popup_polyfill() {
     const is_ios = window.webkit?.messageHandlers !== undefined && is_touch_device()
     const is_ios_popup = is_ios && window.webkit?.messageHandlers?.tauriPopupBridge !== undefined
 
     // Unconditionally register the receive helper on all platforms/webviews
-    if (!window.__tauri_ipc_dispatch_message_event){
+    if (!window.__tauri_ipc_dispatch_message_event) {
         window.__tauri_ipc_dispatch_message_event = (message: any, senderLabel: string) => {
-            const event = new MessageEvent('message', {
+            const event = new MessageEvent("message", {
                 data: message
             })
             Object.defineProperty(event, "source", {
@@ -47,46 +46,46 @@ export function setup_tauri_popup_polyfill(){
 
     setup_opener_polyfill()
 
-    if (is_ios){
+    if (is_ios) {
         register_ios_dispatch_helpers()
-        if (is_ios_popup){
+        if (is_ios_popup) {
             setup_ios_tauri_invoke_polyfill()
         }
     }
 }
 
-function register_ios_dispatch_helpers(){
+function register_ios_dispatch_helpers() {
     window.__tauri_ios_main_proxy_popup_invoke = (id: string, cmd: string, args: any) => {
-        if (window.__TAURI__?.core?.invoke){
-            window.__TAURI__.core.invoke(cmd, args)
+        if (window.__TAURI__?.core?.invoke) {
+            window.__TAURI__.core
+                .invoke(cmd, args)
                 .then((res: any) => {
                     const handler = window.webkit?.messageHandlers?.tauriPopupInvokeReply
-                    if (handler){
+                    if (handler) {
                         handler.postMessage({
                             id: id,
-                            status: 'success',
+                            status: "success",
                             data: res
                         })
                     }
                 })
                 .catch((err: any) => {
                     const handler = window.webkit?.messageHandlers?.tauriPopupInvokeReply
-                    if (handler){
+                    if (handler) {
                         handler.postMessage({
                             id: id,
-                            status: 'error',
+                            status: "error",
                             data: String(err)
                         })
                     }
                 })
-        }
-        else {
+        } else {
             const handler = window.webkit?.messageHandlers?.tauriPopupInvokeReply
-            if (handler){
+            if (handler) {
                 handler.postMessage({
                     id: id,
-                    status: 'error',
-                    data: 'Tauri core invoke not available on main webview'
+                    status: "error",
+                    data: "Tauri core invoke not available on main webview"
                 })
             }
         }
@@ -94,18 +93,17 @@ function register_ios_dispatch_helpers(){
 }
 
 // polyfill window.opener for iOS WebView popup window
-function setup_ios_tauri_invoke_polyfill(){
+function setup_ios_tauri_invoke_polyfill() {
     // Force define/overwrite window.__TAURI__.core.invoke for direct Rust invokes
-    const pending_invokes: Record<string, { resolve: (val: any) => void, reject: (err: any) => void }> = {}
-    
+    const pending_invokes: Record<string, { resolve: (val: any) => void; reject: (err: any) => void }> = {}
+
     window.__tauri_ios_popup_resolve_pending_invoke = (id: string, status: string, data: any) => {
         const promise = pending_invokes[id]
-        if (promise){
+        if (promise) {
             delete pending_invokes[id]
-            if (status === 'success'){
+            if (status === "success") {
                 promise.resolve(data)
-            }
-            else {
+            } else {
                 promise.reject(data)
             }
         }
@@ -116,25 +114,23 @@ function setup_ios_tauri_invoke_polyfill(){
             const id = Math.random().toString(36).slice(2) + Date.now().toString(36)
             pending_invokes[id] = { resolve, reject }
             const handler = window.webkit?.messageHandlers?.tauriPopupInvoke
-            if (handler){
+            if (handler) {
                 handler.postMessage({
                     id: id,
                     cmd: cmd,
                     args: args || {}
                 })
-            }
-            else {
+            } else {
                 reject(new Error("tauriPopupInvoke handler not available"))
             }
         })
     }
 
     const current_tauri = window.__TAURI__
-    if (current_tauri){
+    if (current_tauri) {
         current_tauri.core = current_tauri.core || {}
         current_tauri.core.invoke = custom_invoke
-    }
-    else {
+    } else {
         window.__TAURI__ = {
             core: {
                 invoke: custom_invoke
@@ -143,17 +139,17 @@ function setup_ios_tauri_invoke_polyfill(){
     }
 }
 
-function setup_opener_polyfill(){
-    if (!window.opener){
+function setup_opener_polyfill() {
+    if (!window.opener) {
         const opener_label = window.__TAURI_OPENER_LABEL__ || "main"
         window.opener = new WebviewWindowProxy(opener_label) as unknown as Window
     }
 }
 
 // polyfill window.open to support opening windows in child webview
-function setup_window_open_polyfill(){
+function setup_window_open_polyfill() {
     const originalOpen = window.open
-    window.open = function(url?: string | URL, target?: string, features?: string){
+    window.open = function (url?: string | URL, target?: string, features?: string) {
         return originalOpen.call(window, url, target, features)
     }
 }

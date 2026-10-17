@@ -2,18 +2,36 @@
 export { scan_record_object, smart_fetch } from "./crawler"
 
 // data_generation_lib.ts
-export { 
-    generate_silent_wav_base64, generate_cover_image, generate_pending_html,
-    generate_cover_svg, get_image_url_with_fallback
+export {
+    generate_silent_wav_base64,
+    generate_cover_image,
+    generate_pending_html,
+    generate_cover_svg,
+    get_image_url_with_fallback
 } from "./data_generation_lib"
 export type { CoverImageOptions } from "./data_generation_lib"
 
 // device.client.ts
-export { 
-    is_apple_device, is_touch_device, is_ios_device, is_ios_desktop_device, is_android_device, 
-    is_iphone, is_mac, is_ipad, is_in_pwa, is_in_webview, is_in_native, is_in_browser, 
-    is_service_worker_available, is_in_background, is_viewport_portrait, is_in_dark, 
-    ios_haptic, vibrate, open_url 
+export {
+    is_apple_device,
+    is_touch_device,
+    is_ios_device,
+    is_ios_desktop_device,
+    is_android_device,
+    is_iphone,
+    is_mac,
+    is_ipad,
+    is_in_pwa,
+    is_in_webview,
+    is_in_native,
+    is_in_browser,
+    is_service_worker_available,
+    is_in_background,
+    is_viewport_portrait,
+    is_in_dark,
+    ios_haptic,
+    vibrate,
+    open_url
 } from "./device.client"
 
 // filter.ts
