@@ -6,37 +6,37 @@ export type PressCancelReason = "move" | "leave" | "cancel"
  * @param event touch event object
  * @param should_trigger_click whether to supplement currentTarget.click() (defaults to true)
  */
-export function prevent_ios_magnifier_on_target<TEvent extends { target: unknown; currentTarget: unknown; preventDefault?: () => void }>(
-    event: TEvent,
-    should_trigger_click = true
-){
-    if (event.target === event.currentTarget){
-        if (typeof event.preventDefault === "function"){
+export function prevent_ios_magnifier_on_target<
+    TEvent extends { target: unknown; currentTarget: unknown; preventDefault?: () => void }
+>(event: TEvent, should_trigger_click = true) {
+    if (event.target === event.currentTarget) {
+        if (typeof event.preventDefault === "function") {
             event.preventDefault()
         }
-        if (should_trigger_click){
+        if (should_trigger_click) {
             const el = event.currentTarget as { click?: () => void } | null
-            if (el && typeof el.click === "function"){
+            if (el && typeof el.click === "function") {
                 el.click()
             }
         }
     }
 }
 
-
 type GestureEnabled<TEvent> = boolean | ((event: TEvent) => boolean)
 
-type PressGestureActionParams<TEvent extends { clientX: number, clientY: number }> = {
+type PressGestureActionParams<TEvent extends { clientX: number; clientY: number }> = {
     on_trigger: (event: TEvent) => void
     enabled?: GestureEnabled<TEvent>
 }
 
-type LongPressParams<TEvent extends { clientX: number, clientY: number }> = PressGestureActionParams<TEvent> & {
+type LongPressParams<TEvent extends { clientX: number; clientY: number }> = PressGestureActionParams<TEvent> & {
     on_end?: (event: TEvent) => void
     ms?: number
 }
 
-type PressGestureParams<TEvent extends { clientX: number, clientY: number, stopPropagation?: () => void, preventDefault?: () => void }> = {
+type PressGestureParams<
+    TEvent extends { clientX: number; clientY: number; stopPropagation?: () => void; preventDefault?: () => void }
+> = {
     click?: PressGestureActionParams<TEvent>
     on_cancel?: (reason: PressCancelReason, event: TEvent) => void
     on_success?: (event: TEvent) => void
@@ -47,15 +47,17 @@ type PressGestureParams<TEvent extends { clientX: number, clientY: number, stopP
     prevent_default?: boolean | ((event: TEvent) => boolean)
 }
 
-const is_gesture_enabled = <TEvent, >(enabled: GestureEnabled<TEvent> | undefined, event: TEvent) => {
-    if (typeof enabled === "function"){
+const is_gesture_enabled = <TEvent>(enabled: GestureEnabled<TEvent> | undefined, event: TEvent) => {
+    if (typeof enabled === "function") {
         return enabled(event)
     }
 
     return enabled ?? true
 }
 
-export function create_press_gesture<TEvent extends { clientX: number, clientY: number, stopPropagation?: () => void, preventDefault?: () => void }>({
+export function create_press_gesture<
+    TEvent extends { clientX: number; clientY: number; stopPropagation?: () => void; preventDefault?: () => void }
+>({
     click,
     on_cancel,
     on_success,
@@ -63,8 +65,8 @@ export function create_press_gesture<TEvent extends { clientX: number, clientY: 
     long_press,
     move_threshold = 10,
     stop_propagation = false,
-    prevent_default = false,
-}: PressGestureParams<TEvent>){
+    prevent_default = false
+}: PressGestureParams<TEvent>) {
     let timer = 0
     let start_event: TEvent | null = null
     let start_client_x = 0
@@ -97,24 +99,24 @@ export function create_press_gesture<TEvent extends { clientX: number, clientY: 
 
     const handle_event_options = (event: TEvent) => {
         const should_stop = typeof stop_propagation === "function" ? stop_propagation(event) : stop_propagation
-        if (should_stop && typeof event.stopPropagation === "function"){
+        if (should_stop && typeof event.stopPropagation === "function") {
             event.stopPropagation()
         }
         const should_prevent = typeof prevent_default === "function" ? prevent_default(event) : prevent_default
-        if (should_prevent && typeof event.preventDefault === "function"){
+        if (should_prevent && typeof event.preventDefault === "function") {
             event.preventDefault()
         }
     }
 
     const on_pointer_down = (event: TEvent) => {
-        if (!is_gesture_enabled(enabled, event)){
+        if (!is_gesture_enabled(enabled, event)) {
             reset_press()
             return
         }
 
         reset_press()
         handle_event_options(event)
-        
+
         start_event = event
         start_client_x = event.clientX
         start_client_y = event.clientY
@@ -133,7 +135,7 @@ export function create_press_gesture<TEvent extends { clientX: number, clientY: 
     const on_pointer_move = (event: TEvent) => {
         if (!start_event) return
 
-        if (is_gesture_enabled(enabled, event)){
+        if (is_gesture_enabled(enabled, event)) {
             handle_event_options(event)
         }
 
@@ -150,18 +152,18 @@ export function create_press_gesture<TEvent extends { clientX: number, clientY: 
     const on_pointer_up = (event: TEvent) => {
         if (!start_event) return
 
-        if (is_gesture_enabled(enabled, event)){
+        if (is_gesture_enabled(enabled, event)) {
             handle_event_options(event)
         }
 
         const did_long_press = long_pressing
 
-        if (did_long_press){
+        if (did_long_press) {
             long_press?.on_end?.(event)
         }
 
         reset_press()
-        if (did_long_press){
+        if (did_long_press) {
             on_success?.(event)
             return
         }
@@ -176,11 +178,11 @@ export function create_press_gesture<TEvent extends { clientX: number, clientY: 
     const on_pointer_cancel = (event: TEvent) => {
         if (!start_event) return
 
-        if (is_gesture_enabled(enabled, event)){
+        if (is_gesture_enabled(enabled, event)) {
             handle_event_options(event)
         }
 
-        if (long_pressing){
+        if (long_pressing) {
             long_press?.on_end?.(event)
             reset_press()
             return
@@ -192,11 +194,11 @@ export function create_press_gesture<TEvent extends { clientX: number, clientY: 
     const on_pointer_leave = (event: TEvent) => {
         if (!start_event) return
 
-        if (is_gesture_enabled(enabled, event)){
+        if (is_gesture_enabled(enabled, event)) {
             handle_event_options(event)
         }
 
-        if (long_pressing){
+        if (long_pressing) {
             long_press?.on_end?.(event)
             reset_press()
             return
@@ -211,7 +213,7 @@ export function create_press_gesture<TEvent extends { clientX: number, clientY: 
         on_pointer_up,
         on_pointer_cancel,
         on_pointer_leave,
-        reset_press,
+        reset_press
     }
 }
 
@@ -267,8 +269,8 @@ export function create_swipe_gesture<TEvent extends TouchEvent = TouchEvent>({
     velocity_threshold = 0.3,
     stop_propagation = false,
     prevent_default = true,
-    reset_offset_on_start = true,
-}: SwipeGestureParams<TEvent>){
+    reset_offset_on_start = true
+}: SwipeGestureParams<TEvent>) {
     let bound_element: HTMLElement | null = null
     let touch_start_ref: { x: number; y: number; time: number } | null = null
     let touch_last_ref: { x: number; time: number } | null = null
@@ -291,11 +293,11 @@ export function create_swipe_gesture<TEvent extends TouchEvent = TouchEvent>({
 
     const handle_event_options = (event: TEvent) => {
         const should_stop = typeof stop_propagation === "function" ? stop_propagation(event) : stop_propagation
-        if (should_stop && typeof event.stopPropagation === "function"){
+        if (should_stop && typeof event.stopPropagation === "function") {
             event.stopPropagation()
         }
         const should_prevent = typeof prevent_default === "function" ? prevent_default(event) : prevent_default
-        if (should_prevent && typeof event.preventDefault === "function" && event.cancelable !== false){
+        if (should_prevent && typeof event.preventDefault === "function" && event.cancelable !== false) {
             event.preventDefault()
         }
     }
@@ -303,8 +305,8 @@ export function create_swipe_gesture<TEvent extends TouchEvent = TouchEvent>({
     const find_active_touch = (touch_list: TouchList): Touch | null => {
         if (active_touch_id === null) return null
 
-        for (const touch of touch_list){
-            if (touch.identifier === active_touch_id){
+        for (const touch of touch_list) {
+            if (touch.identifier === active_touch_id) {
                 return touch
             }
         }
@@ -312,12 +314,12 @@ export function create_swipe_gesture<TEvent extends TouchEvent = TouchEvent>({
     }
 
     const on_touch_start = (event: TEvent) => {
-        if (event.touches && event.touches.length > 1){
+        if (event.touches && event.touches.length > 1) {
             return
         }
 
         const touch = event.touches ? event.touches[0] : null
-        if (!touch){
+        if (!touch) {
             reset_swipe()
             return
         }
@@ -326,11 +328,11 @@ export function create_swipe_gesture<TEvent extends TouchEvent = TouchEvent>({
         touch_start_ref = {
             x: touch.clientX,
             y: touch.clientY,
-            time: now,
+            time: now
         }
         touch_last_ref = {
             x: touch.clientX,
-            time: now,
+            time: now
         }
         active_touch_id = touch.identifier
         is_swiping = false
@@ -349,14 +351,14 @@ export function create_swipe_gesture<TEvent extends TouchEvent = TouchEvent>({
         const diff_y = touch.clientY - touch_start_ref.y
 
         // Track last move position sample for instantaneous velocity calculation (sample every >10ms)
-        if (!touch_last_ref || now - touch_last_ref.time >= 10){
+        if (!touch_last_ref || now - touch_last_ref.time >= 10) {
             touch_last_ref = {
                 x: touch.clientX,
-                time: now,
+                time: now
             }
         }
 
-        if (!is_swiping){
+        if (!is_swiping) {
             if (has_scrolled_vertically) return
 
             const abs_x = Math.abs(diff_x)
@@ -369,27 +371,25 @@ export function create_swipe_gesture<TEvent extends TouchEvent = TouchEvent>({
 
             const is_enabled = typeof enabled === "function" ? enabled(direction, event) : (enabled ?? true)
 
-            if (abs_x > abs_y * angle_ratio && is_enabled){
+            if (abs_x > abs_y * angle_ratio && is_enabled) {
                 const start_result = on_start?.(direction, event)
-                if (start_result === false){
+                if (start_result === false) {
                     has_scrolled_vertically = true
                     return
                 }
 
                 is_swiping = true
-                if (reset_offset_on_start){
+                if (reset_offset_on_start) {
                     swipe_start_x = touch.clientX
                 }
                 const active_diff_x = swipe_start_x !== null ? touch.clientX - swipe_start_x : diff_x
                 last_diff_x = active_diff_x
                 handle_event_options(event)
                 on_move?.(active_diff_x, event)
-            }
-            else {
+            } else {
                 has_scrolled_vertically = true
             }
-        }
-        else {
+        } else {
             const active_diff_x = swipe_start_x !== null ? touch.clientX - swipe_start_x : diff_x
             last_diff_x = active_diff_x
             handle_event_options(event)
@@ -405,7 +405,7 @@ export function create_swipe_gesture<TEvent extends TouchEvent = TouchEvent>({
         const now = Date.now()
 
         const time_since_last_move = now - (touch_last_ref ? touch_last_ref.time : touch_start_ref.time)
-        if (time_since_last_move <= 100 && touch_last_ref){
+        if (time_since_last_move <= 100 && touch_last_ref) {
             const last_dt = Math.max(1, now - touch_last_ref.time)
             const last_dx = end_x - touch_last_ref.x
             return last_dx / last_dt
@@ -414,20 +414,20 @@ export function create_swipe_gesture<TEvent extends TouchEvent = TouchEvent>({
     }
 
     const on_touch_end = (event: TEvent) => {
-        if (!is_swiping || !touch_start_ref){
+        if (!is_swiping || !touch_start_ref) {
             reset_swipe()
             return
         }
 
-        if (event.touches && active_touch_id !== null){
+        if (event.touches && active_touch_id !== null) {
             let is_active_touch_still_down = false
-            for (const touch of event.touches){
-                if (touch.identifier === active_touch_id){
+            for (const touch of event.touches) {
+                if (touch.identifier === active_touch_id) {
                     is_active_touch_still_down = true
                     break
                 }
             }
-            if (is_active_touch_still_down){
+            if (is_active_touch_still_down) {
                 return
             }
         }
@@ -442,14 +442,11 @@ export function create_swipe_gesture<TEvent extends TouchEvent = TouchEvent>({
         const container_width = bound_element?.getBoundingClientRect().width || window.innerWidth
         const threshold = Math.min(container_width * distance_ratio, min_distance)
 
-        const final_direction: SwipeDirection = diff_x < 0 ? "left" : (diff_x > 0 ? "right" : current_direction)
+        const final_direction: SwipeDirection = diff_x < 0 ? "left" : diff_x > 0 ? "right" : current_direction
 
-        const is_fast_flick = final_direction === "left"
-            ? velocity_x < -velocity_threshold
-            : velocity_x > velocity_threshold
-        const is_distance_enough = final_direction === "left"
-            ? diff_x < -threshold
-            : diff_x > threshold
+        const is_fast_flick =
+            final_direction === "left" ? velocity_x < -velocity_threshold : velocity_x > velocity_threshold
+        const is_distance_enough = final_direction === "left" ? diff_x < -threshold : diff_x > threshold
         const should_complete = is_fast_flick || is_distance_enough
 
         on_end?.(
@@ -457,7 +454,7 @@ export function create_swipe_gesture<TEvent extends TouchEvent = TouchEvent>({
                 direction: final_direction,
                 diff_x,
                 velocity_x,
-                should_complete,
+                should_complete
             },
             event
         )
@@ -466,7 +463,7 @@ export function create_swipe_gesture<TEvent extends TouchEvent = TouchEvent>({
     }
 
     const on_touch_cancel = (event: TEvent) => {
-        if (is_swiping){
+        if (is_swiping) {
             const velocity_x = calculate_swipe_velocity(event)
 
             on_end?.(
@@ -474,7 +471,7 @@ export function create_swipe_gesture<TEvent extends TouchEvent = TouchEvent>({
                     direction: current_direction,
                     diff_x: last_diff_x,
                     velocity_x,
-                    should_complete: false,
+                    should_complete: false
                 },
                 event
             )
@@ -503,6 +500,6 @@ export function create_swipe_gesture<TEvent extends TouchEvent = TouchEvent>({
                 element.removeEventListener("touchcancel", on_touch_cancel as EventListener)
                 bound_element = null
             }
-        },
+        }
     }
 }

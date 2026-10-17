@@ -159,7 +159,9 @@ export function PitchVisualizer() {
 
                     {audio_input_devices.length > 0 && (
                         <div className="flex items-center gap-1.5 bg-black/5 dark:bg-black/40 border border-black/10 dark:border-white/10 rounded-lg px-2.5 py-1.5">
-                            <span className="text-[10px] text-black/40 dark:text-white/40 uppercase tracking-wider hidden sm:inline">Mic</span>
+                            <span className="text-[10px] text-black/40 dark:text-white/40 uppercase tracking-wider hidden sm:inline">
+                                Mic
+                            </span>
                             <select
                                 value={selected_device_id || ""}
                                 onChange={(e) => void pitch_controller.select_device(e.target.value)}
@@ -167,7 +169,11 @@ export function PitchVisualizer() {
                                 title="Select Audio Input Device"
                             >
                                 {audio_input_devices.map((d) => (
-                                    <option key={d.device_id} value={d.device_id} className="bg-white text-black dark:bg-zinc-900 dark:text-white">
+                                    <option
+                                        key={d.device_id}
+                                        value={d.device_id}
+                                        className="bg-white text-black dark:bg-zinc-900 dark:text-white"
+                                    >
                                         {d.label}
                                     </option>
                                 ))}
@@ -175,15 +181,15 @@ export function PitchVisualizer() {
                         </div>
                     )}
 
-                    {error_message && (
-                        <span className="text-xs text-black/50 dark:text-white/50">{error_message}</span>
-                    )}
+                    {error_message && <span className="text-xs text-black/50 dark:text-white/50">{error_message}</span>}
                 </div>
 
                 {/* Fixed geometry display container to prevent layout shifts */}
                 <div className="flex items-center gap-3 shrink-0">
                     <div className="flex flex-col items-end">
-                        <span className="text-[10px] text-black/40 dark:text-white/40 tracking-wider">PITCH / NOTE</span>
+                        <span className="text-[10px] text-black/40 dark:text-white/40 tracking-wider">
+                            PITCH / NOTE
+                        </span>
                         <div className="flex items-baseline gap-2">
                             {/* Fixed width note display */}
                             <span className="w-14 text-center text-2xl font-bold font-mono text-black dark:text-white tracking-wide">
@@ -234,17 +240,31 @@ export function PitchVisualizer() {
                 <div className="flex flex-wrap items-center gap-2">
                     {/* Channel Mode Selector for Dual-Mono / Stereo / Left / Right */}
                     <div className="flex items-center gap-1 bg-black/5 dark:bg-black/40 border border-black/10 dark:border-white/10 rounded px-1.5 py-0.5">
-                        <span className="text-[10px] text-black/40 dark:text-white/40 uppercase hidden sm:inline">Channel</span>
+                        <span className="text-[10px] text-black/40 dark:text-white/40 uppercase hidden sm:inline">
+                            Channel
+                        </span>
                         <select
                             value={channel_mode}
-                            onChange={(e) => pitch_controller.set_channel_mode(e.target.value as "mono" | "stereo" | "left" | "right")}
+                            onChange={(e) =>
+                                pitch_controller.set_channel_mode(
+                                    e.target.value as "mono" | "stereo" | "left" | "right"
+                                )
+                            }
                             className="bg-transparent text-[11px] text-black/70 dark:text-white/80 focus:outline-none cursor-pointer"
                             title="Channel Mode: Choose Mono to hear sound in both ears from single-input soundcards"
                         >
-                            <option value="mono" className="bg-white text-black dark:bg-zinc-900 dark:text-white">Mono (Both Ears)</option>
-                            <option value="left" className="bg-white text-black dark:bg-zinc-900 dark:text-white">Left (Mic 1)</option>
-                            <option value="right" className="bg-white text-black dark:bg-zinc-900 dark:text-white">Right (Mic 2)</option>
-                            <option value="stereo" className="bg-white text-black dark:bg-zinc-900 dark:text-white">Stereo</option>
+                            <option value="mono" className="bg-white text-black dark:bg-zinc-900 dark:text-white">
+                                Mono (Both Ears)
+                            </option>
+                            <option value="left" className="bg-white text-black dark:bg-zinc-900 dark:text-white">
+                                Left (Mic 1)
+                            </option>
+                            <option value="right" className="bg-white text-black dark:bg-zinc-900 dark:text-white">
+                                Right (Mic 2)
+                            </option>
+                            <option value="stereo" className="bg-white text-black dark:bg-zinc-900 dark:text-white">
+                                Stereo
+                            </option>
                         </select>
                     </div>
 

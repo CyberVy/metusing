@@ -41,11 +41,7 @@ export function MicOffIcon(props: SVGProps<SVGSVGElement>) {
 
 export function PlayIcon(props: SVGProps<SVGSVGElement>) {
     return (
-        <svg
-            viewBox="0 0 24 24"
-            fill="currentColor"
-            {...props}
-        >
+        <svg viewBox="0 0 24 24" fill="currentColor" {...props}>
             <polygon points="6 3 20 12 6 21 6 3" />
         </svg>
     )
@@ -53,11 +49,7 @@ export function PlayIcon(props: SVGProps<SVGSVGElement>) {
 
 export function PauseIcon(props: SVGProps<SVGSVGElement>) {
     return (
-        <svg
-            viewBox="0 0 24 24"
-            fill="currentColor"
-            {...props}
-        >
+        <svg viewBox="0 0 24 24" fill="currentColor" {...props}>
             <rect x="6" y="4" width="4" height="16" />
             <rect x="14" y="4" width="4" height="16" />
         </svg>
@@ -264,5 +256,3 @@ export function RefreshCwIcon(props: SVGProps<SVGSVGElement>) {
         </svg>
     )
 }
-
-

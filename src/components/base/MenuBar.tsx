@@ -58,59 +58,62 @@ type VerticalMenuBarProps = Omit<ComponentPropsWithRef<"div">, "children" | "on_
     enable_vibration?: boolean
 }
 
-function VerticalMenuBar(
-    {
-        sections,
-        selected_key,
-        default_selected_key,
-        on_select,
-        header,
-        footer,
-        compact = false,
-        accent_color = "#0a84ff",
-        enable_vibration = true,
-        className = "",
-        style,
-        ref,
-        ...props
-    }: VerticalMenuBarProps){
+function VerticalMenuBar({
+    sections,
+    selected_key,
+    default_selected_key,
+    on_select,
+    header,
+    footer,
+    compact = false,
+    accent_color = "#0a84ff",
+    enable_vibration = true,
+    className = "",
+    style,
+    ref,
+    ...props
+}: VerticalMenuBarProps) {
     const [inner_selected_key, set_inner_selected_key] = useState(default_selected_key)
     const current_selected_key = selected_key ?? inner_selected_key
 
-    const handle_select = useCallback((item: VerticalMenuBarItem) => {
-        if (item.disabled){
-            return
-        }
-        if (enable_vibration){
-            vibrate()
-        }
-        if (selected_key === undefined){
-            set_inner_selected_key(item.key)
-        }
-        on_select?.(item.key, item)
-        item.on_click?.()
-    }, [enable_vibration, on_select, selected_key])
+    const handle_select = useCallback(
+        (item: VerticalMenuBarItem) => {
+            if (item.disabled) {
+                return
+            }
+            if (enable_vibration) {
+                vibrate()
+            }
+            if (selected_key === undefined) {
+                set_inner_selected_key(item.key)
+            }
+            on_select?.(item.key, item)
+            item.on_click?.()
+        },
+        [enable_vibration, on_select, selected_key]
+    )
 
     return (
         <div
             ref={ref}
-            style={{
-                "--vertical-menu-accent-color": accent_color,
-                "--vertical-menu-accent-soft-color": `color-mix(in srgb, ${accent_color} 18%, transparent)`,
-                "--vertical-menu-accent-border-color": `color-mix(in srgb, ${accent_color} 28%, white)`,
-                ...style,
-            } as CSSProperties}
+            style={
+                {
+                    "--vertical-menu-accent-color": accent_color,
+                    "--vertical-menu-accent-soft-color": `color-mix(in srgb, ${accent_color} 18%, transparent)`,
+                    "--vertical-menu-accent-border-color": `color-mix(in srgb, ${accent_color} 28%, white)`,
+                    ...style
+                } as CSSProperties
+            }
             className={[
                 "rounded-2xl border border-black/10 bg-white/80 p-1 text-black/90 shadow-[0_12px_32px_rgba(0,0,0,0.12),inset_0_1px_0_rgba(255,255,255,0.6)] backdrop-blur-xl",
                 "dark:border-white/10 dark:bg-[#181818]/85 dark:text-white/90 dark:shadow-[0_16px_36px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.05)]",
-                className,
-            ].filter(Boolean).join(" ")}
+                className
+            ]
+                .filter(Boolean)
+                .join(" ")}
             {...props}
         >
-            {header &&
-                <div className="px-2.5 pb-1.5 pt-1 text-xs text-black/50 dark:text-white/50">
-                    {header}
-                </div>}
+            {header && <div className="px-2.5 pb-1.5 pt-1 text-xs text-black/50 dark:text-white/50">{header}</div>}
 
             <div className="flex flex-col gap-0.5">
                 {sections.map((section, section_index) => {
@@ -119,23 +122,28 @@ function VerticalMenuBar(
                             key={section.key || `${section_index}`}
                             className={[
                                 "flex flex-col gap-0.5",
-                                section_index > 0 ? "pt-1 mt-0.5 border-t border-black/6 dark:border-white/6" : "",
-                            ].filter(Boolean).join(" ")}
+                                section_index > 0 ? "pt-1 mt-0.5 border-t border-black/6 dark:border-white/6" : ""
+                            ]
+                                .filter(Boolean)
+                                .join(" ")}
                         >
-                            {(section.title || section.caption) &&
+                            {(section.title || section.caption) && (
                                 <div className="px-2.5 py-1">
-                                    {section.title &&
+                                    {section.title && (
                                         <div className="text-[10px] font-semibold uppercase tracking-wider text-black/40 dark:text-white/40">
                                             {section.title}
-                                        </div>}
-                                    {section.caption &&
+                                        </div>
+                                    )}
+                                    {section.caption && (
                                         <div className="mt-0.5 text-[11px] text-black/45 dark:text-white/45">
                                             {section.caption}
-                                        </div>}
-                                </div>}
+                                        </div>
+                                    )}
+                                </div>
+                            )}
 
                             <div className="flex flex-col gap-0.5">
-                                {section.items.map(item => {
+                                {section.items.map((item) => {
                                     const is_selected = item.key === current_selected_key
                                     const is_destructive = item.tone === "destructive"
 
@@ -154,58 +162,75 @@ function VerticalMenuBar(
                                                 item.disabled ? "cursor-not-allowed opacity-40" : "cursor-pointer",
                                                 is_selected
                                                     ? "bg-(--vertical-menu-accent-soft-color) text-(--vertical-menu-accent-color) font-medium"
-                                                    : "hover:bg-black/5 active:bg-black/8 active:scale-[0.985] dark:hover:bg-white/10 dark:active:bg-white/15",
-                                            ].filter(Boolean).join(" ")}
+                                                    : "hover:bg-black/5 active:bg-black/8 active:scale-[0.985] dark:hover:bg-white/10 dark:active:bg-white/15"
+                                            ]
+                                                .filter(Boolean)
+                                                .join(" ")}
                                         >
-                                            {item.icon &&
+                                            {item.icon && (
                                                 <span
                                                     aria-hidden="true"
                                                     className={[
                                                         "flex shrink-0 items-center justify-center transition-colors duration-150",
-                                                        compact ? "h-4.5 w-4.5 text-[15px] [&>svg]:h-3.5 [&>svg]:w-3.5" : "h-5 w-5 text-[16px] [&>svg]:h-4 [&>svg]:w-4",
+                                                        compact
+                                                            ? "h-4.5 w-4.5 text-[15px] [&>svg]:h-3.5 [&>svg]:w-3.5"
+                                                            : "h-5 w-5 text-[16px] [&>svg]:h-4 [&>svg]:w-4",
                                                         is_selected
                                                             ? "text-(--vertical-menu-accent-color)"
                                                             : "text-black/60 group-hover:text-black/90 dark:text-white/60 dark:group-hover:text-white/90",
-                                                        is_destructive && !is_selected ? "text-[#ff3b30] group-hover:text-[#ff453a]" : "",
-                                                    ].filter(Boolean).join(" ")}
+                                                        is_destructive && !is_selected
+                                                            ? "text-[#ff3b30] group-hover:text-[#ff453a]"
+                                                            : ""
+                                                    ]
+                                                        .filter(Boolean)
+                                                        .join(" ")}
                                                 >
                                                     {item.icon}
-                                                </span>}
+                                                </span>
+                                            )}
 
                                             <span className="min-w-0 flex-1">
                                                 <span
                                                     className={[
                                                         "block truncate text-[13px] font-medium leading-tight",
                                                         is_selected ? "text-(--vertical-menu-accent-color)" : "",
-                                                        is_destructive && !is_selected ? "text-[#ff3b30]" : "",
-                                                    ].filter(Boolean).join(" ")}
+                                                        is_destructive && !is_selected ? "text-[#ff3b30]" : ""
+                                                    ]
+                                                        .filter(Boolean)
+                                                        .join(" ")}
                                                 >
                                                     {item.label}
                                                 </span>
-                                                {item.description &&
+                                                {item.description && (
                                                     <span className="mt-0.5 block truncate text-[11px] leading-tight text-black/45 dark:text-white/45">
                                                         {item.description}
-                                                    </span>}
+                                                    </span>
+                                                )}
                                             </span>
 
-                                            {(item.badge || item.trailing) &&
+                                            {(item.badge || item.trailing) && (
                                                 <span className="ml-2 flex shrink-0 items-center gap-1.5">
-                                                    {item.badge &&
+                                                    {item.badge && (
                                                         <span
                                                             className={[
                                                                 "rounded-md px-1.5 py-0.5 text-[10px] font-medium leading-none",
                                                                 is_selected
                                                                     ? "bg-(--vertical-menu-accent-color) text-white"
-                                                                    : "bg-black/6 text-black/55 dark:bg-white/10 dark:text-white/65",
-                                                            ].filter(Boolean).join(" ")}
+                                                                    : "bg-black/6 text-black/55 dark:bg-white/10 dark:text-white/65"
+                                                            ]
+                                                                .filter(Boolean)
+                                                                .join(" ")}
                                                         >
                                                             {item.badge}
-                                                        </span>}
-                                                    {item.trailing &&
+                                                        </span>
+                                                    )}
+                                                    {item.trailing && (
                                                         <span className="text-xs text-black/35 transition-transform duration-150 group-hover:translate-x-0.5 dark:text-white/35">
                                                             {item.trailing}
-                                                        </span>}
-                                                </span>}
+                                                        </span>
+                                                    )}
+                                                </span>
+                                            )}
                                         </button>
                                     )
                                 })}
@@ -215,10 +240,11 @@ function VerticalMenuBar(
                 })}
             </div>
 
-            {footer &&
+            {footer && (
                 <div className="px-2.5 pb-1 pt-1.5 border-t border-black/6 dark:border-white/6 text-xs text-black/50 dark:text-white/50">
                     {footer}
-                </div>}
+                </div>
+            )}
         </div>
     )
 }

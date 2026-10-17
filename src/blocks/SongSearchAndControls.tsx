@@ -1,11 +1,5 @@
 import { useState, useRef } from "react"
-import {
-    useKaraokeState,
-    karaoke_controller,
-    usePitchState,
-    pitch_controller,
-    DEMO_SONGS
-} from "@/core/controllers"
+import { useKaraokeState, karaoke_controller, usePitchState, pitch_controller, DEMO_SONGS } from "@/core/controllers"
 import {
     PlayIcon,
     PauseIcon,
@@ -28,16 +22,7 @@ function format_seconds(secs: number): string {
 }
 
 export function SongSearchAndControls() {
-    const {
-        status,
-        error,
-        meta,
-        current_time,
-        duration,
-        is_playing,
-        track_mode,
-        has_vocals
-    } = useKaraokeState()
+    const { status, error, meta, current_time, duration, is_playing, track_mode, has_vocals } = useKaraokeState()
     const { is_monitor_enabled } = usePitchState()
 
     const [inst_file, set_inst_file] = useState<File | null>(null)
@@ -143,7 +128,9 @@ export function SongSearchAndControls() {
                                     Accompaniment *
                                 </span>
                                 {inst_file && (
-                                    <span className="text-[10px] text-black/40 dark:text-white/40 font-mono">Selected</span>
+                                    <span className="text-[10px] text-black/40 dark:text-white/40 font-mono">
+                                        Selected
+                                    </span>
                                 )}
                             </div>
                             <span className="text-[11px] text-black/40 dark:text-white/40 truncate">
@@ -173,7 +160,9 @@ export function SongSearchAndControls() {
                                     Vocals (Optional)
                                 </span>
                                 {vocal_file && (
-                                    <span className="text-[10px] text-black/40 dark:text-white/40 font-mono">Selected</span>
+                                    <span className="text-[10px] text-black/40 dark:text-white/40 font-mono">
+                                        Selected
+                                    </span>
                                 )}
                             </div>
                             <span className="text-[11px] text-black/40 dark:text-white/40 truncate">
@@ -203,7 +192,9 @@ export function SongSearchAndControls() {
                                     Lyrics (Optional)
                                 </span>
                                 {lyrics_file && (
-                                    <span className="text-[10px] text-black/40 dark:text-white/40 font-mono">Selected</span>
+                                    <span className="text-[10px] text-black/40 dark:text-white/40 font-mono">
+                                        Selected
+                                    </span>
                                 )}
                             </div>
                             <span className="text-[11px] text-black/40 dark:text-white/40 truncate">

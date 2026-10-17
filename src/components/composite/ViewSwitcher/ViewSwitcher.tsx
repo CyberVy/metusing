@@ -5,7 +5,12 @@ import { join_classes } from "@/components/utils"
 import { view_switcher_controller } from "./ViewSwitcherController"
 import { useViewSwitcher } from "./useViewSwitcher"
 import { ViewSwitcherToolbar } from "./ViewSwitcherToolbar"
-import { useViewSwipeGesture, compute_view_render_config, is_in_overscroll, evaluate_toolbar_visibility } from "./useViewSwipeGesture"
+import {
+    useViewSwipeGesture,
+    compute_view_render_config,
+    is_in_overscroll,
+    evaluate_toolbar_visibility
+} from "./useViewSwipeGesture"
 import type { ViewSwitcherProps } from "./types"
 
 /**
@@ -40,7 +45,7 @@ export function ViewSwitcher<T extends string = string>({
     toolbar_layout = "bottom-floating",
     ref,
     ...props
-}: ViewSwitcherProps<T>){
+}: ViewSwitcherProps<T>) {
     const fallback_id = useId()
     const switcher_instance_id = id ?? fallback_id
 
@@ -50,11 +55,14 @@ export function ViewSwitcher<T extends string = string>({
 
     // Container DOM ref forwarding
     const container_element_ref = useRef<HTMLDivElement | null>(null)
-    const set_container_element_ref = useCallback((element: HTMLDivElement | null) => {
-        container_element_ref.current = element
-        if (typeof ref === "function") ref(element)
-        else if (ref) ref.current = element
-    }, [ref])
+    const set_container_element_ref = useCallback(
+        (element: HTMLDivElement | null) => {
+            container_element_ref.current = element
+            if (typeof ref === "function") ref(element)
+            else if (ref) ref.current = element
+        },
+        [ref]
+    )
 
     // Scroll positions and switching lock refs
     const scroll_positions_ref = useRef<Record<string, number>>({})
@@ -68,10 +76,13 @@ export function ViewSwitcher<T extends string = string>({
     const active_swipe_enabled = active_view?.swipe_enabled
     const should_hide_toolbar = active_view?.should_hide_toolbar
 
-    const commit_view_change = useCallback((view_id: T) => {
-        if (active_view_id === undefined) set_internal_active_view_id(view_id)
-        on_view_change?.(view_id)
-    }, [active_view_id, on_view_change])
+    const commit_view_change = useCallback(
+        (view_id: T) => {
+            if (active_view_id === undefined) set_internal_active_view_id(view_id)
+            on_view_change?.(view_id)
+        },
+        [active_view_id, on_view_change]
+    )
 
     // Swipe gesture transition engine
     const {
@@ -80,7 +91,7 @@ export function ViewSwitcher<T extends string = string>({
         target_view_id,
         view_elements_ref,
         handle_transition_end,
-        reset_transition,
+        reset_transition
     } = useViewSwipeGesture({
         switcher_instance_id,
         views,
@@ -89,7 +100,7 @@ export function ViewSwitcher<T extends string = string>({
         active_swipe_enabled,
         container_element_ref,
         scroll_positions_ref,
-        commit_view_change,
+        commit_view_change
     })
 
     // Window scroll listener: records scroll position and updates toolbar visibility
@@ -110,7 +121,13 @@ export function ViewSwitcher<T extends string = string>({
 
         window.addEventListener("scroll", handle_scroll, { passive: true })
         return () => window.removeEventListener("scroll", handle_scroll)
-    }, [switcher_instance_id, current_active_view_id, active_view_remember_scroll, should_hide_toolbar, is_transitioning])
+    }, [
+        switcher_instance_id,
+        current_active_view_id,
+        active_view_remember_scroll,
+        should_hide_toolbar,
+        is_transitioning
+    ])
 
     // Restore scroll position synchronously pre-paint on active view change or transition end
     useLayoutEffect(() => {
@@ -118,7 +135,9 @@ export function ViewSwitcher<T extends string = string>({
 
         is_switching_view_ref.current = true
 
-        const target_scroll_y = active_view_remember_scroll ? (scroll_positions_ref.current[current_active_view_id] ?? 0) : 0
+        const target_scroll_y = active_view_remember_scroll
+            ? (scroll_positions_ref.current[current_active_view_id] ?? 0)
+            : 0
         window.scrollTo(0, target_scroll_y)
         scroll_positions_ref.current[current_active_view_id] = target_scroll_y
 
@@ -126,31 +145,36 @@ export function ViewSwitcher<T extends string = string>({
         view_switcher_controller.set_toolbar_visible(switcher_instance_id, is_visible)
 
         is_switching_view_ref.current = false
-    }, [current_active_view_id, active_view_remember_scroll, is_transitioning, should_hide_toolbar, switcher_instance_id])
+    }, [
+        current_active_view_id,
+        active_view_remember_scroll,
+        is_transitioning,
+        should_hide_toolbar,
+        switcher_instance_id
+    ])
 
     // Controller integration
     const { is_toolbar_visible, has_other_transitioning } = useViewSwitcher(switcher_instance_id)
 
-
-    const switch_view = useCallback((target_view_id: string) => {
-        const target = views.find((v) => v.id === target_view_id)
-        if (!target) return
-        reset_transition()
-        commit_view_change(target.id)
-    }, [views, reset_transition, commit_view_change])
+    const switch_view = useCallback(
+        (target_view_id: string) => {
+            const target = views.find((v) => v.id === target_view_id)
+            if (!target) return
+            reset_transition()
+            commit_view_change(target.id)
+        },
+        [views, reset_transition, commit_view_change]
+    )
 
     // Register instance with ViewSwitcherController on mount
     useEffect(() => {
-        return view_switcher_controller.register(
-            switcher_instance_id,
-            {
-                id: switcher_instance_id,
-                is_toolbar_visible: true,
-                is_transitioning,
-                active_view_id: current_active_view_id,
-                target_view_id,
-            }
-        )
+        return view_switcher_controller.register(switcher_instance_id, {
+            id: switcher_instance_id,
+            is_toolbar_visible: true,
+            is_transitioning,
+            active_view_id: current_active_view_id,
+            target_view_id
+        })
     }, [switcher_instance_id])
 
     // Keep controller synchronized with instance transition and active view states
@@ -158,10 +182,9 @@ export function ViewSwitcher<T extends string = string>({
         view_switcher_controller.update_instance(switcher_instance_id, {
             is_transitioning,
             active_view_id: current_active_view_id,
-            target_view_id,
+            target_view_id
         })
     }, [switcher_instance_id, transition_state, current_active_view_id, is_transitioning, target_view_id])
-
 
     // React to event-driven "switch_view" CustomEvent from controller
     useEffect(() => {
@@ -191,7 +214,12 @@ export function ViewSwitcher<T extends string = string>({
             {/* Content Views Area */}
             <div className="w-full h-full">
                 {views.map((view) => {
-                    const render_config = compute_view_render_config(view, current_active_view_id, keep_alive_default, transition_state)
+                    const render_config = compute_view_render_config(
+                        view,
+                        current_active_view_id,
+                        keep_alive_default,
+                        transition_state
+                    )
                     if (!render_config) return null
 
                     return (
@@ -203,7 +231,9 @@ export function ViewSwitcher<T extends string = string>({
                             }}
                             className={render_config.view_class}
                             style={render_config.style}
-                            onTransitionEnd={render_config.is_view_active_in_transition ? handle_transition_end : undefined}
+                            onTransitionEnd={
+                                render_config.is_view_active_in_transition ? handle_transition_end : undefined
+                            }
                         >
                             {view.content}
                         </div>
@@ -219,7 +249,7 @@ export function ViewSwitcher<T extends string = string>({
                                 transition_state.active_view_height,
                                 (transition_state.prev_view_scroll_y ?? 0) + transition_state.viewport_height,
                                 (transition_state.next_view_scroll_y ?? 0) + transition_state.viewport_height
-                            ),
+                            )
                         }}
                     />
                 )}

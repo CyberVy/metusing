@@ -12,7 +12,7 @@ export type ScrollSentryProps = {
     enabled?: boolean
 }
 
-function get_root_margin(root_margin: number | string){
+function get_root_margin(root_margin: number | string) {
     if (typeof root_margin === "number") return `${root_margin}px`
     return root_margin
 }
@@ -22,8 +22,8 @@ const ScrollSentry = React.memo(function ScrollSentry({
     throttle_ms = 500,
     root_margin = 0,
     root,
-    enabled = true,
-}: ScrollSentryProps){
+    enabled = true
+}: ScrollSentryProps) {
     const [element, set_element] = useState<HTMLDivElement | null>(null)
     const last_trigger_time_ref = useRef(0)
 
@@ -32,25 +32,28 @@ const ScrollSentry = React.memo(function ScrollSentry({
 
         const resolved_root = (root && typeof root === "object" && "current" in root ? root.current : root) || null
 
-        const observer = new IntersectionObserver((entries) => {
-            for (const entry of entries){
-                const target_element = entry.target as HTMLElement
-                if (is_element_hidden(target_element)){
-                    continue
-                }
-                if (entry.isIntersecting){
-                    const now = Date.now()
-                    if (now - last_trigger_time_ref.current >= throttle_ms){
-                        last_trigger_time_ref.current = now
-                        on_trigger()
+        const observer = new IntersectionObserver(
+            (entries) => {
+                for (const entry of entries) {
+                    const target_element = entry.target as HTMLElement
+                    if (is_element_hidden(target_element)) {
+                        continue
+                    }
+                    if (entry.isIntersecting) {
+                        const now = Date.now()
+                        if (now - last_trigger_time_ref.current >= throttle_ms) {
+                            last_trigger_time_ref.current = now
+                            on_trigger()
+                        }
                     }
                 }
+            },
+            {
+                root: resolved_root,
+                rootMargin: get_root_margin(root_margin),
+                threshold: 0
             }
-        }, {
-            root: resolved_root,
-            rootMargin: get_root_margin(root_margin),
-            threshold: 0
-        })
+        )
 
         observer.observe(element)
 

@@ -10,13 +10,13 @@
 :root {
     overscroll-behavior-x: none;
     scrollbar-width: none;
-    &::-webkit-scrollbar{
+    &::-webkit-scrollbar {
         display: none;
     }
-    /* workaround for fixed element position error on iOS fullscreen container */                    
+    /* workaround for fixed element position error on iOS fullscreen container */
     min-height: calc(100% + env(safe-area-inset-top) + env(safe-area-inset-bottom));
     padding: env(safe-area-inset-top) 0 0 0;
-    --background: #FFFFFF;
+    --background: #ffffff;
     --foreground: #000000;
     --font-sans: Arial, Helvetica, sans-serif;
     --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
@@ -32,7 +32,7 @@
 @media (prefers-color-scheme: dark) {
     :root {
         --background: #000000;
-        --foreground: #EEEEEE;
+        --foreground: #eeeeee;
     }
 }
 

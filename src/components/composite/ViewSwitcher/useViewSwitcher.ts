@@ -21,13 +21,13 @@ export function useViewSwitcher(switcher_id?: string): ViewSwitcherState {
     return useController(view_switcher_controller, {
         events: "change",
         selector,
-        server_snapshot: STATIC_EMPTY_VIEW_SWITCHER_STATE,
+        server_snapshot: STATIC_EMPTY_VIEW_SWITCHER_STATE
     })
 }
 
 export function useViewSwitcherRegistry(): ViewSwitcherRegistryState {
     return useController(view_switcher_controller, {
         events: "change",
-        server_snapshot: INITIAL_VIEW_SWITCHER_REGISTRY_STATE,
+        server_snapshot: INITIAL_VIEW_SWITCHER_REGISTRY_STATE
     })
 }

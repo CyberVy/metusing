@@ -9,7 +9,7 @@ import type { ComponentPropsWithRef } from "react"
 
 export type VersionProps = Omit<ComponentPropsWithRef<"div">, "children">
 
-const Version = function Version({ className = "", ref, ...props }: VersionProps){
+const Version = function Version({ className = "", ref, ...props }: VersionProps) {
     const [cache_update_icon, set_cache_update_icon] = useState<ReactNode>(string_icons.reset)
 
     const handle_static_cache_update = () => {
@@ -22,11 +22,7 @@ const Version = function Version({ className = "", ref, ...props }: VersionProps
     }
 
     return (
-        <div
-            {...props}
-            ref={ref}
-            className={className}
-        >
+        <div {...props} ref={ref} className={className}>
             <div className="flex items-center">
                 <span className="text-xs">v{version}</span>
                 <button

@@ -20,21 +20,23 @@ function FullscreenModalContainer({
     enable_escape = true,
     ref,
     ...props
-}: FullscreenModalContainerProps){
-
+}: FullscreenModalContainerProps) {
     const [in_browser, set_in_browser] = useState(true)
     const container_ref = useRef<HTMLDivElement | null>(null)
 
-    const set_container_ref = useCallback((node: HTMLDivElement | null) => {
-        container_ref.current = node
-        if (typeof ref === "function"){
-            ref(node)
-            return
-        }
-        if (ref){
-            ref.current = node
-        }
-    }, [ref])
+    const set_container_ref = useCallback(
+        (node: HTMLDivElement | null) => {
+            container_ref.current = node
+            if (typeof ref === "function") {
+                ref(node)
+                return
+            }
+            if (ref) {
+                ref.current = node
+            }
+        },
+        [ref]
+    )
 
     useEffect(() => {
         set_in_browser(is_in_browser())
@@ -44,7 +46,7 @@ function FullscreenModalContainer({
         if (!enable_escape || !on_escape) return
 
         const handle_keydown = (e: KeyboardEvent) => {
-            if (e.key === "Escape"){
+            if (e.key === "Escape") {
                 e.preventDefault()
                 on_escape()
             }
@@ -66,27 +68,23 @@ function FullscreenModalContainer({
                 in_browser ? "supports-[height:100dvh]:h-dvh" : "",
                 "pt-[env(safe-area-inset-top)]",
                 className
-            ].filter(Boolean).join(" ")}
+            ]
+                .filter(Boolean)
+                .join(" ")}
             {...props}
         >
             {children}
-            {enable_scroll_button &&
+            {enable_scroll_button && (
                 <>
-                    <ScrollToTopButton
-                        className="bottom-4 right-4"
-                        element_ref={container_ref}
-                    />
-                    <ScrollToBottomButton
-                        className="bottom-4 right-17"
-                        element_ref={container_ref}
-                    />
-                </>}
+                    <ScrollToTopButton className="bottom-4 right-4" element_ref={container_ref} />
+                    <ScrollToBottomButton className="bottom-4 right-17" element_ref={container_ref} />
+                </>
+            )}
         </div>
     )
 }
 
 export { FullscreenModalContainer }
-
 
 export type FloatingModalContainerProps = ComponentPropsWithRef<"div"> & {
     on_escape?: () => void
@@ -103,12 +101,12 @@ function FloatingModalContainer({
     ref,
     onClick,
     ...props
-}: FloatingModalContainerProps){
+}: FloatingModalContainerProps) {
     useEffect(() => {
         if (!enable_escape || !on_escape) return
 
         const handle_keydown = (e: KeyboardEvent) => {
-            if (e.key === "Escape"){
+            if (e.key === "Escape") {
                 e.preventDefault()
                 on_escape()
             }
@@ -127,7 +125,9 @@ function FloatingModalContainer({
                 "flex flex-col rounded-3xl border border-black/10 dark:border-white/10",
                 "bg-white/85 dark:bg-[#141414]/85 backdrop-blur-xl shadow-2xl text-foreground",
                 className
-            ].filter(Boolean).join(" ")}
+            ]
+                .filter(Boolean)
+                .join(" ")}
             onClick={(e) => {
                 e.stopPropagation()
                 onClick?.(e)

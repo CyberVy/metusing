@@ -56,7 +56,6 @@ export default function App() {
                     keep_alive_default={true}
                     toolbar_item_className="w-20 sm:w-24 h-9"
                 />
-
             </div>
         </div>
     )

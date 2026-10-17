@@ -31,13 +31,15 @@ function StringInput({
     input_class_name = "",
     ref,
     ...props
-}: StringInputProps){
-    const [internal_value, set_internal_value] = useState(controlled_value !== undefined ? controlled_value : default_value)
+}: StringInputProps) {
+    const [internal_value, set_internal_value] = useState(
+        controlled_value !== undefined ? controlled_value : default_value
+    )
     const [prev_controlled_value, set_prev_controlled_value] = useState(controlled_value)
 
-    if (controlled_value !== prev_controlled_value){
+    if (controlled_value !== prev_controlled_value) {
         set_prev_controlled_value(controlled_value)
-        if (controlled_value !== undefined){
+        if (controlled_value !== undefined) {
             set_internal_value(controlled_value)
         }
     }
@@ -61,7 +63,7 @@ function StringInput({
     }
 
     const handle_key_down = (event: React.KeyboardEvent<HTMLInputElement>) => {
-        if (event.key === "Enter"){
+        if (event.key === "Enter") {
             event.currentTarget.blur()
             on_submit?.(current_value)
         }
@@ -71,19 +73,14 @@ function StringInput({
     const is_submit_visible = Boolean(submit_button)
 
     let right_padding = "pr-3.5"
-    if (is_clear_visible && is_submit_visible){
+    if (is_clear_visible && is_submit_visible) {
         right_padding = "pr-16"
-    }
-    else if (is_clear_visible || is_submit_visible){
+    } else if (is_clear_visible || is_submit_visible) {
         right_padding = "pr-9"
     }
 
     return (
-        <div
-            {...props}
-            ref={ref}
-            className={`relative flex items-center w-full ${className}`}
-        >
+        <div {...props} ref={ref} className={`relative flex items-center w-full ${className}`}>
             {icon && (
                 <div className="absolute left-3.5 flex items-center pointer-events-none text-black/40 dark:text-white/40 z-10">
                     {icon}
@@ -94,7 +91,7 @@ function StringInput({
                 type="text"
                 placeholder={placeholder}
                 value={current_value}
-                onChange={e => handle_change(e.target.value)}
+                onChange={(e) => handle_change(e.target.value)}
                 onKeyDown={handle_key_down}
                 className={`w-full text-sm bg-transparent focus:outline-none transition-all duration-200 text-black dark:text-white placeholder:text-black/40 dark:placeholder:text-white/40 ${input_class_name} ${
                     icon ? "pl-9" : "pl-3.5"

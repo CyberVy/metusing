@@ -23,7 +23,10 @@ export interface View<T extends string = string> {
     should_hide_toolbar?: boolean | ((scroll_y: number) => boolean)
 }
 
-export type ViewSwitcherProps<T extends string = string> = Omit<ComponentPropsWithRef<"div">, "children" | "onChange"> & {
+export type ViewSwitcherProps<T extends string = string> = Omit<
+    ComponentPropsWithRef<"div">,
+    "children" | "onChange"
+> & {
     /** Unique identifier for registering with the view switcher controller */
     id?: string
     /** List of view configurations */
@@ -48,7 +51,8 @@ export type ViewSwitcherProps<T extends string = string> = Omit<ComponentPropsWi
     toolbar_layout?: "bottom-floating" | "top-floating"
 }
 
-export type ViewSwitcherToolbarProps<T extends string> = Pick<ViewSwitcherProps<T>,
+export type ViewSwitcherToolbarProps<T extends string> = Pick<
+    ViewSwitcherProps<T>,
     "views" | "toolbar_layout" | "toolbar_extra_actions" | "toolbar_className" | "toolbar_item_className"
 > & {
     active_view_id: T

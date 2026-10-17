@@ -13,8 +13,8 @@ export type ScrollButtonProps = Omit<ComponentPropsWithRef<"div">, "children"> &
     offset?: number
 }
 
-function scroll_element({ element_ref, on_scroll, offset = 0 }: ScrollButtonProps, position: "top" | "bottom"){
-    if (!element_ref?.current){
+function scroll_element({ element_ref, on_scroll, offset = 0 }: ScrollButtonProps, position: "top" | "bottom") {
+    if (!element_ref?.current) {
         const { documentElement } = document
         // use window.outerHeight
         // or use window.innerHeight instead of documentElement.clientHeight
@@ -22,22 +22,27 @@ function scroll_element({ element_ref, on_scroll, offset = 0 }: ScrollButtonProp
         // css: min-height: calc(100% + env(safe-area-inset-top) + env(safe-area-inset-bottom));
         // for Apple Webkit
         // https://bugs.webkit.org/show_bug.cgi?id=210009
-        documentElement.scrollTop = position === "top" ? 0 + offset : documentElement.scrollHeight - window.innerHeight - offset
+        documentElement.scrollTop =
+            position === "top" ? 0 + offset : documentElement.scrollHeight - window.innerHeight - offset
         on_scroll?.()
         return
     }
 
-    element_ref.current.scrollTop = position === "top" ? 0 + offset : element_ref.current.scrollHeight - element_ref.current.clientHeight - offset
+    element_ref.current.scrollTop =
+        position === "top" ? 0 + offset : element_ref.current.scrollHeight - element_ref.current.clientHeight - offset
     on_scroll?.()
 }
 
-const ScrollToTopButton = React.memo(function ScrollToTopButton({ element_ref, on_scroll, offset = 1, className, ref, ...props }: ScrollButtonProps){
+const ScrollToTopButton = React.memo(function ScrollToTopButton({
+    element_ref,
+    on_scroll,
+    offset = 1,
+    className,
+    ref,
+    ...props
+}: ScrollButtonProps) {
     return (
-        <div
-            {...props}
-            ref={ref}
-            className={join_classes("fixed z-10 select-none text-2xl", className)}
-        >
+        <div {...props} ref={ref} className={join_classes("fixed z-10 select-none text-2xl", className)}>
             <ButtonGroup
                 className="rounded-full border border-black/10 dark:border-white/10 bg-white/40 dark:bg-zinc-900/40 backdrop-blur-xl shadow-sm p-1"
                 items={[
@@ -52,13 +57,16 @@ const ScrollToTopButton = React.memo(function ScrollToTopButton({ element_ref, o
     )
 })
 
-const ScrollToBottomButton = React.memo(function ScrollToBottomButton({ element_ref, on_scroll, offset = 1, className, ref, ...props }: ScrollButtonProps){
+const ScrollToBottomButton = React.memo(function ScrollToBottomButton({
+    element_ref,
+    on_scroll,
+    offset = 1,
+    className,
+    ref,
+    ...props
+}: ScrollButtonProps) {
     return (
-        <div
-            {...props}
-            ref={ref}
-            className={join_classes("fixed z-10 select-none text-2xl", className)}
-        >
+        <div {...props} ref={ref} className={join_classes("fixed z-10 select-none text-2xl", className)}>
             <ButtonGroup
                 className="rounded-full border border-black/10 dark:border-white/10 bg-white/40 dark:bg-zinc-900/40 backdrop-blur-xl shadow-sm p-1"
                 items={[
@@ -73,13 +81,16 @@ const ScrollToBottomButton = React.memo(function ScrollToBottomButton({ element_
     )
 })
 
-const ScrollButtonGroup = React.memo(function ScrollButtonGroup ({ element_ref, on_scroll, offset = 0, className, ref, ...props }: ScrollButtonProps){
+const ScrollButtonGroup = React.memo(function ScrollButtonGroup({
+    element_ref,
+    on_scroll,
+    offset = 0,
+    className,
+    ref,
+    ...props
+}: ScrollButtonProps) {
     return (
-        <div
-            {...props}
-            ref={ref}
-            className={join_classes("fixed z-10 select-none text-2xl", className)}
-        >
+        <div {...props} ref={ref} className={join_classes("fixed z-10 select-none text-2xl", className)}>
             <ButtonGroup
                 className="rounded-full border border-black/10 dark:border-white/10 bg-white/40 dark:bg-zinc-900/40 backdrop-blur-xl shadow-sm p-1"
                 items={[

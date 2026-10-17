@@ -12,16 +12,21 @@ export interface PitchDetectionResult {
 /**
  * Converts a frequency in Hz to musical note notation (e.g. 440Hz -> A4, 65.4Hz -> C2).
  */
-export function frequency_to_note(freq_hz: number): { note_name: string; octave: number; full_name: string; cents: number } {
+export function frequency_to_note(freq_hz: number): {
+    note_name: string
+    octave: number
+    full_name: string
+    cents: number
+} {
     const midi = 69 + 12 * Math.log2(freq_hz / 440)
     const rounded_midi = Math.round(midi)
     const note_idx = ((rounded_midi % 12) + 12) % 12
     const octave = Math.floor(rounded_midi / 12) - 1
     const note_name = NOTE_NAMES[note_idx]
-    
+
     const standard_freq = 440 * Math.pow(2, (rounded_midi - 69) / 12)
     const cents = Math.round(1200 * Math.log2(freq_hz / standard_freq))
-    
+
     return {
         note_name,
         octave,
@@ -46,7 +51,7 @@ export function extract_pitch_autocorrelation(
         sum_squares += buffer[i] * buffer[i]
     }
     const rms = Math.sqrt(sum_squares / size)
-    
+
     // Ambient noise gate: 0.006 (-44.4 dBFS) filters room noise while capturing gentle singing and headset mics
     if (rms < min_rms) {
         return null
@@ -76,7 +81,7 @@ export function extract_pitch_autocorrelation(
         }
 
         // True amplitude-normalized correlation (scale-invariant)
-        const correlation = sum > 0.0001 ? 1 - (diff / sum) : 0
+        const correlation = sum > 0.0001 ? 1 - diff / sum : 0
         correlations[offset] = correlation
 
         // Peak picking: detect local maximum
@@ -94,7 +99,7 @@ export function extract_pitch_autocorrelation(
 
             // If we found a very confident fundamental peak (> 0.90),
             // prefer the fundamental over subsequent octave sub-harmonics
-            if (candidate_correlation > 0.90) {
+            if (candidate_correlation > 0.9) {
                 break
             }
         }
@@ -116,7 +121,7 @@ export function extract_pitch_autocorrelation(
         }
 
         const pitch_hz = sample_rate / refined_offset
-        
+
         if (pitch_hz >= 65 && pitch_hz <= 988) {
             const note_info = frequency_to_note(pitch_hz)
             return {

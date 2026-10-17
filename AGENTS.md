@@ -189,7 +189,7 @@ The client-side persistence layer (`LocalForage` / IndexedDB) adheres to a stric
 - **Source Code & Runtime as SSOT**: Source code and live runtime data are the Single Source of Truth (SSOT), never historical knowledge or outdated assumptions. Always verify facts against current code and runtime state.
 - **Minimalist & Clean Code**: Keep edits minimal, direct, and targeted. Avoid sweeping reformatting, unnecessary fallback mechanisms, and defensive over-engineering. Prioritize human readability and simplicity.
 - **Refactor Before Feature**: Review whether existing mechanisms can support a new design before extending them. Stop and seek developer approval before changing a foundational abstraction, public cross-module interface, persistence model, or architectural ownership boundary. Ordinary local refactoring does not require separate approval.
-- **Style Consistency**: Match existing naming, formatting, and import styles in every file.
+- **Style Consistency**: Match existing naming, formatting, and import styles in every file. Format modified files using `oxfmt` (`npx oxfmt <file>`) to ensure correct indentation, consistent layout, and unambiguous DOM hierarchy.
 - **Interface Reuse & Dependencies**: When importing from outside a module, prefer its public `index.ts` exports. Within the same module, use direct relative imports when they are clearer and avoid cycles. Reuse existing types and interfaces when suitable. Do not add dependencies or design complex public interfaces without developer approval.
 - **Local Verification**: After editing TypeScript or TSX files, run `npm run check`. Also run the relevant build or Cargo verification when modifying build configuration, generated entry sources, IPC boundaries, or Rust code.
 

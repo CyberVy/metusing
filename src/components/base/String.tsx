@@ -17,20 +17,16 @@ function AnimatedGlowText({
     className = "",
     ref,
     ...props
-}: AnimatedGlowTextProps){
+}: AnimatedGlowTextProps) {
     return (
-        <div
-            {...props}
-            ref={ref}
-            className={["inline", className].filter(Boolean).join(" ")}
-        >
+        <div {...props} ref={ref} className={["inline", className].filter(Boolean).join(" ")}>
             {text.split("").map((ch, index) => (
                 <span
                     key={index}
                     className={`animate-pulse brightness-125 ${tailwind_cls_for_string_item}`}
                     style={{
                         animationDelay: `${index * stagger}s`,
-                        animationDuration: `${duration}s`,
+                        animationDuration: `${duration}s`
                     }}
                 >
                     {ch}

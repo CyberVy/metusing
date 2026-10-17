@@ -24,7 +24,7 @@ function Image({
     className,
     ref,
     ...props
-}: ImageProps){
+}: ImageProps) {
     const [is_ios, set_is_ios] = useState(false)
     const requested_src = src ? `${image_proxy_api || ""}${src}` : undefined
     const resolved_src = get_image_url_with_fallback(requested_src, alt, generated_cover_options)
@@ -39,23 +39,17 @@ function Image({
             ref={ref}
             src={resolved_src}
             alt={alt}
-            className={[
-                "[-webkit-touch-callout:none]",
-                is_ios ? "[-webkit-user-drag:none]" : "",
-                className,
-            ].filter(Boolean).join(" ")}
+            className={["[-webkit-touch-callout:none]", is_ios ? "[-webkit-user-drag:none]" : "", className]
+                .filter(Boolean)
+                .join(" ")}
         />
     )
 
-    if (!context_menu){
+    if (!context_menu) {
         return image
     }
 
-    return (
-        <ContextMenu {...context_menu}>
-            {image}
-        </ContextMenu>
-    )
+    return <ContextMenu {...context_menu}>{image}</ContextMenu>
 }
 
 export { Image }

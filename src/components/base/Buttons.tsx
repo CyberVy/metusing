@@ -24,17 +24,9 @@ export type ButtonGroupProps = Omit<ComponentPropsWithRef<"div">, "children"> & 
     items: ButtonGroupItem[]
 }
 
-function NaiveButton({
-    children,
-    className,
-    onClick,
-    on_click,
-    type = "button",
-    ref,
-    ...props
-}: NaiveButtonProps){
+function NaiveButton({ children, className, onClick, on_click, type = "button", ref, ...props }: NaiveButtonProps) {
     return (
-        <button 
+        <button
             type={type}
             ref={ref}
             className={join_classes(
@@ -48,29 +40,15 @@ function NaiveButton({
             {...props}
         >
             <HapticContainer disabled={props.disabled}>
-                <div className="w-full h-full flex items-center justify-center">                                                       
-                    {children}                                                                                                         
-                </div>
+                <div className="w-full h-full flex items-center justify-center">{children}</div>
             </HapticContainer>
         </button>
     )
 }
 
-function ButtonGroup({
-    items,
-    className,
-    ref,
-    ...props
-}: ButtonGroupProps){
+function ButtonGroup({ items, className, ref, ...props }: ButtonGroupProps) {
     return (
-        <div
-            ref={ref}
-            className={join_classes(
-                "inline-flex items-center select-none",
-                className
-            )}
-            {...props}
-        >
+        <div ref={ref} className={join_classes("inline-flex items-center select-none", className)} {...props}>
             {items.map((item, index) => {
                 const handle_click = item.on_click ?? item.onClick
 
@@ -90,9 +68,7 @@ function ButtonGroup({
                         }}
                     >
                         <HapticContainer disabled={item.disabled}>
-                            <div className="w-full h-full flex items-center justify-center">                                                       
-                                {item.content}                                                                                                         
-                            </div>
+                            <div className="w-full h-full flex items-center justify-center">{item.content}</div>
                         </HapticContainer>
                     </button>
                 )

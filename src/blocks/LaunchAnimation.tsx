@@ -11,14 +11,14 @@ export type LaunchAnimationProps = {
     on_finish?: () => void
 }
 
-function LaunchAnimation({ className, on_finish }: LaunchAnimationProps){
+function LaunchAnimation({ className, on_finish }: LaunchAnimationProps) {
     const [welcome_sentence, set_welcome_sentence] = useState(() => `Struggling to wake... Just five more minutes.`)
     useEffect(() => {
-        const welcome_sentences = [
-            `Are we there yet? Oh, right. Waking up.`,
-            `Ugh, waking up is hard.`
-        ]
-        const timeout_id = setTimeout(() => set_welcome_sentence(welcome_sentences[Math.floor(Math.random() * welcome_sentences.length)]), 500)
+        const welcome_sentences = [`Are we there yet? Oh, right. Waking up.`, `Ugh, waking up is hard.`]
+        const timeout_id = setTimeout(
+            () => set_welcome_sentence(welcome_sentences[Math.floor(Math.random() * welcome_sentences.length)]),
+            500
+        )
         return () => clearTimeout(timeout_id)
     }, [])
     return (
@@ -36,15 +36,9 @@ function LaunchAnimation({ className, on_finish }: LaunchAnimationProps){
                     className="mb-4 mr-auto"
                     style={{ transform: "translate(-100%, 0)" }}
                 >
-                    <Image
-                        className={"w-12 h-12 object-cover rounded-xl"}
-                        src={"/icons/192x192.png"}
-                    />
+                    <Image className={"w-12 h-12 object-cover rounded-xl"} src={"/icons/192x192.png"} />
                 </AnimationContainer>
-                 <AnimatedGlowText
-                    text={welcome_sentence}
-                    stagger={0.06}
-                />
+                <AnimatedGlowText text={welcome_sentence} stagger={0.06} />
             </div>
         </div>
     )

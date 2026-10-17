@@ -14,8 +14,7 @@ import type { ComponentPropsWithRef } from "react"
 
 type DeviceProps = Omit<ComponentPropsWithRef<"div">, "children">
 
-const Device = function Device({ className = "", ref, ...props }: DeviceProps){
-
+const Device = function Device({ className = "", ref, ...props }: DeviceProps) {
     const [ua, set_ua] = useState("")
     const [is_touch_device, set_is_touch_device] = useState(false)
     const [client_width, set_client_width] = useState(0)
@@ -45,11 +44,7 @@ const Device = function Device({ className = "", ref, ...props }: DeviceProps){
     }, [])
 
     return (
-        <div
-            {...props}
-            ref={ref}
-            className={["text-xs select-text", className].filter(Boolean).join(" ")}
-        >
+        <div {...props} ref={ref} className={["text-xs select-text", className].filter(Boolean).join(" ")}>
             <p>{`UA: ${ua}`}</p>
             <p>{`Width: ${client_width}, Height: ${client_height}`}</p>
             <p>{`Mobile Device: ${is_touch_device ? string_icons.true : string_icons.false}`}</p>

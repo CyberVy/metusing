@@ -17,40 +17,38 @@ interface PendingEval {
     timeout: NodeJS.Timeout
 }
 
-export function debug_bridge_plugin(): Plugin{
+export function debug_bridge_plugin(): Plugin {
     const pending_evals = new Map<string, PendingEval>()
     let client_res: http.ServerResponse | null = null
 
-    function log_eval_history(id: string, code: string, success: boolean, result: unknown){
+    function log_eval_history(id: string, code: string, success: boolean, result: unknown) {
         try {
             const entry = JSON.stringify({
                 timestamp: Date.now(),
                 id,
                 code,
                 success,
-                result,
+                result
             })
             fs.appendFileSync(HISTORY_FILE, entry + "\n", "utf8")
-        }
-        catch (err){
+        } catch (err) {
             try {
                 const entry = JSON.stringify({
                     timestamp: Date.now(),
                     id,
                     code,
                     success,
-                    result: String(err),
+                    result: String(err)
                 })
                 fs.appendFileSync(HISTORY_FILE, entry + "\n", "utf8")
-            }
-            catch {}
+            } catch {}
         }
     }
 
     return {
         name: "debug-bridge",
         apply: "serve",
-        transformIndexHtml(_html, _ctx){
+        transformIndexHtml(_html, _ctx) {
             return [
                 {
                     tag: "script",
@@ -59,21 +57,20 @@ export function debug_bridge_plugin(): Plugin{
                 }
             ]
         },
-        configureServer(server){
-            if (!fs.existsSync(DEBUG_DIR)){
+        configureServer(server) {
+            if (!fs.existsSync(DEBUG_DIR)) {
                 fs.mkdirSync(DEBUG_DIR, { recursive: true })
             }
 
             const write_config = () => {
                 const address = server.httpServer?.address()
-                const port = typeof address === "object" && address ? address.port : (server.config.server.port || 3000)
+                const port = typeof address === "object" && address ? address.port : server.config.server.port || 3000
                 fs.writeFileSync(CONFIG_FILE, JSON.stringify({ port }, null, 2), "utf8")
             }
 
-            if (server.httpServer?.listening){
+            if (server.httpServer?.listening) {
                 write_config()
-            }
-            else {
+            } else {
                 server.httpServer?.once("listening", write_config)
             }
 
@@ -82,12 +79,12 @@ export function debug_bridge_plugin(): Plugin{
                 const pathname = url.pathname
 
                 // Fast bypass for non-debug requests
-                if (!pathname.startsWith("/__debug/") && pathname !== "/debug_bridge.js"){
+                if (!pathname.startsWith("/__debug/") && pathname !== "/debug_bridge.js") {
                     return next()
                 }
 
                 // 1. Serve client script
-                if (pathname === "/debug_bridge.js"){
+                if (pathname === "/debug_bridge.js") {
                     try {
                         const content = fs.readFileSync(SCRIPT_FILE, "utf8")
                         res.writeHead(200, {
@@ -95,8 +92,7 @@ export function debug_bridge_plugin(): Plugin{
                             "Cache-Control": "no-cache"
                         })
                         res.end(content)
-                    }
-                    catch {
+                    } catch {
                         res.writeHead(404)
                         res.end()
                     }
@@ -104,17 +100,17 @@ export function debug_bridge_plugin(): Plugin{
                 }
 
                 // 2. SSE events
-                if (pathname === "/__debug/events"){
+                if (pathname === "/__debug/events") {
                     if (req.method !== "GET" && req.method !== "HEAD") return next()
                     res.writeHead(200, {
                         "Content-Type": "text/event-stream",
                         "Cache-Control": "no-cache",
-                        "Connection": "keep-alive",
+                        Connection: "keep-alive"
                     })
                     res.write(":\n\n")
                     client_res = res
                     req.on("close", () => {
-                        if (client_res === res){
+                        if (client_res === res) {
                             client_res = null
                         }
                     })
@@ -122,7 +118,7 @@ export function debug_bridge_plugin(): Plugin{
                 }
 
                 // 3. Client respond
-                if (pathname === "/__debug/respond"){
+                if (pathname === "/__debug/respond") {
                     if (req.method !== "POST") return next()
                     let body = ""
                     req.on("data", (chunk) => {
@@ -134,7 +130,7 @@ export function debug_bridge_plugin(): Plugin{
                             const { id, success, result } = payload
                             const pending = pending_evals.get(id)
 
-                            if (pending){
+                            if (pending) {
                                 clearTimeout(pending.timeout)
                                 pending.res.writeHead(200, { "Content-Type": "application/json" })
                                 pending.res.end(JSON.stringify({ success, result }))
@@ -144,8 +140,7 @@ export function debug_bridge_plugin(): Plugin{
 
                             res.writeHead(200, { "Content-Type": "application/json" })
                             res.end(JSON.stringify({ status: "ok" }))
-                        }
-                        catch (err){
+                        } catch (err) {
                             res.writeHead(500)
                             res.end(String(err))
                         }
@@ -154,7 +149,7 @@ export function debug_bridge_plugin(): Plugin{
                 }
 
                 // 4. Client console log
-                if (pathname === "/__debug/log"){
+                if (pathname === "/__debug/log") {
                     if (req.method !== "POST") return next()
                     let body = ""
                     req.on("data", (chunk) => {
@@ -165,8 +160,7 @@ export function debug_bridge_plugin(): Plugin{
                             fs.appendFileSync(LOGS_FILE, body + "\n", "utf8")
                             res.writeHead(200, { "Content-Type": "application/json" })
                             res.end(JSON.stringify({ status: "ok" }))
-                        }
-                        catch (err){
+                        } catch (err) {
                             res.writeHead(500)
                             res.end(String(err))
                         }
@@ -175,26 +169,36 @@ export function debug_bridge_plugin(): Plugin{
                 }
 
                 // 5. Host eval request
-                if (pathname === "/__debug/eval"){
+                if (pathname === "/__debug/eval") {
                     const handle_eval = (code: string) => {
-                        if (!code){
+                        if (!code) {
                             res.writeHead(400, { "Content-Type": "application/json" })
                             res.end(JSON.stringify({ success: false, error: "No code provided" }))
                             return
                         }
 
-                        if (!client_res){
+                        if (!client_res) {
                             res.writeHead(503, { "Content-Type": "application/json" })
-                            res.end(JSON.stringify({ success: false, error: "No active browser session connected to debug bridge" }))
+                            res.end(
+                                JSON.stringify({
+                                    success: false,
+                                    error: "No active browser session connected to debug bridge"
+                                })
+                            )
                             return
                         }
 
                         const req_id = `req_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`
                         const timeout = setTimeout(() => {
                             const pending = pending_evals.get(req_id)
-                            if (pending){
+                            if (pending) {
                                 pending.res.writeHead(504, { "Content-Type": "application/json" })
-                                pending.res.end(JSON.stringify({ success: false, error: "Evaluation timed out waiting for browser response" }))
+                                pending.res.end(
+                                    JSON.stringify({
+                                        success: false,
+                                        error: "Evaluation timed out waiting for browser response"
+                                    })
+                                )
                                 pending_evals.delete(req_id)
                                 log_eval_history(req_id, code, false, "Timeout")
                             }
@@ -204,13 +208,13 @@ export function debug_bridge_plugin(): Plugin{
                         client_res.write(`data: ${JSON.stringify({ id: req_id, code })}\n\n`)
                     }
 
-                    if (req.method === "GET"){
+                    if (req.method === "GET") {
                         const code = url.searchParams.get("code") || ""
                         handle_eval(code)
                         return
                     }
 
-                    if (req.method === "POST"){
+                    if (req.method === "POST") {
                         let body = ""
                         req.on("data", (chunk) => {
                             body += chunk
@@ -219,8 +223,7 @@ export function debug_bridge_plugin(): Plugin{
                             try {
                                 const payload = JSON.parse(body)
                                 handle_eval(payload.code || "")
-                            }
-                            catch {
+                            } catch {
                                 res.writeHead(400, { "Content-Type": "application/json" })
                                 res.end(JSON.stringify({ success: false, error: "Invalid JSON payload" }))
                             }
@@ -233,20 +236,18 @@ export function debug_bridge_plugin(): Plugin{
             })
 
             server.httpServer?.on("close", () => {
-                for (const [, pending] of pending_evals){
+                for (const [, pending] of pending_evals) {
                     clearTimeout(pending.timeout)
                     try {
                         pending.res.writeHead(503, { "Content-Type": "application/json" })
                         pending.res.end(JSON.stringify({ success: false, error: "Debug server closed" }))
-                    }
-                    catch {}
+                    } catch {}
                 }
                 pending_evals.clear()
-                if (client_res){
+                if (client_res) {
                     try {
                         client_res.end()
-                    }
-                    catch {}
+                    } catch {}
                     client_res = null
                 }
             })
