@@ -4,10 +4,9 @@ export { scan_record_object, smart_fetch } from "./crawler"
 // data_generation_lib.ts
 export {
     generate_silent_wav_base64,
-    generate_cover_image,
     generate_pending_html,
     generate_cover_svg,
-    get_image_url_with_fallback
+    generate_cover_svg_data_uri
 } from "./data_generation_lib"
 export type { CoverImageOptions } from "./data_generation_lib"
 
