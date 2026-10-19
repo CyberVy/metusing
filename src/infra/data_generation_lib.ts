@@ -1,4 +1,4 @@
-import { is_in_dark, is_service_worker_available } from "@/infra/device.client"
+import { is_in_dark } from "@/infra/device.client"
 
 type PendingHtmlIcon = "search" | "loading" | "clipboard" | "chat" | "external_link" | "none"
 
@@ -93,8 +93,8 @@ function wrap_text_by_width(text: string, max_width: number, font_size: number):
 
 export function generate_cover_svg(title: string, options: CoverImageOptions = {}): string {
     const {
-        width = 1024,
-        height = 720,
+        width = 768,
+        height = 1024,
         background = "#222222",
         color = "#ffffff",
         fontSize = 48,
@@ -123,35 +123,8 @@ export function generate_cover_svg(title: string, options: CoverImageOptions = {
     return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}"><rect width="100%" height="100%" fill="${background}"/><rect x="0.5" y="0.5" width="${width - 1}" height="${height - 1}" fill="none" stroke="#000000" stroke-width="1"/><text text-anchor="middle" dominant-baseline="central" fill="${color}" font-size="${fontSize}" font-family="${fontFamily}">${tspans}</text></svg>`
 }
 
-export function get_image_url_with_fallback(
-    src: string | undefined,
-    fallback_title?: string,
-    options?: CoverImageOptions
-): string {
-    if (src) {
-        if (!fallback_title) return src
-        const separator = src.includes("?") ? "&" : "?"
-        return `${src}${separator}__fallback_title=${encodeURIComponent(fallback_title)}`
-    }
-
-    const safe_title = fallback_title || ""
-    if (is_service_worker_available()) {
-        const params = new URLSearchParams()
-        if (safe_title) params.set("title", safe_title)
-        if (options?.width) params.set("width", String(options.width))
-        if (options?.height) params.set("height", String(options.height))
-        if (options?.background) params.set("bg", options.background)
-        if (options?.color) params.set("color", options.color)
-        if (options?.fontSize) params.set("fontSize", String(options.fontSize))
-        const query = params.toString()
-        return `/_sw/cover${query ? `?${query}` : ""}`
-    }
-
-    return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(generate_cover_svg(safe_title, options))}`
-}
-
-export function generate_cover_image(title: string, options: CoverImageOptions = {}): Promise<string> {
-    return Promise.resolve(`data:image/svg+xml;charset=utf-8,${encodeURIComponent(generate_cover_svg(title, options))}`)
+export function generate_cover_svg_data_uri(title: string, options: CoverImageOptions = {}): string {
+    return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(generate_cover_svg(title, options))}`
 }
 
 function escape_html(text: string) {
