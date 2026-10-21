@@ -13,9 +13,6 @@
     &::-webkit-scrollbar {
         display: none;
     }
-    /* workaround for fixed element position error on iOS fullscreen container */
-    min-height: calc(100% + env(safe-area-inset-top) + env(safe-area-inset-bottom));
-    padding: env(safe-area-inset-top) 0 0 0;
     --background: #ffffff;
     --foreground: #000000;
     --font-sans: Arial, Helvetica, sans-serif;
@@ -40,6 +37,24 @@ html {
     background: var(--background);
     color: var(--foreground);
     font-family: var(--font-sans);
+}
+
+body {
+    padding: env(safe-area-inset-top) 0 0 0;
+    /**
+     * iOS WebKit Fixed Positioning Fix:
+     * When content height < 100% viewport,
+     * bottom-fixed elements float upward in fullscreen WebKit / PWA.
+     *
+     * Solution 1 (Legacy):
+     * `:root { min-height: calc(100% + env(safe-area-inset-top) + env(safe-area-inset-bottom)); }`
+     * Works, but causes unwanted overflow on short pages.
+     *
+     * Solution 2 (Modern, Recommended):
+     * `body { min-height: 100vh; }`
+     * Anchors fixed elements to the bottom edge with zero extra overscroll.
+     */
+    min-height: 100vh;
 }
 
 *::selection {
