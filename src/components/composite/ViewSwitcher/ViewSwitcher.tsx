@@ -243,7 +243,7 @@ export function ViewSwitcher<T extends string = string>({
                 {/* Spacer to prevent document height collapse and window.scrollY reset during fixed transition */}
                 {transition_state.status !== "idle" && (
                     <div
-                        className="w-full min-h-screen"
+                        className="w-full min-h-[calc(100vh-env(safe-area-inset-top))]"
                         style={{
                             height: Math.max(
                                 transition_state.active_view_height,
