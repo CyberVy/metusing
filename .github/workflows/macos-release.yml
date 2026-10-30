@@ -39,13 +39,13 @@ jobs:
         run: npm run tauri build -- --target universal-apple-darwin
 
       - name: Package DMG bundle (universal)
-        run: zip -r macos-arm64-and-x86-dmg.zip src-tauri/target/universal-apple-darwin/release/bundle/dmg
+        run: zip -r macos-arm64-and-x86-dmg.zip target/universal-apple-darwin/release/bundle/dmg
 
       - name: Build Tauri app (aarch64-apple-darwin)
         run: npm run tauri build -- --target aarch64-apple-darwin
 
       - name: Package DMG bundle (aarch64-apple-darwin)
-        run: zip -r macos-arm64-dmg.zip src-tauri/target/aarch64-apple-darwin/release/bundle/dmg
+        run: zip -r macos-arm64-dmg.zip target/aarch64-apple-darwin/release/bundle/dmg
 
       - name: Package frontend (dist)
         run: zip -r frontend-macos-arm64.zip dist
