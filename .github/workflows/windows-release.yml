@@ -38,7 +38,7 @@ jobs:
 
       - name: Package Windows bundle
         run: |
-          cd src-tauri/target/release/bundle
+          cd target/release/bundle
           tar -a -c -f "$env:GITHUB_WORKSPACE/windows-bundle.zip" *
         shell: pwsh
 
