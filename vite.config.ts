@@ -5,19 +5,19 @@ import fs from "node:fs"
 import esbuild, { type BuildContext } from "esbuild"
 import { debug_bridge_plugin } from "./cli/debug/plugin.ts"
 
-function service_worker_plugin(): Plugin{
+function service_worker_plugin(): Plugin {
     let dev_ctx: BuildContext | null = null
 
     return {
         name: "service-worker-plugin",
-        configureServer(server){
+        configureServer(server) {
             server.middlewares.use(async (req, res, next) => {
                 if (req.method !== "GET" && req.method !== "HEAD") return next()
                 const url = new URL(req.url || "", "http://localhost")
                 if (url.pathname !== "/sw.js") return next()
 
                 try {
-                    if (!dev_ctx){
+                    if (!dev_ctx) {
                         dev_ctx = await esbuild.context({
                             entryPoints: [path.resolve(import.meta.dirname, "src/sw/main.worker.ts")],
                             bundle: true,
@@ -37,14 +37,12 @@ function service_worker_plugin(): Plugin{
                         "Cache-Control": "no-cache, no-store, must-revalidate",
                         "Service-Worker-Allowed": "/"
                     })
-                    if (req.method === "HEAD"){
+                    if (req.method === "HEAD") {
                         res.end()
-                    }
-                    else {
+                    } else {
                         res.end(output)
                     }
-                }
-                catch (err){
+                } catch (err) {
                     console.error("[ServiceWorker Plugin] Build error in dev:", err)
                     res.writeHead(500, { "Content-Type": "text/plain; charset=utf-8" })
                     res.end(String(err))
@@ -57,12 +55,12 @@ function service_worker_plugin(): Plugin{
             })
 
             server.watcher.on("change", (file) => {
-                if (file.includes("/src/sw/")){
+                if (file.includes("/src/sw/")) {
                     server.ws.send({ type: "full-reload" })
                 }
             })
         },
-        async closeBundle(){
+        async closeBundle() {
             await esbuild.build({
                 entryPoints: [path.resolve(import.meta.dirname, "src/sw/main.worker.ts")],
                 bundle: true,
@@ -86,26 +84,7 @@ export default defineConfig({
         service_worker_plugin(),
         react({
             compiler: true
-        }),
-        {
-            name: "native-entry-handler",
-            configureServer(server){
-                server.middlewares.use((req, _res, next) => {
-                    if (req.url === "/native_entry" || req.url === "/native_entry/"){
-                        req.url = "/native_entry/index.html"
-                    }
-                    next()
-                })
-            },
-            closeBundle(){
-                const out_dir = path.resolve(import.meta.dirname, "dist")
-                const src_file = path.join(out_dir, "native_entry/index.html")
-                const dest_file = path.join(out_dir, "native_entry.html")
-                if (fs.existsSync(src_file)){
-                    fs.copyFileSync(src_file, dest_file)
-                }
-            }
-        }
+        })
     ],
     resolve: {
         alias: {
@@ -125,8 +104,7 @@ export default defineConfig({
         emptyOutDir: true,
         rollupOptions: {
             input: {
-                main: path.resolve(import.meta.dirname, "src/app/index.html"),
-                native_entry: path.resolve(import.meta.dirname, "src/app/native_entry/index.html")
+                main: path.resolve(import.meta.dirname, "src/app/index.html")
             }
         }
     },
