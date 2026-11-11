@@ -28,6 +28,7 @@
     "local/layering-restrictions": "warn",
     "local/naming-conventions": "warn",
     "local/no-sync-set-state-in-effect": "warn",
+    "local/no-effects-in-blocks": "warn",
     "react-hooks/rules-of-hooks": "error"
   }
 }

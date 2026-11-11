@@ -1,7 +1,7 @@
 "use client"
 
 import { AnimatedGlowText } from "@/components/base/String"
-import { useEffect, useState } from "react"
+import { useCallback, useState } from "react"
 import { Image } from "@/components/composite/Image"
 import { AnimationContainer } from "@/components"
 import { join_classes } from "@/components/utils"
@@ -13,7 +13,9 @@ export type LaunchAnimationProps = {
 
 function LaunchAnimation({ className, on_finish }: LaunchAnimationProps) {
     const [welcome_sentence, set_welcome_sentence] = useState(() => `Struggling to wake... Just five more minutes.`)
-    useEffect(() => {
+
+    const attach_ref = useCallback((node: HTMLDivElement | null) => {
+        if (!node) return
         const welcome_sentences = [`Are we there yet? Oh, right. Waking up.`, `Ugh, waking up is hard.`]
         const timeout_id = setTimeout(
             () => set_welcome_sentence(welcome_sentences[Math.floor(Math.random() * welcome_sentences.length)]),
@@ -21,8 +23,10 @@ function LaunchAnimation({ className, on_finish }: LaunchAnimationProps) {
         )
         return () => clearTimeout(timeout_id)
     }, [])
+
     return (
         <div
+            ref={attach_ref}
             className={join_classes("fixed inset-0 z-50 bg-white dark:bg-black overflow-hidden select-none", className)}
         >
             <div className={`w-full h-full flex flex-col justify-center items-center`}>

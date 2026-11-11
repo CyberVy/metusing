@@ -164,6 +164,7 @@ The client-side persistence layer (`LocalForage` / IndexedDB) adheres to a stric
 
 ## UI & Dialog Rules
 
+- **Zero-Effect Policy in Blocks (Enforced by Oxlint)**: `src/blocks/` must be 100% zero-effect (no `useEffect` or `useLayoutEffect`). Derive state during render, coordinate domain state via Controllers (`useSyncExternalStore`), dispatch user actions in event callbacks, or use Callback Refs and reusable primitives from `src/components/` for DOM interactions.
 - **Emoji Prohibition (Enforced by Oxlint)**: Do not use emojis in any UI text or icons.
 - **Color Restrictions (AI Only)**: AI-authored UI changes may use only black, white, gray, and their alpha variants. Do not introduce chromatic colors or alter existing human-authored colors unless explicitly requested.
 - **Animation Performance (CPU)**:

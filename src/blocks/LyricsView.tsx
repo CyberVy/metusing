@@ -1,10 +1,9 @@
-import { useEffect, useRef } from "react"
+import { useCallback, useRef } from "react"
 import { useKaraokeState } from "@/core/controllers"
 import { SongSearchAndControls } from "./SongSearchAndControls"
 
 export function LyricsList() {
     const { lyrics, current_time, status } = useKaraokeState()
-    const active_line_ref = useRef<HTMLDivElement | null>(null)
     const container_ref = useRef<HTMLDivElement | null>(null)
 
     // Find current active index
@@ -21,14 +20,14 @@ export function LyricsList() {
     }
 
     // Scroll active lyric to center of view
-    useEffect(() => {
-        if (active_line_ref.current && container_ref.current) {
-            active_line_ref.current.scrollIntoView({
+    const attach_active_line = useCallback((node: HTMLDivElement | null) => {
+        if (node) {
+            node.scrollIntoView({
                 behavior: "smooth",
                 block: "center"
             })
         }
-    }, [active_index])
+    }, [])
 
     if (status === "loading") {
         return (
@@ -58,7 +57,7 @@ export function LyricsList() {
                 return (
                     <div
                         key={`${line.start}-${idx}`}
-                        ref={is_active ? active_line_ref : null}
+                        ref={is_active ? attach_active_line : null}
                         className={`text-center transition-all duration-300 max-w-lg ${
                             is_active
                                 ? "text-xl font-bold text-black dark:text-white scale-105"

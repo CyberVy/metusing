@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react"
+import { useCallback } from "react"
 import { usePitchState, pitch_controller } from "@/core/controllers"
 import { MicIcon, MicOffIcon, HeadphonesIcon, VolumeIcon, VolumeMuteIcon } from "./icons"
 
@@ -16,15 +16,8 @@ export function PitchVisualizer() {
         error_message
     } = usePitchState()
 
-    const canvas_ref = useRef<HTMLCanvasElement | null>(null)
-
-    useEffect(() => {
-        void pitch_controller.update_devices()
-    }, [])
-
     // Direct 60 FPS Canvas rendering loop independent of React renders
-    useEffect(() => {
-        const canvas = canvas_ref.current
+    const attach_canvas = useCallback((canvas: HTMLCanvasElement | null) => {
         if (!canvas) {
             return
         }
@@ -294,7 +287,7 @@ export function PitchVisualizer() {
             {/* Pitch Contour Canvas */}
             <div className="relative w-full h-32 rounded-lg overflow-hidden border border-black/5 dark:border-white/5 bg-zinc-100 dark:bg-zinc-950">
                 <canvas
-                    ref={canvas_ref}
+                    ref={attach_canvas}
                     width={600}
                     height={128}
                     className="w-full h-full block text-black dark:text-white"
