@@ -24,7 +24,7 @@
 - `public/`: static assets, icons, and `manifest.json`.
 - `scripts/`: local scripts.
 - `cli/`: local CLI helper utilities.
-    - [debug/](cli/debug): frontend debug bridge utility (SSE & HTTP server) for host-to-browser agent communication.
+    - [debug/](cli/debug): frontend debug bridge (`plugin.ts`, `host/`, `browser/`, `shared/`, `checks/`) for host-to-browser agent communication and UI debugging.
 - `draft/`: temporary sandboxes and development draft files.
 - `src-tauri/`: Tauri (Rust) backend and native app configuration.
     - `src/main.rs`: desktop/mobile app entry point.
@@ -202,10 +202,10 @@ The client-side persistence layer (`LocalForage` / IndexedDB) adheres to a stric
 
 ## AI Debugging & Communication (Frontend Debug Bridge)
 
-When running the development server via `npm run dev`, a debug bridge is automatically launched via [launch.ts](cli/debug/launch.ts) that allows direct, silent bidirectional communication with the browser/Tauri webview context. Before starting the dev server, check if the dev server is already running to avoid duplicate/repeated runs.
+When running the development server via `npm run dev`, a debug bridge is automatically mounted via [plugin.ts](cli/debug/plugin.ts) that allows direct, silent bidirectional communication with the browser/Tauri webview context. Before starting the dev server, check if the dev server is already running to avoid duplicate/repeated runs.
 
 - **Frontend Logs**: Read [logs.jsonl](.debug/logs.jsonl) (in JSON Lines format) to inspect console output and errors in real-time.
-- **Execute Commands**: Synchronously execute JavaScript code in the browser/Tauri webview context using [eval.js](cli/debug/eval.js):
+- **Execute Commands**: Synchronously execute JavaScript code in the browser/Tauri webview context using [eval.ts](cli/debug/host/eval.ts):
     ```bash
     npm run debug:eval -- "document.title"
     ```
@@ -215,6 +215,11 @@ When running the development server via `npm run dev`, a debug bridge is automat
         "success": true,
         "result": "Hello!"
     }
+    ```
+- **UI Inspection & Interaction CLI**: Inspect visible interactive elements and dispatch touch/mouse interactions without writing inline DOM queries using [ui.ts](cli/debug/host/ui.ts):
+    ```bash
+    npm run debug:ui -- snap
+    npm run debug:ui -- tap "<target>"
     ```
 - **Execution History**: The history of executed commands and their results is stored in [history.jsonl](.debug/history.jsonl).
 - **Sub-Agent Delegation**: When implementing features or fixing bugs that affect frontend runtime behavior, prefer delegating validation and log monitoring to a sub-agent. The sub-agent should actively use the Frontend Debug Bridge to execute tests, verify UI correctness, and tail [logs.jsonl](.debug/logs.jsonl) to ensure no regressions or runtime console errors are introduced.
