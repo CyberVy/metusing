@@ -1,4 +1,4 @@
-import type { RefObject } from "react"
+import type { Ref, RefCallback, RefObject } from "react"
 import { useCallback, useMemo, useRef, useState, useSyncExternalStore } from "react"
 import type { BaseController, BaseKeyedController } from "@/infra"
 import { is_ios_device } from "@/infra/device.client"
@@ -155,4 +155,46 @@ const get_rotation_snapshot = () => is_hidden_during_rotation
 // beta feature: screen rotation in iOS Safari may cause a crash when document height is large
 export function useOptimizedRotation(): boolean {
     return useSyncExternalStore(subscribe_rotation, get_rotation_snapshot, () => false)
+}
+
+function apply_ref_null<T>(target_ref: Ref<T> | undefined) {
+    if (typeof target_ref === "function") {
+        target_ref(null)
+    } else if (target_ref) {
+        target_ref.current = null
+    }
+}
+
+function attach_ref_node<T>(target_ref: Ref<T> | undefined, node: T): () => void {
+    if (typeof target_ref === "function") {
+        const cleanup = target_ref(node)
+        return typeof cleanup === "function" ? cleanup : () => target_ref(null)
+    }
+    if (target_ref) {
+        target_ref.current = node
+        return () => {
+            target_ref.current = null
+        }
+    }
+    return () => {}
+}
+
+export function useMergedRef<T>(ref_a: Ref<T> | undefined, ref_b: Ref<T> | undefined): RefCallback<T> {
+    return useCallback(
+        (node: T | null) => {
+            if (!node) {
+                apply_ref_null(ref_a)
+                apply_ref_null(ref_b)
+                return
+            }
+
+            const cleanup_a = attach_ref_node(ref_a, node)
+            const cleanup_b = attach_ref_node(ref_b, node)
+            return () => {
+                cleanup_b()
+                cleanup_a()
+            }
+        },
+        [ref_a, ref_b]
+    )
 }

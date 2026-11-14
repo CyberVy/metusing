@@ -203,6 +203,11 @@ export function useViewSwipeGesture<T extends string>({
     const [transition_state, set_transition_state] = useState<TransitionState<T>>({ status: "idle" })
     const view_elements_ref = useRef<Record<string, HTMLDivElement | null>>({})
 
+    const set_view_element = useCallback((view_id: T, element: HTMLDivElement | null) => {
+        if (element) view_elements_ref.current[view_id] = element
+        else delete view_elements_ref.current[view_id]
+    }, [])
+
     const is_transitioning = transition_state.status !== "idle"
     const target_view_id =
         transition_state.status === "released" && transition_state.release.outcome === "switch"
@@ -422,6 +427,7 @@ export function useViewSwipeGesture<T extends string>({
         is_transitioning,
         target_view_id,
         view_elements_ref,
+        set_view_element,
         handle_transition_end,
         reset_transition
     }

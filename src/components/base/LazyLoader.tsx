@@ -1,5 +1,6 @@
-import { useState, useEffect, useRef, useCallback } from "react"
+import { useState, useEffect, useRef } from "react"
 import type { FC, ReactNode, RefObject, ComponentPropsWithRef } from "react"
+import { useMergedRef } from "@/components/hooks"
 import { is_element_hidden } from "@/components/utils"
 
 export type KeepLoadedMargin = {
@@ -45,43 +46,7 @@ const LazyContainer: FC<LazyContainerProps> = ({
     const has_loaded_ref = useRef<boolean>(false)
 
     const element_ref = useRef<HTMLDivElement>(null)
-    const set_element_ref = useCallback(
-        (element: HTMLDivElement | null) => {
-            element_ref.current = element
-
-            let user_cleanup: (() => void) | void
-            if (typeof ref === "function") {
-                user_cleanup = ref(element)
-            } else if (ref) {
-                ref.current = element
-            }
-
-            if (!element) {
-                return () => {
-                    element_ref.current = null
-                    if (typeof user_cleanup === "function") {
-                        user_cleanup()
-                    } else if (typeof ref === "function") {
-                        ref(null)
-                    } else if (ref) {
-                        ref.current = null
-                    }
-                }
-            }
-
-            return () => {
-                element_ref.current = null
-                if (typeof user_cleanup === "function") {
-                    user_cleanup()
-                } else if (typeof ref === "function") {
-                    ref(null)
-                } else if (ref) {
-                    ref.current = null
-                }
-            }
-        },
-        [ref]
-    )
+    const set_element_ref = useMergedRef(element_ref, ref)
 
     useEffect(() => {
         const current_ref = element_ref.current

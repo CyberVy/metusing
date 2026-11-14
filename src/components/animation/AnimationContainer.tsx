@@ -1,6 +1,7 @@
 "use client"
 
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
+import { useMergedRef } from "@/components/hooks"
 import type { AnimationContainerProps } from "@/components/animation/types"
 
 /**
@@ -36,45 +37,7 @@ function AnimationContainer({
 }: AnimationContainerProps) {
     const element_ref = useRef<HTMLDivElement>(null)
     const animation_ref = useRef<Animation | null>(null)
-    const set_element_ref = useCallback(
-        (element: HTMLDivElement | null) => {
-            element_ref.current = element
-
-            if (!element) {
-                if (typeof ref === "function") {
-                    ref(null)
-                } else if (ref) {
-                    ref.current = null
-                }
-                return
-            }
-
-            if (typeof ref === "function") {
-                const cleanup = ref(element)
-                return () => {
-                    element_ref.current = null
-                    if (typeof cleanup === "function") {
-                        cleanup()
-                    } else {
-                        ref(null)
-                    }
-                }
-            }
-
-            if (ref) {
-                ref.current = element
-                return () => {
-                    element_ref.current = null
-                    ref.current = null
-                }
-            }
-
-            return () => {
-                element_ref.current = null
-            }
-        },
-        [ref]
-    )
+    const set_element_ref = useMergedRef(element_ref, ref)
     const [render_mode, set_render_mode] = useState<
         "entering" | "visible" | "exiting_to_hidden" | "hidden" | "exiting_to_unmount" | "unmount"
     >(() => {
