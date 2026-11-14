@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url"
 import esbuild, { type BuildContext } from "esbuild"
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const DEBUG_DIR = path.resolve(__dirname, "../../.debug")
+const DEBUG_DIR = path.resolve(__dirname, "../../.debug/frontend")
 const LOGS_FILE = path.join(DEBUG_DIR, "logs.jsonl")
 const HISTORY_FILE = path.join(DEBUG_DIR, "history.jsonl")
 const CONFIG_FILE = path.join(DEBUG_DIR, "config.json")

@@ -101,12 +101,13 @@ npm run tauri android build
 
 ## Project Structure
 
-- `src/app/`: Application UI entry points, HTML shells, and root App components.
-- `src/blocks/`: Business-facing React UI blocks composed from base components.
-- `src/components/`: Base reusable React components and UI infrastructure.
-- `src/core/`: Core domain logic and app-specific pure logic.
-- `src/infra/`: Infrastructure, platform adapters, shared types, and utility libraries.
-- `src/sw/`: Service Worker source code.
+- `frontend/`: Browser/WebView frontend workspace (isolated TypeScript project via `frontend/tsconfig.json`, `@/` -> `frontend/`).
+    - `frontend/app/`: Application UI entry points, HTML shells, and root App components.
+    - `frontend/blocks/`: Business-facing React UI blocks composed from base components.
+    - `frontend/components/`: Base reusable React components and UI infrastructure.
+    - `frontend/core/`: Core domain logic and app-specific pure logic.
+    - `frontend/infra/`: Infrastructure, platform adapters, shared types, and utility libraries.
+    - `frontend/sw/`: Service Worker source code.
 - `src-tauri/`: Rust backend and native configuration.
 - `public/`: Static assets, including icons and the bundled `sw.js`.
 

@@ -6,12 +6,12 @@ To facilitate bidirectional communication and UI inspection/interaction between 
 
 ## 1. Architecture & Directory Structure
 
-Communication runs purely on standard web protocols (Server-Sent Events & HTTP POST) via Vite development middleware, keeping `src/` completely clean of debug tooling.
+Communication runs purely on standard web protocols (Server-Sent Events & HTTP POST) via Vite development middleware, keeping `frontend/` completely clean of debug tooling.
 
-- **`cli/debug/plugin.ts`** (Vite Plugin & Middleware): Serves `/__debug/events`, `/__debug/respond`, `/__debug/log`, `/__debug/eval`, bundles `cli/debug/browser/index.ts` in memory at `/debug_bridge.js`, injects `<script src="/debug_bridge.js">` during `vite serve`, and writes the active port to `.debug/config.json`.
+- **`cli/debug/plugin.ts`** (Vite Plugin & Middleware): Serves `/__debug/events`, `/__debug/respond`, `/__debug/log`, `/__debug/eval`, bundles `cli/debug/browser/index.ts` in memory at `/debug_bridge.js`, injects `<script src="/debug_bridge.js">` during `vite serve`, and writes the active port to `.debug/frontend/config.json`.
 - **`cli/debug/shared/`** (Environment-Agnostic Protocol): Pure TypeScript protocol types and readable target locator parser (`protocol.ts`) shared across `host/` and `browser/`.
 - **`cli/debug/host/`** (Node Host Clients & CLIs):
-    - `bridge_client.ts`: Single source for reading `.debug/config.json` and calling `/__debug/eval`.
+    - `bridge_client.ts`: Single source for reading `.debug/frontend/config.json` and calling `/__debug/eval`.
     - `eval.ts`: Synchronous JS evaluation CLI (`npm run debug:eval`).
     - `ui.ts`: Framework-agnostic UI inspection and interaction CLI (`npm run debug:ui`).
 - **`cli/debug/browser/`** (Browser Runtime):
@@ -20,7 +20,7 @@ Communication runs purely on standard web protocols (Server-Sent Events & HTTP P
     - `dom/`: Framework-agnostic DOM/ARIA classification, occlusion/hit testing, locator resolution (`locator.ts`), and snapshot summaries (`snapshot.ts`).
     - `gestures/`: Pointer, touch, and scroll interaction runners (`pointer_common.ts`, `pointer_tap.ts`, `swipe_drag.ts`, `scroll.ts`).
 - **`cli/debug/checks/`** (End-to-End Page Checks): Automated verification scripts built on `host/bridge_client.ts` (`lazy_container_dimensions.ts`).
-- **`.debug/`** (Git-Ignored Runtime Data): Contains `config.json` (active Vite port), `logs.jsonl` (captured console/errors), and `history.jsonl` (eval audit trail).
+- **`.debug/frontend/`** (Git-Ignored Runtime Data): Contains `config.json` (active Vite port), `logs.jsonl` (captured console/errors), and `history.jsonl` (eval audit trail).
 
 ---
 
@@ -34,7 +34,7 @@ Start the Vite development server as normal:
 npm run dev
 ```
 
-Vite automatically mounts the Debug Bridge and writes its active listening port to `.debug/config.json`.
+Vite automatically mounts the Debug Bridge and writes its active listening port to `.debug/frontend/config.json`.
 
 ### UI Inspection & Interaction (`npm run debug:ui`)
 

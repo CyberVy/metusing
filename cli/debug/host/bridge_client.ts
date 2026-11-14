@@ -4,7 +4,7 @@ import path from "node:path"
 import { fileURLToPath } from "node:url"
 
 const HOST_DIRECTORY = path.dirname(fileURLToPath(import.meta.url))
-const CONFIG_FILE = path.resolve(HOST_DIRECTORY, "../../../.debug/config.json")
+const CONFIG_FILE = path.resolve(HOST_DIRECTORY, "../../../.debug/frontend/config.json")
 const DEBUG_HOST = "127.0.0.1"
 
 export interface DebugEvalResponse {
