@@ -78,12 +78,46 @@ function service_worker_plugin(): Plugin {
     }
 }
 
+function build_info_plugin(): Plugin {
+    const build_info_path = "/build-info.json"
+
+    return {
+        name: "build-info-plugin",
+        configureServer(server) {
+            server.middlewares.use((req, res, next) => {
+                if (req.method !== "GET" && req.method !== "HEAD") return next()
+                const url = new URL(req.url || "", "http://localhost")
+                if (url.pathname !== build_info_path) return next()
+
+                const payload = JSON.stringify({ build_time: new Date().toUTCString() })
+                res.writeHead(200, {
+                    "Content-Type": "application/json; charset=utf-8",
+                    "Cache-Control": "no-store"
+                })
+                if (req.method === "HEAD") {
+                    res.end()
+                } else {
+                    res.end(payload)
+                }
+            })
+        },
+        generateBundle() {
+            this.emitFile({
+                type: "asset",
+                fileName: "build-info.json",
+                source: JSON.stringify({ build_time: new Date().toUTCString() })
+            })
+        }
+    }
+}
+
 export default defineConfig({
     root: path.resolve(import.meta.dirname, "frontend/app"),
     publicDir: path.resolve(import.meta.dirname, "public"),
     plugins: [
         debug_bridge_plugin(),
         service_worker_plugin(),
+        build_info_plugin(),
         react({
             compiler: true
         })
@@ -112,7 +146,6 @@ export default defineConfig({
     },
     define: {
         "process.env.NODE_ENV": JSON.stringify(process.env.NODE_ENV || "development"),
-        "import.meta.env.VITE_BUILD_TIME": JSON.stringify(new Date().toUTCString()),
         "import.meta.env.VITE_NATIVE_ENTRY_URL": JSON.stringify("/")
     }
 })
