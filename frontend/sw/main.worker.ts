@@ -73,7 +73,6 @@ router.intercept(
 router.intercept((_request, url) => {
     if (url.hostname !== location.hostname) return false
     if (url.href === location.href) return false
-    if (url.pathname === "/build-info.json") return false
     return ["/"].some((prefix) => url.pathname.startsWith(prefix))
 }, handle_fetch_for_static_resource)
 
