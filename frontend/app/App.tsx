@@ -2,27 +2,23 @@ import { ViewSwitcher } from "@/components"
 import type { View } from "@/components"
 import { PitchView, LyricsView, MusicIcon, MicIcon } from "@/blocks"
 
+type ActiveView = "pitch" | "sing"
+
 export default function App() {
-    const views: View[] = [
+    const views: View<ActiveView>[] = [
         {
             id: "pitch",
-            label: (
-                <span className="flex items-center gap-1.5">
-                    <MicIcon className="w-3.5 h-3.5" />
-                    <span>Pitch</span>
-                </span>
-            ),
+            icon: <MicIcon className="size-5" />,
+            native_toolbar: { icon: "mic.fill" },
+            label: "Pitch",
             content: <PitchView />,
             keep_alive: true
         },
         {
             id: "sing",
-            label: (
-                <span className="flex items-center gap-1.5">
-                    <MusicIcon className="w-3.5 h-3.5" />
-                    <span>Sing</span>
-                </span>
-            ),
+            icon: <MusicIcon className="size-5" />,
+            native_toolbar: { icon: "music.note" },
+            label: "Sing",
             content: <LyricsView />,
             keep_alive: true
         }
@@ -49,12 +45,12 @@ export default function App() {
 
                 {/* View Switcher: Pitch Studio vs Karaoke Sing */}
 
-                <ViewSwitcher
+                <ViewSwitcher<ActiveView>
                     id="main-view-switcher"
+                    toolbar_layout="bottom-floating"
                     views={views}
                     default_active_view_id="pitch"
                     keep_alive_default={true}
-                    toolbar_item_className="w-20 sm:w-24 h-9"
                 />
             </div>
         </div>
