@@ -9,7 +9,7 @@ export default function App() {
         {
             id: "pitch",
             icon: <MicIcon className="size-5" />,
-            native_toolbar: { icon: "mic.fill" },
+            native_icon: "mic.fill",
             label: "Pitch",
             content: <PitchView />,
             keep_alive: true
@@ -17,7 +17,7 @@ export default function App() {
         {
             id: "sing",
             icon: <MusicIcon className="size-5" />,
-            native_toolbar: { icon: "music.note" },
+            native_icon: "music.note",
             label: "Sing",
             content: <LyricsView />,
             keep_alive: true
