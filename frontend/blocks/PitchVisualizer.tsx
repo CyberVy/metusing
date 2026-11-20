@@ -1,7 +1,6 @@
+import { Mic as MicIcon, MicOff as MicOffIcon, Headphones as HeadphonesIcon, Volume as VolumeIcon, VolumeX as VolumeMuteIcon } from "lucide-react"
 import { useCallback } from "react"
 import { usePitchState, pitch_controller } from "@/core/controllers"
-import { MicIcon, MicOffIcon, HeadphonesIcon, VolumeIcon, VolumeMuteIcon } from "./icons"
-
 export function PitchVisualizer() {
     const {
         is_listening,

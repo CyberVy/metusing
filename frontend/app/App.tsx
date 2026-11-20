@@ -1,7 +1,7 @@
+import { Music as MusicIcon, Mic as MicIcon } from "lucide-react"
 import { ViewSwitcher } from "@/components"
 import type { View } from "@/components"
-import { PitchView, LyricsView, MusicIcon, MicIcon } from "@/blocks"
-
+import { PitchView, LyricsView } from "@/blocks"
 type ActiveView = "pitch" | "sing"
 
 export default function App() {

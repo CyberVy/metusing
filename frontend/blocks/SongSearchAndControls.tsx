@@ -1,17 +1,6 @@
+import { Play as PlayIcon, Pause as PauseIcon, LoaderCircle as LoaderIcon, Headphones as HeadphonesIcon, Sparkles as SparklesIcon, Upload as UploadIcon, AudioLines as FileAudioIcon, FileText as FileTextIcon, RefreshCw as RefreshCwIcon } from "lucide-react"
 import { useState, useRef } from "react"
 import { useKaraokeState, karaoke_controller, usePitchState, pitch_controller, DEMO_SONGS } from "@/core/controllers"
-import {
-    PlayIcon,
-    PauseIcon,
-    LoaderIcon,
-    HeadphonesIcon,
-    SparklesIcon,
-    UploadIcon,
-    FileAudioIcon,
-    FileTextIcon,
-    RefreshCwIcon
-} from "./icons"
-
 const AUDIO_FILE_ACCEPT = ".mp3,.wav,.m4a,.aac,.aiff"
 
 function format_seconds(secs: number): string {
