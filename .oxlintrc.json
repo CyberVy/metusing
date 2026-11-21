@@ -24,7 +24,6 @@
     "react/set-state-in-effect": "off",
     "local/jsx-text-indent": "warn",
     "local/no-emojis": "warn",
-    "local/no-inline-svgs": "warn",
     "local/layering-restrictions": "warn",
     "local/naming-conventions": "warn",
     "local/no-sync-set-state-in-effect": "warn",
