@@ -1,9 +1,7 @@
 "use client"
 
-import { AnimatedGlowText } from "@/components/base/String"
+import { AnimatedGlowText, Image, Transition } from "@/components"
 import { useCallback, useState } from "react"
-import { Image } from "@/components/composite/Image"
-import { AnimationContainer } from "@/components"
 import { join_classes } from "@/components/utils"
 
 export type LaunchAnimationProps = {
@@ -30,7 +28,7 @@ function LaunchAnimation({ className, on_finish }: LaunchAnimationProps) {
             className={join_classes("fixed inset-0 z-50 bg-white dark:bg-black overflow-hidden select-none", className)}
         >
             <div className={`w-full h-full flex flex-col justify-center items-center`}>
-                <AnimationContainer
+                <Transition
                     show={true}
                     duration={2000}
                     easing="cubic-bezier(0.4, 0, 0.2, 1)"
@@ -41,7 +39,7 @@ function LaunchAnimation({ className, on_finish }: LaunchAnimationProps) {
                     style={{ transform: "translate(-100%, 0)" }}
                 >
                     <Image className={"w-12 h-12 object-cover rounded-xl"} src={"/icons/192x192.png"} />
-                </AnimationContainer>
+                </Transition>
                 <AnimatedGlowText text={welcome_sentence} stagger={0.06} />
             </div>
         </div>
