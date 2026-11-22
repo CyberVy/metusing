@@ -1,4 +1,6 @@
+import { LoaderCircle as LoaderIcon, Music as MusicIcon } from "lucide-react"
 import { useCallback } from "react"
+import { EmptyState, SectionHeader } from "@/components"
 import { useKaraokeState } from "@/core/controllers"
 import { SongSearchAndControls } from "./SongSearchAndControls"
 
@@ -66,19 +68,28 @@ export function LyricsList() {
 
     if (status === "loading") {
         return (
-            <div className="flex-1 min-h-75 flex items-center justify-center p-8 text-center text-sm text-black/40 dark:text-white/40">
-                Loading audio and lyrics...
-            </div>
+            <EmptyState
+                size="inline"
+                icon={<LoaderIcon className="size-5 animate-spin" />}
+                title="Loading audio and lyrics..."
+                glow
+                className="flex-1 min-h-75"
+            />
         )
     }
 
     if (lyrics.length === 0) {
         return (
-            <div className="flex-1 min-h-75 flex items-center justify-center p-8 text-center text-sm text-black/40 dark:text-white/40">
-                {status === "ready"
-                    ? "No synchronized lyrics provided for this track"
-                    : "Load the demo track or upload local files to begin"}
-            </div>
+            <EmptyState
+                size="inline"
+                icon={<MusicIcon className="size-5" />}
+                title={
+                    status === "ready"
+                        ? "No synchronized lyrics provided for this track"
+                        : "Load the demo track or upload local files to begin"
+                }
+                className="flex-1 min-h-75"
+            />
         )
     }
 
@@ -130,9 +141,10 @@ export function LyricsView() {
 
             {/* Synchronized Lyrics Container */}
             <section className="bg-zinc-100/80 dark:bg-zinc-900/40 border border-black/10 dark:border-white/10 rounded-xl overflow-hidden flex flex-col">
-                <div className="px-4 py-2.5 border-b border-black/5 dark:border-white/5 text-xs font-medium text-black/40 dark:text-white/40 uppercase tracking-wider">
-                    Synchronized Lyrics
-                </div>
+                <SectionHeader
+                    title="Synchronized Lyrics"
+                    className="px-4 py-2.5 border-b border-black/5 dark:border-white/5"
+                />
                 <LyricsList />
             </section>
         </div>

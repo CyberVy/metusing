@@ -1,6 +1,16 @@
-import { Mic as MicIcon, MicOff as MicOffIcon, Headphones as HeadphonesIcon, Volume as VolumeIcon, VolumeX as VolumeMuteIcon } from "lucide-react"
+import {
+    Mic as MicIcon,
+    MicOff as MicOffIcon,
+    Headphones as HeadphonesIcon,
+    Volume as VolumeIcon,
+    VolumeX as VolumeMuteIcon,
+    ChevronDown as ChevronDownIcon,
+    Check as CheckIcon
+} from "lucide-react"
 import { useCallback } from "react"
+import { Badge, Button, Select } from "@/components"
 import { usePitchState, pitch_controller } from "@/core/controllers"
+import type { ChannelMode } from "@/core/controllers"
 export function PitchVisualizer() {
     const {
         is_listening,
@@ -127,49 +137,48 @@ export function PitchVisualizer() {
         <div className="flex flex-col gap-3 p-4 bg-zinc-100/80 dark:bg-zinc-900/60 border border-black/10 dark:border-white/10 rounded-xl">
             <div className="flex flex-wrap items-center justify-between gap-2 min-h-12">
                 <div className="flex flex-wrap items-center gap-2">
-                    <button
-                        type="button"
+                    <Button
+                        variant={is_listening ? "primary" : "secondary"}
+                        size="auto"
+                        shape="rounded"
                         onClick={toggle_mic}
-                        className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                            is_listening
-                                ? "bg-black text-white dark:bg-white dark:text-black hover:bg-black/80 dark:hover:bg-white/90"
-                                : "bg-black/10 dark:bg-white/10 text-black dark:text-white hover:bg-black/10 dark:hover:bg-white/20"
-                        }`}
+                        className={`px-3 py-1.5 text-sm font-medium ${is_listening ? "border border-transparent" : ""}`}
                     >
-                        {is_listening ? (
-                            <>
-                                <MicIcon className="w-4 h-4 animate-pulse" />
-                                <span>Listening</span>
-                            </>
-                        ) : (
-                            <>
-                                <MicOffIcon className="w-4 h-4" />
-                                <span>Enable Mic</span>
-                            </>
-                        )}
-                    </button>
+                        <span className="inline-flex items-center gap-2">
+                            {is_listening ? (
+                                <>
+                                    <MicIcon className="w-4 h-4 animate-pulse" />
+                                    <span>Listening</span>
+                                </>
+                            ) : (
+                                <>
+                                    <MicOffIcon className="w-4 h-4" />
+                                    <span>Enable Mic</span>
+                                </>
+                            )}
+                        </span>
+                    </Button>
 
                     {audio_input_devices.length > 0 && (
-                        <div className="flex items-center gap-1.5 bg-black/5 dark:bg-black/40 border border-black/10 dark:border-white/10 rounded-lg px-2.5 py-1.5">
+                        <div className="flex items-center gap-1.5">
                             <span className="text-[10px] text-black/40 dark:text-white/40 uppercase tracking-wider hidden sm:inline">
                                 Mic
                             </span>
-                            <select
-                                value={selected_device_id || ""}
-                                onChange={(e) => void pitch_controller.select_device(e.target.value)}
-                                className="bg-transparent text-xs text-black/70 dark:text-white/80 focus:outline-none cursor-pointer max-w-32.5 sm:max-w-50 truncate"
-                                title="Select Audio Input Device"
-                            >
-                                {audio_input_devices.map((d) => (
-                                    <option
-                                        key={d.device_id}
-                                        value={d.device_id}
-                                        className="bg-white text-black dark:bg-zinc-900 dark:text-white"
-                                    >
-                                        {d.label}
-                                    </option>
-                                ))}
-                            </select>
+                            <Select
+                                aria_label="Select Audio Input Device"
+                                value={selected_device_id ?? undefined}
+                                on_change={(device_id) => void pitch_controller.select_device(device_id)}
+                                placeholder="Select Microphone"
+                                align="left"
+                                indicator={<ChevronDownIcon width={14} height={14} className="opacity-55" />}
+                                selected_indicator={<CheckIcon width={14} height={14} />}
+                                trigger_class_name="max-w-40 sm:max-w-56"
+                                menu_class_name="max-w-64 sm:max-w-80"
+                                options={audio_input_devices.map((d) => ({
+                                    value: d.device_id,
+                                    label: d.label
+                                }))}
+                            />
                         </div>
                     )}
 
@@ -199,31 +208,33 @@ export function PitchVisualizer() {
                     </div>
 
                     {/* Fixed width cents deviation pill (toggled via opacity, never unmounted) */}
-                    <div
-                        className={`w-14 text-center text-xs font-mono py-0.5 rounded bg-black/10 dark:bg-white/10 text-black/70 dark:text-white/70 tabular-nums transition-opacity duration-150 ${
+                    <Badge
+                        tone="subtle"
+                        mono
+                        className={`w-14 justify-center text-xs text-black/70 dark:text-white/70 tabular-nums transition-opacity duration-150 ${
                             current_pitch ? "opacity-100" : "opacity-0"
                         }`}
                     >
                         {current_pitch ? (current_cents > 0 ? `+${current_cents}c` : `${current_cents}c`) : "--"}
-                    </div>
+                    </Badge>
                 </div>
             </div>
 
             {/* Audio Monitor & Ear Return Controls */}
             <div className="flex flex-wrap items-center justify-between gap-2.5 px-3 py-2 rounded-lg bg-black/5 dark:bg-black/40 border border-black/5 dark:border-white/5 text-xs">
                 <div className="flex items-center gap-2">
-                    <button
-                        type="button"
+                    <Button
+                        variant={is_monitor_enabled ? "primary" : "secondary"}
+                        size="xs"
+                        shape="rounded"
                         onClick={() => void pitch_controller.toggle_monitor()}
-                        className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md font-medium transition-colors ${
-                            is_monitor_enabled
-                                ? "bg-black text-white dark:bg-white dark:text-black hover:bg-black/80 dark:hover:bg-white/90"
-                                : "bg-black/10 dark:bg-white/10 text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white hover:bg-black/10 dark:hover:bg-white/20"
-                        }`}
+                        className={is_monitor_enabled ? "border border-transparent" : undefined}
                     >
-                        <HeadphonesIcon className="w-3.5 h-3.5" />
-                        <span>{is_monitor_enabled ? "Ear Return On" : "Ear Return Off"}</span>
-                    </button>
+                        <span className="inline-flex items-center gap-1.5">
+                            <HeadphonesIcon className="w-3.5 h-3.5" />
+                            <span>{is_monitor_enabled ? "Ear Return On" : "Ear Return Off"}</span>
+                        </span>
+                    </Button>
                     <span className="text-[11px] text-black/40 dark:text-white/40 hidden sm:inline">
                         (Use headphones to prevent feedback)
                     </span>
@@ -231,33 +242,25 @@ export function PitchVisualizer() {
 
                 <div className="flex flex-wrap items-center gap-2">
                     {/* Channel Mode Selector for Dual-Mono / Stereo / Left / Right */}
-                    <div className="flex items-center gap-1 bg-black/5 dark:bg-black/40 border border-black/10 dark:border-white/10 rounded px-1.5 py-0.5">
+                    <div className="flex items-center gap-1.5">
                         <span className="text-[10px] text-black/40 dark:text-white/40 uppercase hidden sm:inline">
                             Channel
                         </span>
-                        <select
+                        <Select<ChannelMode>
+                            aria_label="Channel Mode"
                             value={channel_mode}
-                            onChange={(e) =>
-                                pitch_controller.set_channel_mode(
-                                    e.target.value as "mono" | "stereo" | "left" | "right"
-                                )
-                            }
-                            className="bg-transparent text-[11px] text-black/70 dark:text-white/80 focus:outline-none cursor-pointer"
-                            title="Channel Mode: Choose Mono to hear sound in both ears from single-input soundcards"
-                        >
-                            <option value="mono" className="bg-white text-black dark:bg-zinc-900 dark:text-white">
-                                Mono (Both Ears)
-                            </option>
-                            <option value="left" className="bg-white text-black dark:bg-zinc-900 dark:text-white">
-                                Left (Mic 1)
-                            </option>
-                            <option value="right" className="bg-white text-black dark:bg-zinc-900 dark:text-white">
-                                Right (Mic 2)
-                            </option>
-                            <option value="stereo" className="bg-white text-black dark:bg-zinc-900 dark:text-white">
-                                Stereo
-                            </option>
-                        </select>
+                            on_change={(mode) => pitch_controller.set_channel_mode(mode)}
+                            align="left"
+                            indicator={<ChevronDownIcon width={14} height={14} className="opacity-55" />}
+                            selected_indicator={<CheckIcon width={14} height={14} />}
+                            trigger_class_name="py-1 text-[11px]"
+                            options={[
+                                { value: "mono", label: "Mono (Both Ears)" },
+                                { value: "left", label: "Left (Mic 1)" },
+                                { value: "right", label: "Right (Mic 2)" },
+                                { value: "stereo", label: "Stereo" }
+                            ]}
+                        />
                     </div>
 
                     <div className="flex items-center gap-1.5 text-black/60 dark:text-white/60">

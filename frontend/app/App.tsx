@@ -1,5 +1,5 @@
 import { Music as MusicIcon, Mic as MicIcon } from "lucide-react"
-import { ViewSwitcher } from "@/components"
+import { Badge, ViewSwitcher } from "@/components"
 import type { View } from "@/components"
 import { PitchView, LyricsView } from "@/blocks"
 type ActiveView = "pitch" | "sing"
@@ -38,9 +38,9 @@ export default function App() {
                             <p className="text-xs text-black/40 dark:text-white/40">Karaoke & Pitch Studio</p>
                         </div>
                     </div>
-                    <div className="text-xs font-mono px-2 py-1 rounded bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 text-black/40 dark:text-white/40">
+                    <Badge tone="subtle" mono className="border border-black/10 dark:border-white/10">
                         MVP v0.1
-                    </div>
+                    </Badge>
                 </header>
 
                 {/* View Switcher: Pitch Studio vs Karaoke Sing */}

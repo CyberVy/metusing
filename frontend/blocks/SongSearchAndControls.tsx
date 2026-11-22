@@ -1,5 +1,16 @@
-import { Play as PlayIcon, Pause as PauseIcon, LoaderCircle as LoaderIcon, Headphones as HeadphonesIcon, Sparkles as SparklesIcon, Upload as UploadIcon, AudioLines as FileAudioIcon, FileText as FileTextIcon, RefreshCw as RefreshCwIcon } from "lucide-react"
+import {
+    Play as PlayIcon,
+    Pause as PauseIcon,
+    LoaderCircle as LoaderIcon,
+    Headphones as HeadphonesIcon,
+    Sparkles as SparklesIcon,
+    Upload as UploadIcon,
+    AudioLines as FileAudioIcon,
+    FileText as FileTextIcon,
+    RefreshCw as RefreshCwIcon
+} from "lucide-react"
 import { useState, useRef } from "react"
+import { Badge, Button, ListRow, SectionHeader } from "@/components"
 import { useKaraokeState, karaoke_controller, usePitchState, pitch_controller, DEMO_SONGS } from "@/core/controllers"
 const AUDIO_FILE_ACCEPT = ".mp3,.wav,.m4a,.aac,.aiff"
 
@@ -44,43 +55,52 @@ export function SongSearchAndControls() {
                 <div className="flex flex-col gap-4">
                     {/* Demo Songs Selector */}
                     <div className="flex flex-col gap-2.5 p-3.5 bg-black/5 dark:bg-black/40 border border-black/10 dark:border-white/10 rounded-lg">
-                        <div className="flex items-center justify-between">
-                            <div className="flex flex-col gap-0.5">
-                                <span className="text-sm font-medium text-black dark:text-white flex items-center gap-1.5">
-                                    <SparklesIcon className="w-4 h-4" />
-                                    Demo Songs
-                                </span>
-                                <span className="text-xs text-black/40 dark:text-white/40">
-                                    Pre-separated accompaniment, vocal tracks, and synchronized lyrics
-                                </span>
-                            </div>
+                        <div className="flex flex-col gap-0.5">
+                            <SectionHeader
+                                title={
+                                    <span className="inline-flex items-center gap-1.5">
+                                        <SparklesIcon className="w-3.5 h-3.5" />
+                                        <span>Demo Songs</span>
+                                    </span>
+                                }
+                                count={DEMO_SONGS.length}
+                            />
+                            <span className="text-xs text-black/40 dark:text-white/40">
+                                Pre-separated accompaniment, vocal tracks, and synchronized lyrics
+                            </span>
                         </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-0.5">
                             {DEMO_SONGS.map((song) => (
-                                <button
+                                <ListRow
                                     key={song.video_id}
-                                    type="button"
-                                    onClick={() => void handle_load_demo(song.video_id)}
-                                    disabled={is_loading}
-                                    className="p-2.5 bg-white dark:bg-zinc-800/80 border border-black/10 dark:border-white/10 rounded-lg hover:border-black/30 dark:hover:border-white/30 text-left transition-all flex items-center justify-between group disabled:opacity-40 cursor-pointer"
-                                >
-                                    <div className="flex flex-col overflow-hidden mr-2">
-                                        <span className="text-xs font-semibold text-black dark:text-white truncate">
-                                            {song.title}
-                                        </span>
-                                        <span className="text-[11px] text-black/50 dark:text-white/50 truncate">
-                                            {song.artist}
-                                        </span>
-                                    </div>
-                                    <div className="px-2.5 py-1 bg-black text-white dark:bg-white dark:text-black rounded text-[11px] font-medium shrink-0 group-hover:opacity-80 transition-opacity flex items-center gap-1">
-                                        {is_loading ? (
-                                            <LoaderIcon className="w-3 h-3 animate-spin" />
-                                        ) : (
-                                            <span>Load</span>
-                                        )}
-                                    </div>
-                                </button>
+                                    size="sm"
+                                    variant="filled"
+                                    title={song.title}
+                                    subtitle={song.artist}
+                                    on_click={() => {
+                                        if (!is_loading) {
+                                            void handle_load_demo(song.video_id)
+                                        }
+                                    }}
+                                    className={`border border-black/10 dark:border-white/10 hover:border-black/30 dark:hover:border-white/30 ${
+                                        is_loading ? "opacity-40 pointer-events-none" : ""
+                                    }`}
+                                    trailing={
+                                        <Button
+                                            variant="primary"
+                                            size="xs"
+                                            shape="rounded"
+                                            disabled={is_loading}
+                                            onClick={(e) => {
+                                                e.stopPropagation()
+                                                void handle_load_demo(song.video_id)
+                                            }}
+                                        >
+                                            {is_loading ? <LoaderIcon className="w-3 h-3 animate-spin" /> : "Load"}
+                                        </Button>
+                                    }
+                                />
                             ))}
                         </div>
                     </div>
@@ -117,9 +137,9 @@ export function SongSearchAndControls() {
                                     Accompaniment *
                                 </span>
                                 {inst_file && (
-                                    <span className="text-[10px] text-black/40 dark:text-white/40 font-mono">
+                                    <Badge tone="subtle" mono>
                                         Selected
-                                    </span>
+                                    </Badge>
                                 )}
                             </div>
                             <span className="text-[11px] text-black/40 dark:text-white/40 truncate">
@@ -149,9 +169,9 @@ export function SongSearchAndControls() {
                                     Vocals (Optional)
                                 </span>
                                 {vocal_file && (
-                                    <span className="text-[10px] text-black/40 dark:text-white/40 font-mono">
+                                    <Badge tone="subtle" mono>
                                         Selected
-                                    </span>
+                                    </Badge>
                                 )}
                             </div>
                             <span className="text-[11px] text-black/40 dark:text-white/40 truncate">
@@ -181,9 +201,9 @@ export function SongSearchAndControls() {
                                     Lyrics (Optional)
                                 </span>
                                 {lyrics_file && (
-                                    <span className="text-[10px] text-black/40 dark:text-white/40 font-mono">
+                                    <Badge tone="subtle" mono>
                                         Selected
-                                    </span>
+                                    </Badge>
                                 )}
                             </div>
                             <span className="text-[11px] text-black/40 dark:text-white/40 truncate">
@@ -193,15 +213,19 @@ export function SongSearchAndControls() {
                     </div>
 
                     {/* Submit Custom Upload */}
-                    <button
-                        type="button"
+                    <Button
+                        variant="primary"
+                        size="md"
+                        shape="rounded"
                         onClick={() => void handle_load_custom()}
                         disabled={is_loading || !inst_file}
-                        className="w-full py-2.5 bg-black text-white dark:bg-white dark:text-black text-xs font-semibold rounded-lg hover:bg-black/80 dark:hover:bg-white/90 disabled:opacity-30 transition-colors flex items-center justify-center gap-2"
+                        className="w-full font-semibold"
                     >
-                        <UploadIcon className="w-3.5 h-3.5" />
-                        <span>Load Selected Tracks</span>
-                    </button>
+                        <span className="inline-flex items-center gap-2">
+                            <UploadIcon className="w-3.5 h-3.5" />
+                            <span>Load Selected Tracks</span>
+                        </span>
+                    </Button>
 
                     {/* Error display */}
                     {status === "error" && error && (
@@ -225,39 +249,42 @@ export function SongSearchAndControls() {
                                 {meta?.artist || "Local Audio"}
                             </span>
                         </div>
-                        <button
-                            type="button"
+                        <Button
+                            variant="secondary"
+                            size="xs"
+                            shape="rounded"
                             onClick={() => karaoke_controller.unload_song()}
-                            className="flex items-center gap-1 px-2.5 py-1 text-xs text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white bg-black/5 dark:bg-black/40 hover:bg-black/10 dark:hover:bg-white/10 border border-black/10 dark:border-white/10 rounded-lg transition-colors shrink-0"
+                            className="shrink-0"
                             title="Unload current track and select another"
                         >
-                            <RefreshCwIcon className="w-3 h-3" />
-                            <span>Change Track</span>
-                        </button>
+                            <span className="inline-flex items-center gap-1.5">
+                                <RefreshCwIcon className="w-3 h-3" />
+                                <span>Change Track</span>
+                            </span>
+                        </Button>
                     </div>
 
                     {/* Track mode & Ear return bar */}
                     <div className="flex flex-wrap items-center justify-between gap-2">
                         <div className="flex items-center gap-2">
                             {/* Accompaniment vs Original Vocals */}
-                            <div className="flex items-center gap-1 bg-black/5 dark:bg-black/60 p-1 rounded-lg border border-black/10 dark:border-white/10">
-                                <button
-                                    type="button"
+                            <div className="flex items-center gap-1 bg-black/5 dark:bg-black/60 p-1 rounded-xl border border-black/10 dark:border-white/10">
+                                <Button
+                                    variant={track_mode === "instrumental" ? "primary" : "ghost"}
+                                    size="xs"
+                                    shape="rounded"
                                     onClick={() => {
                                         if (track_mode !== "instrumental") {
                                             karaoke_controller.toggle_track_mode()
                                         }
                                     }}
-                                    className={`px-3 py-1 text-xs font-medium rounded transition-colors ${
-                                        track_mode === "instrumental"
-                                            ? "bg-black text-white dark:bg-white dark:text-black"
-                                            : "text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white"
-                                    }`}
                                 >
                                     Accompaniment
-                                </button>
-                                <button
-                                    type="button"
+                                </Button>
+                                <Button
+                                    variant={track_mode === "vocals" ? "primary" : "ghost"}
+                                    size="xs"
+                                    shape="rounded"
                                     disabled={!has_vocals}
                                     onClick={() => {
                                         if (track_mode !== "vocals" && has_vocals) {
@@ -265,32 +292,25 @@ export function SongSearchAndControls() {
                                         }
                                     }}
                                     title={has_vocals ? "Toggle original vocal track" : "No vocal track loaded"}
-                                    className={`px-3 py-1 text-xs font-medium rounded transition-colors ${
-                                        track_mode === "vocals"
-                                            ? "bg-black text-white dark:bg-white dark:text-black"
-                                            : has_vocals
-                                              ? "text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white"
-                                              : "text-black/30 dark:text-white/20 cursor-not-allowed"
-                                    }`}
                                 >
                                     Original Vocals
-                                </button>
+                                </Button>
                             </div>
 
                             {/* Ear Return Toggle Button */}
-                            <button
-                                type="button"
+                            <Button
+                                variant={is_monitor_enabled ? "primary" : "secondary"}
+                                size="xs"
+                                shape="rounded"
                                 onClick={() => void pitch_controller.toggle_monitor()}
                                 title="Toggle microphone ear return for singing"
-                                className={`flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-lg border transition-colors ${
-                                    is_monitor_enabled
-                                        ? "bg-black text-white dark:bg-white dark:text-black border-black dark:border-white"
-                                        : "bg-black/5 dark:bg-black/60 text-black/60 dark:text-white/60 border-black/10 dark:border-white/10 hover:text-black dark:hover:text-white"
-                                }`}
+                                className={is_monitor_enabled ? "border border-transparent" : undefined}
                             >
-                                <HeadphonesIcon className="w-3.5 h-3.5" />
-                                <span>{is_monitor_enabled ? "Ear Return On" : "Ear Return Off"}</span>
-                            </button>
+                                <span className="inline-flex items-center gap-1.5">
+                                    <HeadphonesIcon className="w-3.5 h-3.5" />
+                                    <span>{is_monitor_enabled ? "Ear Return On" : "Ear Return Off"}</span>
+                                </span>
+                            </Button>
                         </div>
 
                         {/* Current time / Duration */}
@@ -301,17 +321,20 @@ export function SongSearchAndControls() {
 
                     {/* Seekbar and Play Button */}
                     <div className="flex items-center gap-3">
-                        <button
-                            type="button"
+                        <Button
+                            variant="primary"
+                            size="auto"
+                            shape="pill"
+                            aria-label={is_playing ? "Pause" : "Play"}
                             onClick={() => karaoke_controller.toggle_play()}
-                            className="w-10 h-10 rounded-full bg-black text-white dark:bg-white dark:text-black flex items-center justify-center hover:bg-black/80 dark:hover:bg-white/90 transition-colors shrink-0"
+                            className="size-10 shrink-0"
                         >
                             {is_playing ? (
                                 <PauseIcon className="w-4 h-4" />
                             ) : (
                                 <PlayIcon className="w-4 h-4 translate-x-0.5" />
                             )}
-                        </button>
+                        </Button>
                         <input
                             type="range"
                             min={0}
