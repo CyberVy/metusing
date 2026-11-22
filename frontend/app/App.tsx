@@ -1,4 +1,4 @@
-import { Music as MusicIcon, Mic as MicIcon } from "lucide-react"
+import { Music, Mic } from "lucide-react"
 import { Badge, ViewSwitcher } from "@/components"
 import type { View } from "@/components"
 import { PitchView, LyricsView } from "@/blocks"
@@ -8,7 +8,7 @@ export default function App() {
     const views: View<ActiveView>[] = [
         {
             id: "pitch",
-            icon: <MicIcon className="size-5" />,
+            icon: <Mic className="size-5" />,
             native_icon: "mic.fill",
             label: "Pitch",
             content: <PitchView />,
@@ -16,7 +16,7 @@ export default function App() {
         },
         {
             id: "sing",
-            icon: <MusicIcon className="size-5" />,
+            icon: <Music className="size-5" />,
             native_icon: "music.note",
             label: "Sing",
             content: <LyricsView />,
@@ -31,7 +31,7 @@ export default function App() {
                 <header className="flex items-center justify-between mx-4 sm:mx-6 md:mx-8 pb-3 border-b border-black/10 dark:border-white/10">
                     <div className="flex items-center gap-2.5">
                         <div className="w-8 h-8 rounded-lg bg-black text-white dark:bg-white dark:text-black flex items-center justify-center font-bold">
-                            <MusicIcon className="w-4 h-4" />
+                            <Music className="w-4 h-4" />
                         </div>
                         <div>
                             <h1 className="text-base font-bold tracking-tight text-black dark:text-white">Metusing</h1>

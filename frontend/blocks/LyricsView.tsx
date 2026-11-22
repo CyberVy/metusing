@@ -1,4 +1,4 @@
-import { LoaderCircle as LoaderIcon, Music as MusicIcon } from "lucide-react"
+import { LoaderCircle, Music } from "lucide-react"
 import { useCallback } from "react"
 import { EmptyState, SectionHeader } from "@/components"
 import { useKaraokeState } from "@/core/controllers"
@@ -70,7 +70,7 @@ export function LyricsList() {
         return (
             <EmptyState
                 size="inline"
-                icon={<LoaderIcon className="size-5 animate-spin" />}
+                icon={<LoaderCircle className="size-5 animate-spin" />}
                 title="Loading audio and lyrics..."
                 glow
                 className="flex-1 min-h-75"
@@ -82,7 +82,7 @@ export function LyricsList() {
         return (
             <EmptyState
                 size="inline"
-                icon={<MusicIcon className="size-5" />}
+                icon={<Music className="size-5" />}
                 title={
                     status === "ready"
                         ? "No synchronized lyrics provided for this track"

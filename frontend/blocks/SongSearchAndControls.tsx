@@ -1,14 +1,4 @@
-import {
-    Play as PlayIcon,
-    Pause as PauseIcon,
-    LoaderCircle as LoaderIcon,
-    Headphones as HeadphonesIcon,
-    Sparkles as SparklesIcon,
-    Upload as UploadIcon,
-    AudioLines as FileAudioIcon,
-    FileText as FileTextIcon,
-    RefreshCw as RefreshCwIcon
-} from "lucide-react"
+import { Play, Pause, LoaderCircle, Headphones, Sparkles, Upload, AudioLines, FileText, RefreshCw } from "lucide-react"
 import { useState, useRef } from "react"
 import { Badge, Button, ListRow, SectionHeader } from "@/components"
 import { useKaraokeState, karaoke_controller, usePitchState, pitch_controller, DEMO_SONGS } from "@/core/controllers"
@@ -59,7 +49,7 @@ export function SongSearchAndControls() {
                             <SectionHeader
                                 title={
                                     <span className="inline-flex items-center gap-1.5">
-                                        <SparklesIcon className="w-3.5 h-3.5" />
+                                        <Sparkles className="w-3.5 h-3.5" />
                                         <span>Demo Songs</span>
                                     </span>
                                 }
@@ -97,7 +87,7 @@ export function SongSearchAndControls() {
                                                 void handle_load_demo(song.video_id)
                                             }}
                                         >
-                                            {is_loading ? <LoaderIcon className="w-3 h-3 animate-spin" /> : "Load"}
+                                            {is_loading ? <LoaderCircle className="w-3 h-3 animate-spin" /> : "Load"}
                                         </Button>
                                     }
                                 />
@@ -133,7 +123,7 @@ export function SongSearchAndControls() {
                             />
                             <div className="flex items-center justify-between text-xs">
                                 <span className="font-medium text-black/70 dark:text-white/80 flex items-center gap-1.5">
-                                    <FileAudioIcon className="w-3.5 h-3.5 text-black/40 dark:text-white/50" />
+                                    <AudioLines className="w-3.5 h-3.5 text-black/40 dark:text-white/50" />
                                     Accompaniment *
                                 </span>
                                 {inst_file && (
@@ -165,7 +155,7 @@ export function SongSearchAndControls() {
                             />
                             <div className="flex items-center justify-between text-xs">
                                 <span className="font-medium text-black/70 dark:text-white/80 flex items-center gap-1.5">
-                                    <FileAudioIcon className="w-3.5 h-3.5 text-black/40 dark:text-white/50" />
+                                    <AudioLines className="w-3.5 h-3.5 text-black/40 dark:text-white/50" />
                                     Vocals (Optional)
                                 </span>
                                 {vocal_file && (
@@ -197,7 +187,7 @@ export function SongSearchAndControls() {
                             />
                             <div className="flex items-center justify-between text-xs">
                                 <span className="font-medium text-black/70 dark:text-white/80 flex items-center gap-1.5">
-                                    <FileTextIcon className="w-3.5 h-3.5 text-black/40 dark:text-white/50" />
+                                    <FileText className="w-3.5 h-3.5 text-black/40 dark:text-white/50" />
                                     Lyrics (Optional)
                                 </span>
                                 {lyrics_file && (
@@ -222,7 +212,7 @@ export function SongSearchAndControls() {
                         className="w-full font-semibold"
                     >
                         <span className="inline-flex items-center gap-2">
-                            <UploadIcon className="w-3.5 h-3.5" />
+                            <Upload className="w-3.5 h-3.5" />
                             <span>Load Selected Tracks</span>
                         </span>
                     </Button>
@@ -258,7 +248,7 @@ export function SongSearchAndControls() {
                             title="Unload current track and select another"
                         >
                             <span className="inline-flex items-center gap-1.5">
-                                <RefreshCwIcon className="w-3 h-3" />
+                                <RefreshCw className="w-3 h-3" />
                                 <span>Change Track</span>
                             </span>
                         </Button>
@@ -307,7 +297,7 @@ export function SongSearchAndControls() {
                                 className={is_monitor_enabled ? "border border-transparent" : undefined}
                             >
                                 <span className="inline-flex items-center gap-1.5">
-                                    <HeadphonesIcon className="w-3.5 h-3.5" />
+                                    <Headphones className="w-3.5 h-3.5" />
                                     <span>{is_monitor_enabled ? "Ear Return On" : "Ear Return Off"}</span>
                                 </span>
                             </Button>
@@ -329,11 +319,7 @@ export function SongSearchAndControls() {
                             onClick={() => karaoke_controller.toggle_play()}
                             className="size-10 shrink-0"
                         >
-                            {is_playing ? (
-                                <PauseIcon className="w-4 h-4" />
-                            ) : (
-                                <PlayIcon className="w-4 h-4 translate-x-0.5" />
-                            )}
+                            {is_playing ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 translate-x-0.5" />}
                         </Button>
                         <input
                             type="range"

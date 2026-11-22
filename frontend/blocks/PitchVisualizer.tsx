@@ -1,12 +1,4 @@
-import {
-    Mic as MicIcon,
-    MicOff as MicOffIcon,
-    Headphones as HeadphonesIcon,
-    Volume as VolumeIcon,
-    VolumeX as VolumeMuteIcon,
-    ChevronDown as ChevronDownIcon,
-    Check as CheckIcon
-} from "lucide-react"
+import { Mic, MicOff, Headphones, Volume, VolumeX, ChevronDown, Check } from "lucide-react"
 import { useCallback } from "react"
 import { Badge, Button, Select } from "@/components"
 import { usePitchState, pitch_controller } from "@/core/controllers"
@@ -147,12 +139,12 @@ export function PitchVisualizer() {
                         <span className="inline-flex items-center gap-2">
                             {is_listening ? (
                                 <>
-                                    <MicIcon className="w-4 h-4 animate-pulse" />
+                                    <Mic className="w-4 h-4 animate-pulse" />
                                     <span>Listening</span>
                                 </>
                             ) : (
                                 <>
-                                    <MicOffIcon className="w-4 h-4" />
+                                    <MicOff className="w-4 h-4" />
                                     <span>Enable Mic</span>
                                 </>
                             )}
@@ -170,8 +162,8 @@ export function PitchVisualizer() {
                                 on_change={(device_id) => void pitch_controller.select_device(device_id)}
                                 placeholder="Select Microphone"
                                 align="left"
-                                indicator={<ChevronDownIcon width={14} height={14} className="opacity-55" />}
-                                selected_indicator={<CheckIcon width={14} height={14} />}
+                                indicator={<ChevronDown width={14} height={14} className="opacity-55" />}
+                                selected_indicator={<Check width={14} height={14} />}
                                 trigger_class_name="max-w-40 sm:max-w-56"
                                 menu_class_name="max-w-64 sm:max-w-80"
                                 options={audio_input_devices.map((d) => ({
@@ -231,7 +223,7 @@ export function PitchVisualizer() {
                         className={is_monitor_enabled ? "border border-transparent" : undefined}
                     >
                         <span className="inline-flex items-center gap-1.5">
-                            <HeadphonesIcon className="w-3.5 h-3.5" />
+                            <Headphones className="w-3.5 h-3.5" />
                             <span>{is_monitor_enabled ? "Ear Return On" : "Ear Return Off"}</span>
                         </span>
                     </Button>
@@ -251,8 +243,8 @@ export function PitchVisualizer() {
                             value={channel_mode}
                             on_change={(mode) => pitch_controller.set_channel_mode(mode)}
                             align="left"
-                            indicator={<ChevronDownIcon width={14} height={14} className="opacity-55" />}
-                            selected_indicator={<CheckIcon width={14} height={14} />}
+                            indicator={<ChevronDown width={14} height={14} className="opacity-55" />}
+                            selected_indicator={<Check width={14} height={14} />}
                             trigger_class_name="py-1 text-[11px]"
                             options={[
                                 { value: "mono", label: "Mono (Both Ears)" },
@@ -265,9 +257,9 @@ export function PitchVisualizer() {
 
                     <div className="flex items-center gap-1.5 text-black/60 dark:text-white/60">
                         {monitor_volume === 0 || !is_monitor_enabled ? (
-                            <VolumeMuteIcon className="w-3.5 h-3.5" />
+                            <VolumeX className="w-3.5 h-3.5" />
                         ) : (
-                            <VolumeIcon className="w-3.5 h-3.5" />
+                            <Volume className="w-3.5 h-3.5" />
                         )}
                         <span className="text-[11px] font-mono w-7 text-right">
                             {Math.round(monitor_volume * 100)}%
