@@ -1,5 +1,6 @@
 ## Project Structure
 
+- `core/`: Runtime-agnostic core domain engine (isolated via root `tsconfig.json` without DOM lib, exposed via `@core/*`). Runs natively across JavaScript runtimes without mocks or DOM dependencies.
 - `frontend/`: Browser/WebView frontend workspace (isolated via `frontend/tsconfig.json`).
     - `frontend/app/`: Application UI entry points and shells.
         - `index.html`: SPA HTML shell entry.
@@ -11,11 +12,10 @@
     - `frontend/components/`: base reusable UI components and UI infrastructure.
         - Put framework-level or reusable domain-agnostic primitives here.
         - Organized by UI system role into `views/` (display primitives), `controls/` (interactive controls), `presentation/` (portals, transitions, modals, sheets, popovers, context menus), `containers/` (view/lifecycle containers), `observers/` (DOM/viewport observers), and `feedback/` (haptic feedback), exposed solely through `@/components`, `@/components/hooks`, and `@/components/utils`.
-    - `frontend/core/`: domain logic, algorithms, data generators, and application state coordination.
+    - `frontend/core/`: browser-hosted domain state, runtime adapters, and application state coordination.
         - `controllers/`: centralized reactive state and data controllers.
-    - `frontend/infra/`: infrastructure, platform adapters, Web IPC client, and utilities.
-        - `*.client.ts`: browser/webview-only client integrations.
-        - `web_ipc.client.ts`: frontend-side Tauri IPC adapter.
+    - `frontend/infra/`: browser/webview infrastructure, platform adapters, Web IPC client, and utilities.
+        - `web_ipc.ts`: frontend-side Tauri IPC adapter.
     - `frontend/inject/`: client-side scripts injected directly into external WebViews.
         - Organized into `infra/` (environment/IPC polyfills) and `core/` (business/product logic injections), each using `index.ts` as the entry point.
     - `frontend/sw/`: service worker source (packaged to `dist/sw.js` in build, served in-memory by Vite in dev).
@@ -157,7 +157,7 @@ The client-side persistence layer (`LocalForage` / IndexedDB) adheres to a stric
 - Variables, parameters, refs, and state values: `snake_case` (e.g. `current_video_id`).
 - Constants: `SCREAMING_SNAKE_CASE` for module-level semantic constants (e.g. `DESKTOP_USER_AGENT`); use `snake_case` for local values and function bindings.
 - Type imports: use `import type` when importing only types.
-- Path aliases: prefer `@/` for imports under `frontend/`.
+- Path aliases: prefer `@/` for imports within `frontend/`, and `@core/` for imports from `core/`.
 - WebView injection scripts: entry point is `src-tauri/src/inject.ts` (source) and `src-tauri/src/inject.js` (compiled output). Sub-modules under `frontend/inject/` may use `*.inject.ts` naming.
 - Type Definitions: Follow the proximity principle (define types close to where they are used). Avoid creating separate type files (like `types.ts` or `*.types.ts`) unless the type declarations are highly complex or repeatedly reused across multiple files.
 - Descriptive Naming: All variable, function, component, and file names must clearly reflect their purpose and responsibility. Use readable, self-explanatory names and strictly avoid generic, vague, or obscure names (e.g. prefer `is_sidebar_open` over `temp` or `flag`).
@@ -180,13 +180,14 @@ The client-side persistence layer (`LocalForage` / IndexedDB) adheres to a stric
 
 ## Layering Rules
 
-- **UI vs Non-UI Directories**: React UI components, UI-specific React hooks, and JSX rendered by the main application may exist only in `frontend/app/`, `frontend/blocks/`, and `frontend/components/`. All other directories under `frontend/` (such as `frontend/core/`, `frontend/infra/`, `frontend/inject/`, and `frontend/sw/`) are Non-UI environments.
+- **Core Engine Isolation**: `core/` must NEVER import from `frontend/` or depend on DOM/browser-only globals.
+- **UI vs Non-UI Directories**: React UI components, UI-specific React hooks, and JSX rendered by the main application may exist only in `frontend/app/`, `frontend/blocks/`, and `frontend/components/`. All other directories under `frontend/` (such as `frontend/core/`, `frontend/infra/`, `frontend/inject/`, and `frontend/sw/`) and `core/` are Non-UI environments.
 - **Non-UI Isolation**: Non-UI environments must NEVER import modules from `frontend/app/`, `frontend/blocks/`, or `frontend/components/`.
 - **Component Isolation**: `frontend/components/` must NEVER import from `frontend/app/`, `frontend/blocks/`, or `frontend/core/`. Keep business UI and domain dependencies out of reusable components.
 - **Infrastructure Isolation**: `frontend/infra/` must NEVER import from `frontend/core/`.
 - The import restrictions above apply to runtime imports, type-only imports, dynamic imports, and re-exports, and are enforced by Oxlint.
 - **Web IPC Communications**:
-    - All communication between frontend web app and backend Rust must utilize the Web IPC layer (e.g., [web_ipc.client.ts](frontend/infra/web_ipc.client.ts)).
+    - All communication between frontend web app and backend Rust must utilize the Web IPC layer (e.g., [web_ipc.ts](frontend/infra/web_ipc.ts)).
     - Shared data types used across the IPC boundary should follow the general type rules and be defined close to their usage/IPC client implementation.
 
 ## Base Rules
@@ -220,7 +221,7 @@ When running the development server via `npm run dev`, a debug bridge is automat
 - **UI Inspection & Interaction CLI**: Inspect visible interactive elements and dispatch touch/mouse interactions without writing inline DOM queries using [ui.ts](cli/debug/host/ui.ts):
     ```bash
     npm run debug:ui -- snap
-    npm run debug:ui -- tap "<target>"
+    npm run debug:ui -- tap "Player"
     ```
 - **Execution History**: The history of executed commands and their results is stored in [history.jsonl](.debug/frontend/history.jsonl).
 - **Sub-Agent Delegation**: When implementing features or fixing bugs that affect frontend runtime behavior, prefer delegating validation and log monitoring to a sub-agent. The sub-agent should actively use the Frontend Debug Bridge to execute tests, verify UI correctness, and tail [logs.jsonl](.debug/frontend/logs.jsonl) to ensure no regressions or runtime console errors are introduced.

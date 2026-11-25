@@ -11,13 +11,11 @@
   "printWidth": 120,
   "ignorePatterns": [
     "node_modules",
-    ".next",
-    "out",
-    "build",
+    ".wrangler",
     "dist",
-    "public/sw.js",
+    "cli/dist",
     "src-tauri/src/inject.js",
     "draft",
-    "cli/dist"
+    "extensions/vscode/dist"
   ]
 }

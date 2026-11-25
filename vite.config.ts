@@ -90,7 +90,8 @@ export default defineConfig({
     ],
     resolve: {
         alias: {
-            "@": path.resolve(import.meta.dirname, "./frontend")
+            "@": path.resolve(import.meta.dirname, "./frontend"),
+            "@core": path.resolve(import.meta.dirname, "./core")
         }
     },
     server: {

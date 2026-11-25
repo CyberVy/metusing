@@ -2,7 +2,7 @@
 
 import { router } from "@/sw/infra/router"
 import { handle_fetch_for_static_resource, update_static_resource_cache } from "@/sw/infra/static_cache"
-import { SERVICE_WORKER_API_PATH, type ServiceWorkerApiRequestEnvelope } from "@/infra/service_worker.client"
+import { SERVICE_WORKER_API_PATH, type ServiceWorkerApiRequestEnvelope } from "@/infra/service_worker"
 
 const sw = self as unknown as ServiceWorkerGlobalScope
 

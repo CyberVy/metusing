@@ -36,11 +36,9 @@ yarn-error.log*
 
 /certificates
 /.idea
-/public/sw.js
 /draft
 /buildServer.json
 /.compile
 
 # debug bridge
 /.debug
-/public/debug_bridge.js

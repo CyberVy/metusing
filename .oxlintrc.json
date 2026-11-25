@@ -1,4 +1,5 @@
 {
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
   "plugins": [
     "react",
     "typescript"
@@ -8,13 +9,12 @@
   ],
   "ignorePatterns": [
     "node_modules",
-    ".next",
-    "out",
-    "build",
-    "public/sw.js",
+    ".wrangler",
+    "dist",
+    "cli/dist",
     "src-tauri/src/inject.js",
     "draft",
-    "cli/dist"
+    "extensions/vscode/dist"
   ],
   "rules": {
     "no-eval": "off",

@@ -1,5 +1,5 @@
 import { pitch_controller } from "./pitch.controller"
-import { parse_lyrics, type LyricLine } from "../lyrics_parser"
+import { parse_lyrics, type LyricLine } from "@core/lyrics_parser"
 import { generate_demo_song, DEMO_SONGS, type DemoSongInfo } from "../demo_song"
 
 export type { LyricLine, DemoSongInfo }

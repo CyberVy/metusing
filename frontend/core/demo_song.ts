@@ -1,4 +1,4 @@
-import { parse_json_lyrics, type LyricLine } from "./lyrics_parser"
+import { parse_json_lyrics, type LyricLine } from "@core/lyrics_parser"
 import type { SongMetadata } from "./controllers/karaoke.controller"
 
 export interface DemoSongInfo extends SongMetadata {

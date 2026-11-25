@@ -1,4 +1,4 @@
-import { extract_pitch_autocorrelation, type PitchDetectionResult } from "../pitch_extractor"
+import { extract_pitch_autocorrelation, type PitchDetectionResult } from "@core/pitch_extractor"
 
 export interface PitchPoint {
     time: number

@@ -1,7 +1,7 @@
 {
     "compilerOptions": {
         "target": "esnext",
-        "lib": ["dom", "dom.iterable", "esnext"],
+        "lib": ["esnext"],
         "types": ["node"],
         "allowJs": true,
         "skipLibCheck": true,
@@ -16,9 +16,18 @@
         "jsx": "react-jsx",
         "incremental": true,
         "paths": {
-            "@/*": ["./src/*"]
+            "@/*": ["./core/*"],
+            "@core/*": ["./core/*"]
         }
     },
     "include": ["**/*.ts", "**/*.tsx", "**/*.mts"],
-    "exclude": ["node_modules", "dist", "frontend", "src-tauri", "src-tauri/gen/apple/build", "draft"]
+    "exclude": [
+        "node_modules",
+        "dist",
+        "frontend",
+        "src-tauri",
+        "src-tauri/gen/apple/build",
+        "draft",
+        "cli/debug/browser"
+    ]
 }

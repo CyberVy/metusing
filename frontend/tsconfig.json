@@ -16,8 +16,9 @@
         "jsx": "react-jsx",
         "incremental": true,
         "paths": {
-            "@/*": ["./*"]
+            "@/*": ["./*"],
+            "@core/*": ["../core/*"]
         }
     },
-    "include": ["./**/*.ts", "./**/*.tsx", "../src-tauri/src/inject.ts"]
+    "include": ["./**/*.ts", "./**/*.tsx", "../src-tauri/src/inject.ts", "../cli/debug/browser/**/*.ts"]
 }
