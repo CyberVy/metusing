@@ -1,6 +1,6 @@
 import { LoaderCircle, Music } from "lucide-react"
 import { useCallback } from "react"
-import { EmptyState, SectionHeader } from "@/components"
+import { EmptyState, SectionHeader, Text } from "@/components"
 import { useKaraokeState } from "@/core/controllers"
 import { SongSearchAndControls } from "./SongSearchAndControls"
 
@@ -101,18 +101,23 @@ export function LyricsList() {
             {lyrics.map((line, idx) => {
                 const is_active = idx === active_index
                 return (
-                    <div
+                    <Text
+                        as="div"
                         key={`${lyrics_batch_id}-${line.start}-${idx}`}
                         ref={is_active ? attach_active_line : null}
                         data-active-lyric={is_active ? "true" : undefined}
-                        className={`text-center transition-all duration-300 max-w-lg ${
+                        variant="headline"
+                        weight={is_active ? "bold" : "normal"}
+                        tone="inherit"
+                        align="center"
+                        className={`transition-all duration-300 max-w-lg ${
                             is_active
-                                ? "text-xl font-bold text-black dark:text-white scale-105"
-                                : "text-base text-black/30 dark:text-white/30 hover:text-black/60 dark:hover:text-white/60"
+                                ? "text-xl text-black dark:text-white scale-105"
+                                : "text-black/30 dark:text-white/30 hover:text-black/60 dark:hover:text-white/60"
                         }`}
                     >
                         {line.text}
-                    </div>
+                    </Text>
                 )
             })}
         </div>

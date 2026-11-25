@@ -1,6 +1,6 @@
 import { Mic, MicOff, Headphones, Volume, VolumeX, ChevronDown, Check } from "lucide-react"
 import { useCallback } from "react"
-import { Badge, Button, Select } from "@/components"
+import { Badge, Button, Select, Text } from "@/components"
 import { usePitchState, pitch_controller } from "@/core/controllers"
 import type { ChannelMode } from "@/core/controllers"
 export function PitchVisualizer() {
@@ -140,12 +140,16 @@ export function PitchVisualizer() {
                             {is_listening ? (
                                 <>
                                     <Mic className="w-4 h-4 animate-pulse" />
-                                    <span>Listening</span>
+                                    <Text variant="body" weight="medium" tone="inherit">
+                                        Listening
+                                    </Text>
                                 </>
                             ) : (
                                 <>
                                     <MicOff className="w-4 h-4" />
-                                    <span>Enable Mic</span>
+                                    <Text variant="body" weight="medium" tone="inherit">
+                                        Enable Mic
+                                    </Text>
                                 </>
                             )}
                         </span>
@@ -153,9 +157,9 @@ export function PitchVisualizer() {
 
                     {audio_input_devices.length > 0 && (
                         <div className="flex items-center gap-1.5">
-                            <span className="text-[10px] text-black/40 dark:text-white/40 uppercase tracking-wider hidden sm:inline">
+                            <Text variant="overline" weight="normal" tone="tertiary" className="hidden sm:inline">
                                 Mic
-                            </span>
+                            </Text>
                             <Select
                                 aria_label="Select Audio Input Device"
                                 value={selected_device_id ?? undefined}
@@ -174,28 +178,36 @@ export function PitchVisualizer() {
                         </div>
                     )}
 
-                    {error_message && <span className="text-xs text-black/50 dark:text-white/50">{error_message}</span>}
+                    {error_message && (
+                        <Text variant="caption" tone="secondary">
+                            {error_message}
+                        </Text>
+                    )}
                 </div>
 
                 {/* Fixed geometry display container to prevent layout shifts */}
                 <div className="flex items-center gap-3 shrink-0">
                     <div className="flex flex-col items-end">
-                        <span className="text-[10px] text-black/40 dark:text-white/40 tracking-wider">
+                        <Text variant="overline" weight="normal" tone="tertiary" className="normal-case">
                             PITCH / NOTE
-                        </span>
+                        </Text>
                         <div className="flex items-baseline gap-2">
                             {/* Fixed width note display */}
-                            <span className="w-14 text-center text-2xl font-bold font-mono text-black dark:text-white tracking-wide">
+                            <Text variant="title" mono align="center" className="w-14 text-2xl tracking-wide">
                                 {current_note || "--"}
-                            </span>
+                            </Text>
                             {/* Fixed width frequency display (toggled via opacity, never unmounted) */}
-                            <span
-                                className={`w-16 text-right text-xs font-mono tabular-nums transition-opacity duration-150 ${
+                            <Text
+                                variant="caption"
+                                tone="inherit"
+                                mono
+                                align="right"
+                                className={`w-16 transition-opacity duration-150 ${
                                     current_pitch ? "text-black/60 dark:text-white/60 opacity-100" : "opacity-0"
                                 }`}
                             >
                                 {current_pitch ? `${current_pitch.toFixed(1)} Hz` : "0.0 Hz"}
-                            </span>
+                            </Text>
                         </div>
                     </div>
 
@@ -224,20 +236,27 @@ export function PitchVisualizer() {
                     >
                         <span className="inline-flex items-center gap-1.5">
                             <Headphones className="w-3.5 h-3.5" />
-                            <span>{is_monitor_enabled ? "Ear Return On" : "Ear Return Off"}</span>
+                            <Text variant="caption" weight="medium" tone="inherit">
+                                {is_monitor_enabled ? "Ear Return On" : "Ear Return Off"}
+                            </Text>
                         </span>
                     </Button>
-                    <span className="text-[11px] text-black/40 dark:text-white/40 hidden sm:inline">
+                    <Text variant="footnote" tone="tertiary" className="hidden sm:inline">
                         (Use headphones to prevent feedback)
-                    </span>
+                    </Text>
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2">
                     {/* Channel Mode Selector for Dual-Mono / Stereo / Left / Right */}
                     <div className="flex items-center gap-1.5">
-                        <span className="text-[10px] text-black/40 dark:text-white/40 uppercase hidden sm:inline">
+                        <Text
+                            variant="overline"
+                            weight="normal"
+                            tone="tertiary"
+                            className="tracking-normal hidden sm:inline"
+                        >
                             Channel
-                        </span>
+                        </Text>
                         <Select<ChannelMode>
                             aria_label="Channel Mode"
                             value={channel_mode}
@@ -261,9 +280,9 @@ export function PitchVisualizer() {
                         ) : (
                             <Volume className="w-3.5 h-3.5" />
                         )}
-                        <span className="text-[11px] font-mono w-7 text-right">
+                        <Text variant="footnote" tone="inherit" mono align="right" className="w-7">
                             {Math.round(monitor_volume * 100)}%
-                        </span>
+                        </Text>
                     </div>
                     <input
                         type="range"
@@ -287,9 +306,14 @@ export function PitchVisualizer() {
                     className="w-full h-full block text-black dark:text-white"
                 />
                 {!is_listening && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-white/60 dark:bg-black/40 text-xs text-black/40 dark:text-white/40">
+                    <Text
+                        as="div"
+                        variant="caption"
+                        tone="tertiary"
+                        className="absolute inset-0 flex items-center justify-center bg-white/60 dark:bg-black/40"
+                    >
                         Enable microphone to capture real-time pitch
-                    </div>
+                    </Text>
                 )}
             </div>
         </div>

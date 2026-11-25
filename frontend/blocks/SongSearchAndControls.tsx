@@ -1,6 +1,6 @@
 import { Play, Pause, LoaderCircle, Headphones, Sparkles, Upload, AudioLines, FileText, RefreshCw } from "lucide-react"
 import { useState, useRef } from "react"
-import { Badge, Button, ListRow, SectionHeader } from "@/components"
+import { Badge, Button, ListRow, SectionHeader, Text } from "@/components"
 import { useKaraokeState, karaoke_controller, usePitchState, pitch_controller, DEMO_SONGS } from "@/core/controllers"
 const AUDIO_FILE_ACCEPT = ".mp3,.wav,.m4a,.aac,.aiff"
 
@@ -55,9 +55,9 @@ export function SongSearchAndControls() {
                                 }
                                 count={DEMO_SONGS.length}
                             />
-                            <span className="text-xs text-black/40 dark:text-white/40">
+                            <Text variant="caption" tone="tertiary">
                                 Pre-separated accompaniment, vocal tracks, and synchronized lyrics
-                            </span>
+                            </Text>
                         </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-0.5">
@@ -97,9 +97,9 @@ export function SongSearchAndControls() {
 
                     <div className="flex items-center gap-3">
                         <div className="flex-1 h-px bg-black/10 dark:bg-white/10" />
-                        <span className="text-[11px] uppercase tracking-wider text-black/30 dark:text-white/30 font-medium">
+                        <Text variant="footnote" weight="medium" tone="tertiary" className="uppercase tracking-wider">
                             Or Upload Local Files
-                        </span>
+                        </Text>
                         <div className="flex-1 h-px bg-black/10 dark:bg-white/10" />
                     </div>
 
@@ -121,20 +121,24 @@ export function SongSearchAndControls() {
                                 className="hidden"
                                 onChange={(e) => set_inst_file(e.target.files?.[0] || null)}
                             />
-                            <div className="flex items-center justify-between text-xs">
-                                <span className="font-medium text-black/70 dark:text-white/80 flex items-center gap-1.5">
+                            <div className="flex items-center justify-between">
+                                <Text
+                                    variant="caption"
+                                    weight="medium"
+                                    className="text-black/70 dark:text-white/80 flex items-center gap-1.5"
+                                >
                                     <AudioLines className="w-3.5 h-3.5 text-black/40 dark:text-white/50" />
                                     Accompaniment *
-                                </span>
+                                </Text>
                                 {inst_file && (
                                     <Badge tone="subtle" mono>
                                         Selected
                                     </Badge>
                                 )}
                             </div>
-                            <span className="text-[11px] text-black/40 dark:text-white/40 truncate">
+                            <Text variant="footnote" tone="tertiary" truncate>
                                 {inst_file ? inst_file.name : "Select instrumental (.mp3, .wav)"}
-                            </span>
+                            </Text>
                         </div>
 
                         {/* Vocal Track File */}
@@ -153,20 +157,24 @@ export function SongSearchAndControls() {
                                 className="hidden"
                                 onChange={(e) => set_vocal_file(e.target.files?.[0] || null)}
                             />
-                            <div className="flex items-center justify-between text-xs">
-                                <span className="font-medium text-black/70 dark:text-white/80 flex items-center gap-1.5">
+                            <div className="flex items-center justify-between">
+                                <Text
+                                    variant="caption"
+                                    weight="medium"
+                                    className="text-black/70 dark:text-white/80 flex items-center gap-1.5"
+                                >
                                     <AudioLines className="w-3.5 h-3.5 text-black/40 dark:text-white/50" />
                                     Vocals (Optional)
-                                </span>
+                                </Text>
                                 {vocal_file && (
                                     <Badge tone="subtle" mono>
                                         Selected
                                     </Badge>
                                 )}
                             </div>
-                            <span className="text-[11px] text-black/40 dark:text-white/40 truncate">
+                            <Text variant="footnote" tone="tertiary" truncate>
                                 {vocal_file ? vocal_file.name : "Select vocal track"}
-                            </span>
+                            </Text>
                         </div>
 
                         {/* Lyrics File */}
@@ -185,20 +193,24 @@ export function SongSearchAndControls() {
                                 className="hidden"
                                 onChange={(e) => set_lyrics_file(e.target.files?.[0] || null)}
                             />
-                            <div className="flex items-center justify-between text-xs">
-                                <span className="font-medium text-black/70 dark:text-white/80 flex items-center gap-1.5">
+                            <div className="flex items-center justify-between">
+                                <Text
+                                    variant="caption"
+                                    weight="medium"
+                                    className="text-black/70 dark:text-white/80 flex items-center gap-1.5"
+                                >
                                     <FileText className="w-3.5 h-3.5 text-black/40 dark:text-white/50" />
                                     Lyrics (Optional)
-                                </span>
+                                </Text>
                                 {lyrics_file && (
                                     <Badge tone="subtle" mono>
                                         Selected
                                     </Badge>
                                 )}
                             </div>
-                            <span className="text-[11px] text-black/40 dark:text-white/40 truncate">
+                            <Text variant="footnote" tone="tertiary" truncate>
                                 {lyrics_file ? lyrics_file.name : "Select .lrc or .json file"}
-                            </span>
+                            </Text>
                         </div>
                     </div>
 
@@ -209,19 +221,25 @@ export function SongSearchAndControls() {
                         shape="rounded"
                         onClick={() => void handle_load_custom()}
                         disabled={is_loading || !inst_file}
-                        className="w-full font-semibold"
+                        className="w-full"
                     >
                         <span className="inline-flex items-center gap-2">
                             <Upload className="w-3.5 h-3.5" />
-                            <span>Load Selected Tracks</span>
+                            <Text variant="body" weight="semibold" tone="inherit">
+                                Load Selected Tracks
+                            </Text>
                         </span>
                     </Button>
 
                     {/* Error display */}
                     {status === "error" && error && (
-                        <div className="p-2.5 rounded bg-red-950/20 border border-black/10 dark:border-white/10 text-xs text-black/70 dark:text-white/80">
+                        <Text
+                            as="div"
+                            variant="caption"
+                            className="p-2.5 rounded bg-red-950/20 border border-black/10 dark:border-white/10 text-black/70 dark:text-white/80"
+                        >
                             {error}
-                        </div>
+                        </Text>
                     )}
                 </div>
             )}
@@ -230,14 +248,14 @@ export function SongSearchAndControls() {
             {status === "ready" && (
                 <div className="flex flex-col gap-4">
                     {/* Song info & Replace button */}
-                    <div className="flex items-center justify-between pb-2 border-b border-black/10 dark:border-white/10 text-xs">
-                        <div className="flex flex-col gap-0.5 truncate pr-2">
-                            <span className="font-semibold text-black dark:text-white truncate">
+                    <div className="flex items-center justify-between pb-2 border-b border-black/10 dark:border-white/10">
+                        <div className="flex flex-col gap-0.5 min-w-0 pr-2">
+                            <Text variant="caption" weight="semibold" truncate>
                                 {meta?.title || "Custom Track"}
-                            </span>
-                            <span className="text-black/40 dark:text-white/40 truncate">
+                            </Text>
+                            <Text variant="caption" tone="tertiary" truncate>
                                 {meta?.artist || "Local Audio"}
-                            </span>
+                            </Text>
                         </div>
                         <Button
                             variant="secondary"
@@ -249,7 +267,9 @@ export function SongSearchAndControls() {
                         >
                             <span className="inline-flex items-center gap-1.5">
                                 <RefreshCw className="w-3 h-3" />
-                                <span>Change Track</span>
+                                <Text variant="caption" weight="medium" tone="inherit">
+                                    Change Track
+                                </Text>
                             </span>
                         </Button>
                     </div>
@@ -298,15 +318,17 @@ export function SongSearchAndControls() {
                             >
                                 <span className="inline-flex items-center gap-1.5">
                                     <Headphones className="w-3.5 h-3.5" />
-                                    <span>{is_monitor_enabled ? "Ear Return On" : "Ear Return Off"}</span>
+                                    <Text variant="caption" weight="medium" tone="inherit">
+                                        {is_monitor_enabled ? "Ear Return On" : "Ear Return Off"}
+                                    </Text>
                                 </span>
                             </Button>
                         </div>
 
                         {/* Current time / Duration */}
-                        <div className="text-xs font-mono text-black/60 dark:text-white/60">
+                        <Text as="div" variant="caption" tone="secondary" mono>
                             {format_seconds(current_time)} / {format_seconds(duration)}
-                        </div>
+                        </Text>
                     </div>
 
                     {/* Seekbar and Play Button */}
