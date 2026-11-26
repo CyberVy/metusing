@@ -112,8 +112,8 @@ export function LyricsList() {
                         align="center"
                         className={`transition-all duration-300 max-w-lg ${
                             is_active
-                                ? "text-xl text-black dark:text-white scale-105"
-                                : "text-black/30 dark:text-white/30 hover:text-black/60 dark:hover:text-white/60"
+                                ? "text-xl text-ui-label-strong scale-105"
+                                : "text-ui-label-tertiary hover:text-ui-label-secondary"
                         }`}
                     >
                         {line.text}
@@ -145,11 +145,8 @@ export function LyricsView() {
             </section>
 
             {/* Synchronized Lyrics Container */}
-            <section className="bg-zinc-100/80 dark:bg-zinc-900/40 border border-black/10 dark:border-white/10 rounded-xl overflow-hidden flex flex-col">
-                <SectionHeader
-                    title="Synchronized Lyrics"
-                    className="px-4 py-2.5 border-b border-black/5 dark:border-white/5"
-                />
+            <section className="bg-ui-fill-subtle border border-ui-border rounded-xl overflow-hidden flex flex-col">
+                <SectionHeader title="Synchronized Lyrics" className="px-4 py-2.5 border-b border-ui-separator" />
                 <LyricsList />
             </section>
         </div>

@@ -126,7 +126,7 @@ export function PitchVisualizer() {
     }
 
     return (
-        <div className="flex flex-col gap-3 p-4 bg-zinc-100/80 dark:bg-zinc-900/60 border border-black/10 dark:border-white/10 rounded-xl">
+        <div className="flex flex-col gap-3 p-4 bg-ui-fill-subtle border border-ui-border rounded-xl">
             <div className="flex flex-wrap items-center justify-between gap-2 min-h-12">
                 <div className="flex flex-wrap items-center gap-2">
                     <Button
@@ -199,11 +199,11 @@ export function PitchVisualizer() {
                             {/* Fixed width frequency display (toggled via opacity, never unmounted) */}
                             <Text
                                 variant="caption"
-                                tone="inherit"
+                                tone="secondary"
                                 mono
                                 align="right"
                                 className={`w-16 transition-opacity duration-150 ${
-                                    current_pitch ? "text-black/60 dark:text-white/60 opacity-100" : "opacity-0"
+                                    current_pitch ? "opacity-100" : "opacity-0"
                                 }`}
                             >
                                 {current_pitch ? `${current_pitch.toFixed(1)} Hz` : "0.0 Hz"}
@@ -215,7 +215,7 @@ export function PitchVisualizer() {
                     <Badge
                         tone="subtle"
                         mono
-                        className={`w-14 justify-center text-xs text-black/70 dark:text-white/70 tabular-nums transition-opacity duration-150 ${
+                        className={`w-14 justify-center text-xs tabular-nums transition-opacity duration-150 ${
                             current_pitch ? "opacity-100" : "opacity-0"
                         }`}
                     >
@@ -225,7 +225,7 @@ export function PitchVisualizer() {
             </div>
 
             {/* Audio Monitor & Ear Return Controls */}
-            <div className="flex flex-wrap items-center justify-between gap-2.5 px-3 py-2 rounded-lg bg-black/5 dark:bg-black/40 border border-black/5 dark:border-white/5 text-xs">
+            <div className="flex flex-wrap items-center justify-between gap-2.5 px-3 py-2 rounded-lg bg-ui-fill-subtle border border-ui-separator text-xs">
                 <div className="flex items-center gap-2">
                     <Button
                         variant={is_monitor_enabled ? "primary" : "secondary"}
@@ -274,7 +274,7 @@ export function PitchVisualizer() {
                         />
                     </div>
 
-                    <div className="flex items-center gap-1.5 text-black/60 dark:text-white/60">
+                    <div className="flex items-center gap-1.5 text-ui-label-secondary">
                         {monitor_volume === 0 || !is_monitor_enabled ? (
                             <VolumeX className="w-3.5 h-3.5" />
                         ) : (
@@ -291,26 +291,26 @@ export function PitchVisualizer() {
                         step={1}
                         value={Math.round(monitor_volume * 100)}
                         onChange={(e) => pitch_controller.set_monitor_volume(Number(e.target.value) / 100)}
-                        className="w-16 sm:w-24 accent-black dark:accent-white h-1 bg-black/10 dark:bg-white/20 rounded cursor-pointer"
+                        className="w-16 sm:w-24 accent-ui-fill-solid h-1 bg-ui-fill-active rounded cursor-pointer"
                         title="Ear return volume"
                     />
                 </div>
             </div>
 
             {/* Pitch Contour Canvas */}
-            <div className="relative w-full h-32 rounded-lg overflow-hidden border border-black/5 dark:border-white/5 bg-zinc-100 dark:bg-zinc-950">
+            <div className="relative w-full h-32 rounded-lg overflow-hidden border border-ui-separator bg-ui-surface-glass">
                 <canvas
                     ref={attach_canvas}
                     width={600}
                     height={128}
-                    className="w-full h-full block text-black dark:text-white"
+                    className="w-full h-full block text-ui-label-strong"
                 />
                 {!is_listening && (
                     <Text
                         as="div"
                         variant="caption"
                         tone="tertiary"
-                        className="absolute inset-0 flex items-center justify-center bg-white/60 dark:bg-black/40"
+                        className="absolute inset-0 flex items-center justify-center bg-ui-surface-sheet"
                     >
                         Enable microphone to capture real-time pitch
                     </Text>

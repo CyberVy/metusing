@@ -39,12 +39,12 @@ export function SongSearchAndControls() {
     const is_loading = status === "loading"
 
     return (
-        <div className="flex flex-col gap-4 p-5 bg-zinc-100/80 dark:bg-zinc-900/60 border border-black/10 dark:border-white/10 rounded-xl">
+        <div className="flex flex-col gap-4 p-5 bg-ui-fill-subtle border border-ui-border rounded-xl">
             {/* When not ready: Show upload / demo loader */}
             {status !== "ready" && (
                 <div className="flex flex-col gap-4">
                     {/* Demo Songs Selector */}
-                    <div className="flex flex-col gap-2.5 p-3.5 bg-black/5 dark:bg-black/40 border border-black/10 dark:border-white/10 rounded-lg">
+                    <div className="flex flex-col gap-2.5 p-3.5 bg-ui-fill-subtle border border-ui-border rounded-lg">
                         <div className="flex flex-col gap-0.5">
                             <SectionHeader
                                 title={
@@ -73,7 +73,7 @@ export function SongSearchAndControls() {
                                             void handle_load_demo(song.video_id)
                                         }
                                     }}
-                                    className={`border border-black/10 dark:border-white/10 hover:border-black/30 dark:hover:border-white/30 ${
+                                    className={`border border-ui-border hover:border-ui-border-strong ${
                                         is_loading ? "opacity-40 pointer-events-none" : ""
                                     }`}
                                     trailing={
@@ -96,11 +96,11 @@ export function SongSearchAndControls() {
                     </div>
 
                     <div className="flex items-center gap-3">
-                        <div className="flex-1 h-px bg-black/10 dark:bg-white/10" />
+                        <div className="flex-1 h-px bg-ui-border" />
                         <Text variant="footnote" weight="medium" tone="tertiary" className="uppercase tracking-wider">
                             Or Upload Local Files
                         </Text>
-                        <div className="flex-1 h-px bg-black/10 dark:bg-white/10" />
+                        <div className="flex-1 h-px bg-ui-border" />
                     </div>
 
                     {/* File pickers grid */}
@@ -110,8 +110,8 @@ export function SongSearchAndControls() {
                             onClick={() => inst_input_ref.current?.click()}
                             className={`flex flex-col gap-1 p-3 rounded-lg border cursor-pointer transition-colors ${
                                 inst_file
-                                    ? "bg-black/10 dark:bg-white/10 border-black/30 dark:border-white/30"
-                                    : "bg-black/5 dark:bg-black/30 border-black/10 dark:border-white/10 hover:border-black/20 dark:hover:border-white/20"
+                                    ? "bg-ui-fill-hover border-ui-border-strong"
+                                    : "bg-ui-fill-subtle border-ui-border hover:border-ui-border-hover"
                             }`}
                         >
                             <input
@@ -122,12 +122,8 @@ export function SongSearchAndControls() {
                                 onChange={(e) => set_inst_file(e.target.files?.[0] || null)}
                             />
                             <div className="flex items-center justify-between">
-                                <Text
-                                    variant="caption"
-                                    weight="medium"
-                                    className="text-black/70 dark:text-white/80 flex items-center gap-1.5"
-                                >
-                                    <AudioLines className="w-3.5 h-3.5 text-black/40 dark:text-white/50" />
+                                <Text variant="caption" weight="medium" className="flex items-center gap-1.5">
+                                    <AudioLines className="w-3.5 h-3.5 text-ui-label-tertiary" />
                                     Accompaniment *
                                 </Text>
                                 {inst_file && (
@@ -146,8 +142,8 @@ export function SongSearchAndControls() {
                             onClick={() => vocal_input_ref.current?.click()}
                             className={`flex flex-col gap-1 p-3 rounded-lg border cursor-pointer transition-colors ${
                                 vocal_file
-                                    ? "bg-black/10 dark:bg-white/10 border-black/30 dark:border-white/30"
-                                    : "bg-black/5 dark:bg-black/30 border-black/10 dark:border-white/10 hover:border-black/20 dark:hover:border-white/20"
+                                    ? "bg-ui-fill-hover border-ui-border-strong"
+                                    : "bg-ui-fill-subtle border-ui-border hover:border-ui-border-hover"
                             }`}
                         >
                             <input
@@ -158,12 +154,8 @@ export function SongSearchAndControls() {
                                 onChange={(e) => set_vocal_file(e.target.files?.[0] || null)}
                             />
                             <div className="flex items-center justify-between">
-                                <Text
-                                    variant="caption"
-                                    weight="medium"
-                                    className="text-black/70 dark:text-white/80 flex items-center gap-1.5"
-                                >
-                                    <AudioLines className="w-3.5 h-3.5 text-black/40 dark:text-white/50" />
+                                <Text variant="caption" weight="medium" className="flex items-center gap-1.5">
+                                    <AudioLines className="w-3.5 h-3.5 text-ui-label-tertiary" />
                                     Vocals (Optional)
                                 </Text>
                                 {vocal_file && (
@@ -182,8 +174,8 @@ export function SongSearchAndControls() {
                             onClick={() => lyrics_input_ref.current?.click()}
                             className={`flex flex-col gap-1 p-3 rounded-lg border cursor-pointer transition-colors ${
                                 lyrics_file
-                                    ? "bg-black/10 dark:bg-white/10 border-black/30 dark:border-white/30"
-                                    : "bg-black/5 dark:bg-black/30 border-black/10 dark:border-white/10 hover:border-black/20 dark:hover:border-white/20"
+                                    ? "bg-ui-fill-hover border-ui-border-strong"
+                                    : "bg-ui-fill-subtle border-ui-border hover:border-ui-border-hover"
                             }`}
                         >
                             <input
@@ -194,12 +186,8 @@ export function SongSearchAndControls() {
                                 onChange={(e) => set_lyrics_file(e.target.files?.[0] || null)}
                             />
                             <div className="flex items-center justify-between">
-                                <Text
-                                    variant="caption"
-                                    weight="medium"
-                                    className="text-black/70 dark:text-white/80 flex items-center gap-1.5"
-                                >
-                                    <FileText className="w-3.5 h-3.5 text-black/40 dark:text-white/50" />
+                                <Text variant="caption" weight="medium" className="flex items-center gap-1.5">
+                                    <FileText className="w-3.5 h-3.5 text-ui-label-tertiary" />
                                     Lyrics (Optional)
                                 </Text>
                                 {lyrics_file && (
@@ -236,7 +224,7 @@ export function SongSearchAndControls() {
                         <Text
                             as="div"
                             variant="caption"
-                            className="p-2.5 rounded bg-red-950/20 border border-black/10 dark:border-white/10 text-black/70 dark:text-white/80"
+                            className="p-2.5 rounded bg-red-950/20 border border-ui-border"
                         >
                             {error}
                         </Text>
@@ -248,7 +236,7 @@ export function SongSearchAndControls() {
             {status === "ready" && (
                 <div className="flex flex-col gap-4">
                     {/* Song info & Replace button */}
-                    <div className="flex items-center justify-between pb-2 border-b border-black/10 dark:border-white/10">
+                    <div className="flex items-center justify-between pb-2 border-b border-ui-border">
                         <div className="flex flex-col gap-0.5 min-w-0 pr-2">
                             <Text variant="caption" weight="semibold" truncate>
                                 {meta?.title || "Custom Track"}
@@ -278,7 +266,7 @@ export function SongSearchAndControls() {
                     <div className="flex flex-wrap items-center justify-between gap-2">
                         <div className="flex items-center gap-2">
                             {/* Accompaniment vs Original Vocals */}
-                            <div className="flex items-center gap-1 bg-black/5 dark:bg-black/60 p-1 rounded-xl border border-black/10 dark:border-white/10">
+                            <div className="flex items-center gap-1 bg-ui-fill-subtle p-1 rounded-xl border border-ui-border">
                                 <Button
                                     variant={track_mode === "instrumental" ? "primary" : "ghost"}
                                     size="xs"
@@ -350,7 +338,7 @@ export function SongSearchAndControls() {
                             step={0.1}
                             value={current_time}
                             onChange={(e) => karaoke_controller.seek(parseFloat(e.target.value))}
-                            className="flex-1 accent-black dark:accent-white h-1.5 bg-black/10 dark:bg-white/20 rounded-lg cursor-pointer"
+                            className="flex-1 accent-ui-fill-solid h-1.5 bg-ui-fill-active rounded-lg cursor-pointer"
                         />
                     </div>
                 </div>
